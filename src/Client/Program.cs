@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Client.States;
 using Game.Data.Files;
 using Raylib_cs;
 using rlImGui_cs;
@@ -13,6 +14,7 @@ class Program
     public GameConfigFileData Config { get; }
 
     private RenderTexture2D renderTex;
+    private GameState? curState;
 
     public Program(string[] args)
     {
@@ -28,6 +30,8 @@ class Program
 
         renderTex = Raylib.LoadRenderTexture(Config.RenderResolution[0], Config.RenderResolution[1]);
 
+        curState = new MainMenuState();
+
         Instance ??= this;
     }
 
@@ -39,12 +43,23 @@ class Program
             Raylib.TraceLog(TraceLogLevel.Warning, $"Normalizing dt ({dt} -> {DT_TRESHOLD})");
             dt = DT_TRESHOLD;
         }
+
+        curState?.Update(dt);
     }
 
     private void Draw()
     {
         Raylib.BeginTextureMode(renderTex);
         Raylib.ClearBackground(Color.Black);
+
+        if (curState != null)
+        {
+            Raylib.BeginMode3D(curState.Camera);
+            curState.Draw();
+            Raylib.EndMode3D();
+
+            curState.DrawUI();
+        }
 
         Raylib.EndTextureMode();
 
@@ -58,7 +73,7 @@ class Program
         Raylib.DrawTexturePro(rtt, src, dest, Vector2.Zero, 0, Color.White);
 
         rlImGui.Begin();
-
+        curState?.DrawImGui();
         rlImGui.End();
 
         Raylib.EndDrawing();
@@ -71,6 +86,11 @@ class Program
             Update(Raylib.GetFrameTime());
             Draw();
         }
+    }
+
+    public void SetState(GameState state)
+    {
+        curState = state;
     }
 
     public void Shutdown()
