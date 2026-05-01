@@ -13,6 +13,8 @@ class GameEntity
     public Vector3 Velocity = Vector3.Zero;
 
     public bool Culling { get; set; } = true;
+    public bool Visible { get; set; } = true;
+    public bool Active { get; set; } = true;
     public Color Tint = Color.White;
 
     public BoundingBox BoundingBox { get => boundingBox; }
@@ -28,6 +30,9 @@ class GameEntity
 
     public virtual void Update(float dt)
     {
+        if (!Active)
+            return;
+
         if (Raylib.IsModelValid(modelData))
         {
             modelData.Transform = UpdateMatrix();
@@ -39,6 +44,9 @@ class GameEntity
 
     public virtual void Draw()
     {
+        if (!Visible)
+            return;
+
         if (!Culling)
             Rlgl.DisableBackfaceCulling();
 

@@ -6,7 +6,7 @@ namespace Game.Client.Entities;
 class PoolBallEntity : GameEntity
 {
     public const float POOL_TABLE_WIDTH = 0.95f;
-    public const float POOL_TABLE_LENGTH = 1.9f;
+    public const float POOL_TABLE_LENGTH = 1.88f;
     public const float BALL_FRICTION = 0.98f;
 
     public float Mass { get; } = 0.17f;
