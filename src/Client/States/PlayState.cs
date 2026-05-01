@@ -9,12 +9,17 @@ namespace Game.Client.States;
 class PlayState : GameState
 {
     const float MIN_CAM_DISTANCE = 0.2f;
-    const float MAX_CAM_DISTANCE = 1.2f;
+    const float MAX_CAM_DISTANCE = 1.5f;
+    const float MIN_CUE_FORCE = 0f;
+    const float MAX_CUE_FORCE = 6f;
 
     PoolGamemodeFileData gamemodeData;
 
+    GameEntity poolCue;
     PoolBallEntity poolCueBall;
     PoolBallEntity[] poolBalls;
+
+    float cueForce = 0f;
 
     float camYaw = 0f;
     float camPitch = 20 * Raylib.DEG2RAD;
@@ -26,6 +31,12 @@ class PlayState : GameState
         gamemodeData = Resources.GetJson("resources/data/gamemodes/gamemode_classic.json", PoolGamemodeFileDataCtx.Default.PoolGamemodeFileData);
 
         PlaceEntity(new GameEntity("resources/gfx/models/pool_table.obj", Vector3.Zero));
+
+        poolCue = new GameEntity("resources/gfx/models/pool_cue.obj", Vector3.Zero)
+        {
+            Scale = new Vector3(0.75f)
+        };
+        PlaceEntity(poolCue);
 
         poolCueBall = new PoolBallEntity("cue", gamemodeData.CueBallPos);
         PlaceEntity(poolCueBall);
@@ -51,7 +62,7 @@ class PlayState : GameState
             camYaw -= delta.X * 0.01f * (dt * 60);
             camPitch -= delta.Y * 0.01f * (dt * 60);
 
-            if (camPitch > 1.5f) camPitch = 1.5f;
+            if (camPitch > 0.75f) camPitch = 0.75f;
             if (camPitch < 0.1f) camPitch = 0.1f;
         }
 
@@ -60,6 +71,22 @@ class PlayState : GameState
         {
             camDistance = Math.Clamp(camDistance - mouseWheel, MIN_CAM_DISTANCE, MAX_CAM_DISTANCE);
         }
+
+        if (Raylib.IsMouseButtonDown(MouseButton.Left))
+        {
+            cueForce = Math.Clamp(cueForce + Raylib.GetMouseDelta().Y * -0.05f, MIN_CUE_FORCE, MAX_CUE_FORCE);
+            Console.WriteLine(cueForce);
+        }
+
+        Vector3 aimDir = GetAimDir();
+        if (Raylib.IsMouseButtonReleased(MouseButton.Left))
+        {
+            poolCueBall.Velocity = aimDir * cueForce;
+        }
+
+        float cueDistance = 0.6f + (cueForce * 0.05f);
+        poolCue.Position = poolCueBall.Position - (aimDir * cueDistance);
+        poolCue.Rotation.Y = -90f + MathF.Atan2(aimDir.X, aimDir.Z) * Raylib.RAD2DEG;
 
         camPos = new Vector3(
             Camera.Target.X + camDistance * MathF.Cos(camPitch) * MathF.Sin(camYaw),
@@ -80,6 +107,14 @@ class PlayState : GameState
                     ballA.HandleCollision(poolCueBall);
             }
         }
+    }
+
+    private Vector3 GetAimDir()
+    {
+        Vector3 forward = Vector3.Normalize(Camera.Target - Camera.Position);
+        forward.Y = 0;
+
+        return Vector3.Normalize(forward);
     }
 
     public override void Draw()
