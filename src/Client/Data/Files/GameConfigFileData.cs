@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using Raylib_cs;
 
-namespace Game.Data.Files;
+namespace Game.Client.Data.Files;
 
 class GameConfigFileData
 {
@@ -17,4 +17,5 @@ class GameConfigFileData
 }
 
 [JsonSerializable(typeof(GameConfigFileData))]
+[JsonSourceGenerationOptions(IncludeFields = true)]
 partial class GameConfigFileDataCtx : JsonSerializerContext;

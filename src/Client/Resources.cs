@@ -6,9 +6,9 @@ namespace Game.Client;
 
 static class Resources
 {
-    private static Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
-    private static Dictionary<string, Model> models = new Dictionary<string, Model>();
-    private static Dictionary<string, Font> fonts = new Dictionary<string, Font>();
+    private static Dictionary<string, Texture2D> textures = [];
+    private static Dictionary<string, Model> models = [];
+    private static Dictionary<string, Font> fonts = [];
 
     private static Texture2D errorTex;
     private static Model errorMdl;

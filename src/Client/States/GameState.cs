@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Client.Entities;
 using ImGuiNET;
 using Raylib_cs;
 
@@ -12,14 +13,28 @@ abstract class GameState
     public Camera3D Camera;
     public string Name { get; }
 
+    private List<GameEntity> entities;
+
     public GameState(string name, Vector3 camPos, Vector3 camTarget, float fovy)
     {
         Camera = new Camera3D(camPos, camTarget, Vector3.UnitY, fovy, CameraProjection.Perspective);
         Name = name;
+
+        entities = new List<GameEntity>();
+    }
+
+    public void PlaceEntity(GameEntity ent)
+    {
+        entities.Add(ent);
     }
 
     public virtual void Update(float dt)
     {
+        if (Raylib.IsKeyPressed(KeyboardKey.F1))
+        {
+            GameEntity.DrawWired = !GameEntity.DrawWired;
+        }
+
         if (Raylib.IsKeyPressed(KeyboardKey.F2))
         {
             CursorLocked = !CursorLocked;
@@ -32,9 +47,21 @@ abstract class GameState
 
         if (Raylib.IsKeyReleased(KeyboardKey.F3))
             DebugView = !DebugView;
+
+        foreach (var ent in entities)
+            ent.Update(dt);
     }
 
-    public virtual void Draw() { }
+    public virtual void Draw()
+    {
+        foreach (var ent in entities)
+        {
+            ent.Draw();
+
+            if (DebugView)
+                Raylib.DrawBoundingBox(ent.BoundingBox, Color.Red);
+        }
+    }
 
     public virtual void DrawUI() { }
 
