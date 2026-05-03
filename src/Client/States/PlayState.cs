@@ -1,5 +1,4 @@
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using Game.Client.Data.Files;
 using Game.Client.Entities;
 using Raylib_cs;
@@ -159,9 +158,7 @@ class PlayState : GameState
             Raylib.DrawLine3D(new Vector3(0, LINE_Y, -PoolBallEntity.POOL_TABLE_LENGTH / 2), new Vector3(0, LINE_Y, PoolBallEntity.POOL_TABLE_LENGTH / 2), Color.Blue);
 
             foreach (var pocketPos in poolPockets)
-            {
                 Raylib.DrawSphereWires(pocketPos, POCKET_RADIUS, 8, 8, Color.Purple);
-            }
         }
     }
 }

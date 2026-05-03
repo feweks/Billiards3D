@@ -1,5 +1,6 @@
 using System.Numerics;
 using Game.Client.Data.Files;
+using Game.Client.Net;
 using Game.Client.States;
 using Raylib_cs;
 using rlImGui_cs;
@@ -27,6 +28,7 @@ class Program
 
         Resources.Init();
         rlImGui.Setup(true);
+        GameClient.Init();
 
         renderTex = Raylib.LoadRenderTexture(Config.RenderResolution[0], Config.RenderResolution[1]);
 
@@ -95,6 +97,7 @@ class Program
 
     public void Shutdown()
     {
+        GameClient.Shutdown();
         Resources.Shutdown();
         Raylib.CloseWindow();
     }
