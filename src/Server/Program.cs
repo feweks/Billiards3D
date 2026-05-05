@@ -16,6 +16,7 @@ class Program
     {
         var startTime = DateTime.Now;
 
+        _ = Raylib.SetRandomSeed((uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         SetupConfigPaths();
 
         serverConfig = GetData("srv_config.json", GameServerConfigCtx.Default.GameServerConfig);

@@ -7,4 +7,5 @@ static class GameData
     public static string AuthorPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Author);
     public static string DataPath => Path.Combine(AuthorPath, Name);
     public static string ServerDataPath => Path.Combine(DataPath, "server_data");
+    public static uint LobbyCodeLength => 6;
 }

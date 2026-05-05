@@ -1,4 +1,6 @@
 using System.Numerics;
+using Game.Client.Net;
+using Game.Common;
 using ImGuiNET;
 using Raylib_cs;
 
@@ -6,6 +8,9 @@ namespace Game.Client.States;
 
 class MainMenuState : GameState
 {
+    private string nickInp = "";
+    private string codeInp = "";
+
     public MainMenuState() : base("main_menu_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
 
@@ -29,9 +34,17 @@ class MainMenuState : GameState
 
         ImGui.Begin("MainMenu");
 
-        if (ImGui.Button("PLAY"))
+        ImGui.InputText("Nickname", ref nickInp, 32);
+        ImGui.InputText("Code", ref codeInp, GameData.LobbyCodeLength);
+
+        if (ImGui.Button("Host"))
         {
-            ChangeState(new PlayState());
+            GameClient.HostLobby();
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Join"))
+        {
+
         }
 
         ImGui.End();

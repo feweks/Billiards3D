@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Game.Common;
+using Game.Common.Packets;
 using Game.Server.Data;
 using Raylib_cs;
 
@@ -34,13 +36,41 @@ class GameServer
         connThread.Start();
     }
 
-    public bool IsRunning() => running;
+    private string CreateLobby()
+    {
+        var builder = new StringBuilder();
+
+        for (int i = 0; i < GameData.LobbyCodeLength; i++)
+        {
+            int val = Raylib.GetRandomValue(0, 9);
+            builder.Append(val);
+        }
+
+        string code = builder.ToString();
+
+        Raylib.TraceLog(TraceLogLevel.Info, $"Created new lobby [code {code}]");
+        return code;
+    }
 
     private void AcceptClient(Socket client)
     {
         client.Blocking = false;
         clients.Add(client);
         Raylib.TraceLog(TraceLogLevel.Info, "Client connected to server");
+    }
+
+    private void ProcessPacket(Socket client, Packet packet)
+    {
+        switch (packet.Type)
+        {
+            case PacketType.HostLobby:
+                {
+                    var response = new HostLobbyPacket() { Code = CreateLobby() };
+                    Send(client, response);
+
+                    break;
+                }
+        }
     }
 
     private void ProcessClient(Socket client, int bytesCount, byte[] buf)
@@ -53,8 +83,21 @@ class GameServer
             return;
         }
 
-        string msg = Encoding.UTF8.GetString(buf, 0, bytesCount);
-        Raylib.TraceLog(TraceLogLevel.Info, $"Client send: {msg}");
+        var stream = new MemoryStream(buf, false);
+        var reader = new BinaryReader(stream);
+        var packetType = (PacketType)reader.ReadByte();
+        var packet = Packet.Create(packetType);
+        packet.Deserialize(reader);
+        ProcessPacket(client, packet);
+    }
+
+    private void Send(Socket client, Packet packet)
+    {
+        var memStream = new MemoryStream();
+        var binStream = new BinaryWriter(memStream);
+        packet.Serialize(binStream);
+
+        client.Send(memStream.ToArray());
     }
 
     private void UpdateConnections()
@@ -101,6 +144,8 @@ class GameServer
             }
         }
     }
+
+    public bool IsRunning() => running;
 
     public void Shutdown()
     {
