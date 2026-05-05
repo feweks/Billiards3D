@@ -10,6 +10,10 @@ class Packet
         {
             case PacketType.HostLobby:
                 return new HostLobbyPacket();
+            case PacketType.JoinLobby:
+                return new JoinLobbyPacket();
+            case PacketType.JoinedLobby:
+                return new JoinedLobbyPacket();
             default:
                 Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to create packet of type {type}");
                 return new Packet(PacketType.HostLobby);

@@ -2,8 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Game.Common.Packets;
 
-class HostLobbyPacket : LobbyPacket
+class JoinLobbyPacket : LobbyPacket
 {
     [SetsRequiredMembers]
-    public HostLobbyPacket() : base(PacketType.HostLobby) { }
+    public JoinLobbyPacket() : base(PacketType.JoinLobby) { }
 }

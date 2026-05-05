@@ -1,7 +1,9 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Game.Common;
+using Game.Common.Data;
 using Game.Common.Packets;
 using Game.Server.Data;
 using Raylib_cs;
@@ -11,6 +13,8 @@ namespace Game.Server;
 class GameServer
 {
     private const uint MAX_PACKET_SIZE = 4096;
+
+    public ConcurrentDictionary<string, ServerLobbyData> Lobbies { get; }
 
     private Socket listener;
     private List<Socket> clients;
@@ -23,6 +27,8 @@ class GameServer
         listener.Bind(new IPEndPoint(IPAddress.Any, config.Port));
         clients = new List<Socket>();
         running = true;
+
+        Lobbies = new ConcurrentDictionary<string, ServerLobbyData>();
     }
 
     public void Start()
@@ -47,6 +53,14 @@ class GameServer
         }
 
         string code = builder.ToString();
+        if (Lobbies.ContainsKey(code))
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Generated already existing lobby code!");
+            return CreateLobby();
+        }
+
+        var lobbyData = new GameLobbyData(code);
+        Lobbies.TryAdd(code, new ServerLobbyData() { Lobby = lobbyData });
 
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new lobby [code {code}]");
         return code;
@@ -65,7 +79,58 @@ class GameServer
         {
             case PacketType.HostLobby:
                 {
-                    var response = new HostLobbyPacket() { Code = CreateLobby() };
+                    var hostPacket = (HostLobbyPacket)packet;
+                    string hostName = hostPacket.Sender;
+                    Send(client, new HostLobbyPacket()
+                    {
+                        LobbyCode = CreateLobby(),
+                        Sender = hostName
+                    });
+
+                    break;
+                }
+            case PacketType.JoinLobby:
+                {
+                    var joinPacket = (JoinLobbyPacket)packet;
+                    var response = new JoinedLobbyPacket()
+                    {
+                        LobbyCode = joinPacket.LobbyCode,
+                        Sender = joinPacket.Sender,
+                        LobbyData = null
+                    };
+
+                    if (!Lobbies.TryGetValue(joinPacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    {
+                        response.Status = JoinedLobbyStatus.Missing;
+                    }
+                    else
+                    {
+                        if (lobbyData.Lobby.CheckIfPlayerExists(joinPacket.Sender))
+                        {
+                            response.Status = JoinedLobbyStatus.NickCollision;
+                        }
+                        else
+                        {
+                            response.Status = JoinedLobbyStatus.Success;
+                            response.LobbyData = lobbyData.Lobby;
+
+                            if (lobbyData.HostConnection == null)
+                            {
+                                lobbyData.HostConnection = client;
+                                lobbyData.Lobby.Host.Nickname = joinPacket.Sender;
+                            }
+                            else if (lobbyData.GuestConnection == null)
+                            {
+                                lobbyData.GuestConnection = client;
+                                lobbyData.Lobby.Guest.Nickname = joinPacket.Sender;
+                            }
+                            else
+                            {
+                                response.Status = JoinedLobbyStatus.Full;
+                            }
+                        }
+                    }
+
                     Send(client, response);
 
                     break;

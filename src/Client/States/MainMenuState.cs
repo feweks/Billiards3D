@@ -39,7 +39,7 @@ class MainMenuState : GameState
 
         if (ImGui.Button("Host"))
         {
-            GameClient.HostLobby();
+            GameClient.HostLobby(nickInp);
         }
         ImGui.SameLine();
         if (ImGui.Button("Join"))

@@ -106,6 +106,18 @@ class Program
             case "stop":
                 Shutdown();
                 return new Tuple<string, TraceLogLevel>("Closing", TraceLogLevel.Info);
+            case "ls":
+                string lsTxt = "Lobbies:\n";
+                var lastLobby = server.Lobbies.Last();
+                foreach (var lobby in server.Lobbies)
+                {
+                    lsTxt += $"#{lobby.Key}: {lobby.Value.Lobby.GetPlayerCount()}/2";
+
+                    if (lastLobby.Key != lobby.Key)
+                        lsTxt += "\n";
+                }
+
+                return new Tuple<string, TraceLogLevel>(lsTxt, TraceLogLevel.Info);
             default:
                 return new Tuple<string, TraceLogLevel>($"Unknown command {cmd}", TraceLogLevel.Warning);
         }

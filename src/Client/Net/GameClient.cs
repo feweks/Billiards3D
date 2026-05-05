@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Game.Client.Data;
 using Game.Client.Data.Files;
 using Game.Common;
+using Game.Common.Data;
 using Game.Common.Packets;
 using Raylib_cs;
 
@@ -11,6 +13,9 @@ namespace Game.Client.Net;
 static class GameClient
 {
     private const int MAX_PACKET_SIZE = 1024;
+
+    public static GameLobbyData? LobbyData { get; internal set; }
+    public static JoinedLobbyStatus LobbyStatus { get; internal set; } = JoinedLobbyStatus.None;
 
     private static NetServerFileData? config;
     private static TcpClient? client;
@@ -42,7 +47,7 @@ static class GameClient
         Raylib.TraceLog(TraceLogLevel.Info, "[NET CLIENT] Connected to server");
     }
 
-    public static void HostLobby()
+    public static void HostLobby(string nick)
     {
         if (!CheckConnection())
         {
@@ -50,16 +55,25 @@ static class GameClient
             return;
         }
 
-        Send(new HostLobbyPacket());
+        Send(new HostLobbyPacket()
+        {
+            Sender = nick
+        });
     }
 
-    public static void JoinLobby(string code)
+    public static void JoinLobby(string code, string nick)
     {
         if (!CheckConnection())
         {
             Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to join lobby: client is not connected");
             return;
         }
+
+        Send(new JoinLobbyPacket()
+        {
+            LobbyCode = code,
+            Sender = nick
+        });
     }
 
     public static void Send(Packet packet)
@@ -89,8 +103,25 @@ static class GameClient
         {
             case PacketType.HostLobby:
                 {
-                    var hostPacket = (packet as HostLobbyPacket)!;
-                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Server created lobby [code: {hostPacket.Code}]");
+                    var hostPacket = (HostLobbyPacket)packet;
+                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Server created lobby [code: {hostPacket.LobbyCode}]");
+                    JoinLobby(hostPacket.LobbyCode, hostPacket.Sender);
+
+                    break;
+                }
+            case PacketType.JoinedLobby:
+                {
+                    var joinedPacket = (JoinedLobbyPacket)packet;
+                    LobbyStatus = joinedPacket.Status;
+
+                    if (joinedPacket.Status == JoinedLobbyStatus.Success)
+                    {
+                        Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Joined lobby {joinedPacket.LobbyCode}");
+                        LobbyData = joinedPacket.LobbyData;
+                        break;
+                    }
+
+                    Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to join lobby {joinedPacket.LobbyCode}: {joinedPacket.Status}");
 
                     break;
                 }
