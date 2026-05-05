@@ -16,6 +16,7 @@ static class GameClient
 
     public static GameLobbyData? LobbyData { get; internal set; }
     public static JoinedLobbyStatus LobbyStatus { get; internal set; } = JoinedLobbyStatus.None;
+    public static string? PlayerNick { get; internal set; } = null;
 
     private static NetServerFileData? config;
     private static TcpClient? client;
@@ -109,6 +110,18 @@ static class GameClient
 
                     break;
                 }
+            case PacketType.JoinLobby:
+                {
+                    if (LobbyData == null)
+                        break;
+
+                    var joinPacket = (JoinLobbyPacket)packet;
+                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Player joined lobby: {joinPacket.Sender}");
+
+                    LobbyData.Guest.Nickname = joinPacket.Sender;
+
+                    break;
+                }
             case PacketType.JoinedLobby:
                 {
                     var joinedPacket = (JoinedLobbyPacket)packet;
@@ -118,6 +131,7 @@ static class GameClient
                     {
                         Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Joined lobby {joinedPacket.LobbyCode}");
                         LobbyData = joinedPacket.LobbyData;
+                        PlayerNick = joinedPacket.Sender;
                         break;
                     }
 
@@ -162,6 +176,8 @@ static class GameClient
             }
         }
     }
+
+    public static bool IsHost() => LobbyData != null && LobbyData.Host.Nickname == PlayerNick;
 
     public static bool CheckConnection() => client != null && client.Connected;
 

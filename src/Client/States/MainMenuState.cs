@@ -34,17 +34,49 @@ class MainMenuState : GameState
 
         ImGui.Begin("MainMenu");
 
-        ImGui.InputText("Nickname", ref nickInp, 32);
-        ImGui.InputText("Code", ref codeInp, GameData.LobbyCodeLength);
-
-        if (ImGui.Button("Host"))
+        if (GameClient.LobbyStatus != Common.Packets.JoinedLobbyStatus.Success)
         {
-            GameClient.HostLobby(nickInp);
+            ImGui.InputText("Nickname", ref nickInp, 32);
+            ImGui.InputText("Code", ref codeInp, GameData.LobbyCodeLength);
+
+            if (ImGui.Button("Host"))
+            {
+                GameClient.HostLobby(nickInp);
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Join"))
+            {
+                GameClient.JoinLobby(codeInp, nickInp);
+            }
+
+            if (GameClient.LobbyStatus == Common.Packets.JoinedLobbyStatus.NickCollision)
+            {
+                ImGui.TextColored(Utils.ColorToVec4(Color.Red), "Failed to join lobby: player with that name is already in");
+            }
+            else if (GameClient.LobbyStatus == Common.Packets.JoinedLobbyStatus.Missing)
+            {
+                ImGui.TextColored(Utils.ColorToVec4(Color.Red), "Failed to join lobby: lobby with that code does not exist");
+            }
+            else if (GameClient.LobbyStatus == Common.Packets.JoinedLobbyStatus.Full)
+            {
+                ImGui.TextColored(Utils.ColorToVec4(Color.Red), "Failed to join lobby: lobby is full");
+            }
         }
-        ImGui.SameLine();
-        if (ImGui.Button("Join"))
+        else if (GameClient.LobbyStatus == Common.Packets.JoinedLobbyStatus.Success && GameClient.LobbyData != null)
         {
+            ImGui.Text($"Lobby {GameClient.LobbyData.Code} ({GameClient.LobbyData.GetPlayerCount()}/2)");
 
+            ImGui.TextColored(Utils.ColorToVec4(Color.Green), $"{GameClient.LobbyData.Host.Nickname}");
+
+            if (GameClient.LobbyData.Guest.Nickname != null)
+            {
+                ImGui.Text($"{GameClient.LobbyData.Guest.Nickname}");
+            }
+
+            if (GameClient.LobbyData.GetPlayerCount() == 2 && GameClient.IsHost())
+            {
+                ImGui.Button("Start");
+            }
         }
 
         ImGui.End();

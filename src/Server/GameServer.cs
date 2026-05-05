@@ -123,6 +123,7 @@ class GameServer
                             {
                                 lobbyData.GuestConnection = client;
                                 lobbyData.Lobby.Guest.Nickname = joinPacket.Sender;
+                                Send(lobbyData.HostConnection, joinPacket);
                             }
                             else
                             {
