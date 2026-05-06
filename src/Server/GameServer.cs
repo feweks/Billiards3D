@@ -48,8 +48,21 @@ class GameServer
 
         for (int i = 0; i < GameData.LobbyCodeLength; i++)
         {
-            int val = Raylib.GetRandomValue(0, 9);
-            builder.Append(val);
+            bool number = Raylib.GetRandomValue(0, 1) == 0;
+
+            if (number)
+            {
+                int val = Raylib.GetRandomValue(0, 9);
+                if (val == 0 && i == 0) // no lobby starting with 0
+                    val++;
+
+                builder.Append(val);
+            }
+            else
+            {
+                char c = (char)Raylib.GetRandomValue(65, 90); // ASCII from A to Z
+                builder.Append(c);
+            }
         }
 
         string code = builder.ToString();
