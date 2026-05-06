@@ -19,6 +19,11 @@ class MainMenuState : GameState
     public override void Update(float dt)
     {
         base.Update(dt);
+
+        if (GameClient.LobbyData != null && GameClient.LobbyData.Started)
+        {
+            ChangeState(new PlayState());
+        }
     }
 
     public override void Draw()
@@ -75,7 +80,10 @@ class MainMenuState : GameState
 
             if (GameClient.LobbyData.GetPlayerCount() == 2 && GameClient.IsHost())
             {
-                ImGui.Button("Start");
+                if (ImGui.Button("Start"))
+                {
+                    GameClient.StartLobby();
+                }
             }
         }
 

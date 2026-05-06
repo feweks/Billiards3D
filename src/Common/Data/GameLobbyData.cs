@@ -6,6 +6,7 @@ class GameLobbyData : ISerializableData
     public string Code { get; internal set; }
     public PlayerLobbyData Host { get; }
     public PlayerLobbyData Guest { get; }
+    public bool Started { get; set; } = false;
 
     public GameLobbyData(string code)
     {

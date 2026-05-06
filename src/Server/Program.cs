@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using Game.Common;
@@ -11,6 +12,7 @@ class Program
     GameServerConfig serverConfig;
     GameServer server;
     bool running = false;
+    Dictionary<PoolGamemodeType, PoolGamemodeConfig> gamemodeConfigs;
 
     public Program(string[] args)
     {
@@ -20,8 +22,10 @@ class Program
         SetupConfigPaths();
 
         serverConfig = GetData("srv_config.json", GameServerConfigCtx.Default.GameServerConfig);
+        gamemodeConfigs = new Dictionary<PoolGamemodeType, PoolGamemodeConfig>();
+        LoadGamemodeConfig(PoolGamemodeType.Classic);
 
-        server = new GameServer(serverConfig);
+        server = new GameServer(serverConfig, gamemodeConfigs);
         Raylib.TraceLog(TraceLogLevel.Info, $"Server started on port {serverConfig.Port}");
 
         var elapsedTime = DateTime.Now.Millisecond - startTime.Millisecond;
@@ -35,6 +39,29 @@ class Program
         Console.Write(">> ");
         string? cmd = Console.ReadLine() ?? string.Empty;
         return cmd;
+    }
+
+    private void LoadGamemodeConfig(PoolGamemodeType type)
+    {
+        string gamemodesPath = Path.Combine(GameData.ServerDataPath, "gamemodes");
+        if (!Directory.Exists(gamemodesPath))
+        {
+            Directory.CreateDirectory(gamemodesPath);
+        }
+
+        string typePath = Path.Combine("gamemodes", type.ToString().ToLower() + ".json");
+        string fullPath = Path.Combine(GameData.ServerDataPath, typePath);
+
+        if (!File.Exists(fullPath))
+        {
+            Raylib.TraceLog(TraceLogLevel.Info, $"Initializing gamemode config for {type} at {fullPath}");
+
+            var gmCfg = PoolGamemodeConfig.GetDefault(type);
+            string serialized = JsonSerializer.Serialize(gmCfg, PoolGamemodeConfigCtx.Default.PoolGamemodeConfig);
+            File.WriteAllText(fullPath, serialized);
+        }
+
+        gamemodeConfigs.Add(type, GetData(typePath, PoolGamemodeConfigCtx.Default.PoolGamemodeConfig, false));
     }
 
     private static T GetData<T>(string path, JsonTypeInfo<T> ctx, bool writeOnFailure = true) where T : new()

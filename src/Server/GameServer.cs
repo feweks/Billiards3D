@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -16,13 +17,18 @@ class GameServer
 
     public ConcurrentDictionary<string, ServerLobbyData> Lobbies { get; }
 
+    private GameServerConfig config;
+    private Dictionary<PoolGamemodeType, PoolGamemodeConfig> gamemodeConfigs;
     private Socket listener;
     private List<Socket> clients;
     private Thread? connThread;
+    private Thread? lobbiesThread;
     private bool running = false;
 
-    public GameServer(GameServerConfig config)
+    public GameServer(GameServerConfig config, Dictionary<PoolGamemodeType, PoolGamemodeConfig> gamemodeConfigs)
     {
+        this.config = config;
+        this.gamemodeConfigs = gamemodeConfigs;
         listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         listener.Bind(new IPEndPoint(IPAddress.Any, config.Port));
         clients = new List<Socket>();
@@ -40,6 +46,12 @@ class GameServer
             IsBackground = false
         };
         connThread.Start();
+
+        lobbiesThread = new Thread(new ThreadStart(UpdateLobbies))
+        {
+            IsBackground = true,
+        };
+        lobbiesThread.Start();
     }
 
     private string CreateLobby()
@@ -73,7 +85,11 @@ class GameServer
         }
 
         var lobbyData = new GameLobbyData(code);
-        Lobbies.TryAdd(code, new ServerLobbyData() { Lobby = lobbyData });
+        Lobbies.TryAdd(code, new ServerLobbyData()
+        {
+            Lobby = lobbyData,
+            GamemodeConfig = gamemodeConfigs[PoolGamemodeType.Classic]
+        });
 
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new lobby [code {code}]");
         return code;
@@ -154,6 +170,21 @@ class GameServer
 
                     break;
                 }
+            case PacketType.StartLobby:
+                {
+                    var startPacket = (StartLobbyPacket)packet;
+
+                    if (!Lobbies.TryGetValue(startPacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    {
+                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to start lobby {startPacket.LobbyCode}: lobby does not exist");
+                        break;
+                    }
+
+                    lobbyData.Start();
+                    lobbyData.Broadcast(this, startPacket);
+
+                    break;
+                }
             default:
                 {
                     Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process packet {packet}: no packet logic of that type");
@@ -180,7 +211,7 @@ class GameServer
         ProcessPacket(client, packet);
     }
 
-    private void Send(Socket client, Packet packet)
+    public void Send(Socket client, Packet packet)
     {
         var memStream = new MemoryStream();
         var binStream = new BinaryWriter(memStream);
@@ -231,6 +262,21 @@ class GameServer
                     }
                 }
             }
+        }
+    }
+
+    private void UpdateLobbies()
+    {
+        float delta = 1f / config.Tickrate;
+
+        while (running)
+        {
+            foreach (var lobby in Lobbies.Values)
+            {
+                lobby.Update(delta);
+            }
+
+            Thread.Sleep((int)(delta * 1000));
         }
     }
 

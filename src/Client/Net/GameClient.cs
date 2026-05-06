@@ -80,6 +80,33 @@ static class GameClient
         });
     }
 
+    public static void StartLobby()
+    {
+        if (!CheckConnection())
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to start lobby: client is not connected");
+            return;
+        }
+
+        if (LobbyData == null || PlayerNick == null)
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to start lobby: client is not in any lobby");
+            return;
+        }
+
+        if (!IsHost())
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to start lobby: client is not host");
+            return;
+        }
+
+        Send(new StartLobbyPacket()
+        {
+            LobbyCode = LobbyData.Code,
+            Sender = PlayerNick
+        });
+    }
+
     public static void Send(Packet packet)
     {
         if (!CheckConnection())
@@ -147,6 +174,16 @@ static class GameClient
                     }
 
                     Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to join lobby {joinedPacket.LobbyCode}: {joinedPacket.Status}");
+
+                    break;
+                }
+            case PacketType.StartLobby:
+                {
+                    if (LobbyData == null)
+                        break;
+
+                    LobbyData.Started = true;
+                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Started current lobby");
 
                     break;
                 }

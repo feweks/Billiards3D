@@ -13,8 +13,6 @@ class PlayState : GameState
     const float MAX_CUE_FORCE = 6f;
     const float POCKET_RADIUS = 0.04f;
 
-    PoolGamemodeFileData gamemodeData;
-
     GameEntity poolCue;
     PoolBallEntity poolCueBall;
     PoolBallEntity[] poolBalls;
@@ -29,8 +27,6 @@ class PlayState : GameState
 
     public PlayState() : base("play_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
-        gamemodeData = Resources.GetJson("resources/data/gamemodes/gamemode_classic.json", PoolGamemodeFileDataCtx.Default.PoolGamemodeFileData);
-
         PlaceEntity(new GameEntity("resources/gfx/models/pool_table.obj", Vector3.Zero));
 
         poolCue = new GameEntity("resources/gfx/models/pool_cue.obj", Vector3.Zero)
@@ -39,7 +35,7 @@ class PlayState : GameState
         };
         PlaceEntity(poolCue);
 
-        poolCueBall = new PoolBallEntity("cue", gamemodeData.CueBallPos);
+        /*poolCueBall = new PoolBallEntity("cue", gamemodeData.CueBallPos);
         PlaceEntity(poolCueBall);
 
         poolBalls = new PoolBallEntity[gamemodeData.PoolBallsCount];
@@ -56,7 +52,7 @@ class PlayState : GameState
             new Vector3(PoolBallEntity.POOL_TABLE_WIDTH / 2.05f, 1, -PoolBallEntity.POOL_TABLE_LENGTH / 2.05f),
             new Vector3(-PoolBallEntity.POOL_TABLE_WIDTH / 2.05f, 1, PoolBallEntity.POOL_TABLE_LENGTH / 2.05f),
             new Vector3(PoolBallEntity.POOL_TABLE_WIDTH / 2.05f, 1, PoolBallEntity.POOL_TABLE_LENGTH / 2.05f),
-        ];
+        ];*/
     }
 
     public override void Update(float dt)
