@@ -9,8 +9,9 @@ class PoolGamemodeConfig
     public int PoolBallsCount { get; set; } = 0;
     public float PoolTableWidth { get; set; } = 0.95f;
     public float PoolTableLength { get; set; } = 1.88f;
-    public float PoolBallsFriction { get; set; } = 0.98f;
+    public float PoolBallFriction { get; set; } = 0.98f;
     public float PoolBallMass { get; set; } = 0.17f;
+    public float PoolBallRadius { get; set; } = 0.035f;
     public Vector3 CueBallPos { get; set; } = Vector3.Zero;
     public List<Vector3> PoolBallsPos { get; set; } = [];
 

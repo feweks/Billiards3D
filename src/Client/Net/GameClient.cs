@@ -177,13 +177,10 @@ static class GameClient
 
                     break;
                 }
-            case PacketType.StartLobby:
+            case PacketType.UpdateLobby:
                 {
-                    if (LobbyData == null)
-                        break;
-
-                    LobbyData.Started = true;
-                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Started current lobby");
+                    var updatePacket = (UpdateLobbyPacket)packet;
+                    LobbyData = updatePacket.LobbyData;
 
                     break;
                 }

@@ -6,5 +6,6 @@ enum PacketType : byte
     HostLobby,
     JoinLobby,
     JoinedLobby,
-    StartLobby
+    StartLobby,
+    UpdateLobby
 }

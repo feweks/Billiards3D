@@ -1,6 +1,7 @@
 using System.Numerics;
 using Game.Client.Data.Files;
 using Game.Client.Entities;
+using Game.Client.Net;
 using Raylib_cs;
 
 namespace Game.Client.States;
@@ -16,7 +17,7 @@ class PlayState : GameState
     GameEntity poolCue;
     PoolBallEntity poolCueBall;
     PoolBallEntity[] poolBalls;
-    List<Vector3> poolPockets;
+    //List<Vector3> poolPockets;
 
     float cueForce = 0f;
 
@@ -35,17 +36,18 @@ class PlayState : GameState
         };
         PlaceEntity(poolCue);
 
-        /*poolCueBall = new PoolBallEntity("cue", gamemodeData.CueBallPos);
+        poolCueBall = new PoolBallEntity(GameClient.LobbyData!.PoolCueBall!);
         PlaceEntity(poolCueBall);
 
-        poolBalls = new PoolBallEntity[gamemodeData.PoolBallsCount];
-        for (int i = 0; i < gamemodeData.PoolBallsCount; i++)
+        int ballsCount = GameClient.LobbyData!.PoolBalls.Count;
+        poolBalls = new PoolBallEntity[ballsCount];
+        for (int i = 0; i < ballsCount; i++)
         {
-            poolBalls[i] = new PoolBallEntity((i + 1).ToString(), gamemodeData.PoolBallsPos[i]);
+            poolBalls[i] = new PoolBallEntity(GameClient.LobbyData.PoolBalls[i]);
             PlaceEntity(poolBalls[i]);
         }
 
-        poolPockets = [
+        /*poolPockets = [
             new Vector3(-PoolBallEntity.POOL_TABLE_WIDTH / 2 - POCKET_RADIUS, 1, 0),
             new Vector3(PoolBallEntity.POOL_TABLE_WIDTH / 2 + POCKET_RADIUS, 1, 0),
             new Vector3(-PoolBallEntity.POOL_TABLE_WIDTH / 2.05f, 1, -PoolBallEntity.POOL_TABLE_LENGTH / 2.05f),
@@ -60,7 +62,7 @@ class PlayState : GameState
         base.Update(dt);
 
         UpdateCamera(dt);
-        UpdateCue(dt);
+        //UpdateCue(dt);
 
         camPos = new Vector3(
             Camera.Target.X + camDistance * MathF.Cos(camPitch) * MathF.Sin(camYaw),
@@ -71,7 +73,7 @@ class PlayState : GameState
         Camera.Target = poolCueBall.Position;
         Camera.Position = Raymath.Vector3Lerp(Camera.Position, camPos, dt * 10f);
 
-        foreach (var ballA in poolBalls)
+        /*foreach (var ballA in poolBalls)
         {
             foreach (var pocketPos in poolPockets)
             {
@@ -91,7 +93,7 @@ class PlayState : GameState
                 if (ballA.CheckCollisions(poolCueBall))
                     ballA.HandleCollision(poolCueBall);
             }
-        }
+        }*/
     }
 
     private void UpdateCamera(float dt)
@@ -114,7 +116,7 @@ class PlayState : GameState
         }
     }
 
-    private void UpdateCue(float dt)
+    /*private void UpdateCue(float dt)
     {
         if (Raylib.IsMouseButtonDown(MouseButton.Left))
         {
@@ -131,21 +133,21 @@ class PlayState : GameState
         float cueDistance = 0.6f + (cueForce * 0.05f);
         poolCue.Position = poolCueBall.Position - (aimDir * cueDistance);
         poolCue.Rotation.Y = -90f + MathF.Atan2(aimDir.X, aimDir.Z) * Raylib.RAD2DEG;
-    }
+    }*/
 
-    private Vector3 GetAimDir()
+    /*private Vector3 GetAimDir()
     {
         Vector3 forward = Vector3.Normalize(Camera.Target - Camera.Position);
         forward.Y = 0;
 
         return Vector3.Normalize(forward);
-    }
+    }*/
 
     public override void Draw()
     {
         base.Draw();
 
-        if (DebugView)
+        /*if (DebugView)
         {
             Raylib.DrawGrid(5, 3);
             const float LINE_Y = 1.01f;
@@ -155,6 +157,6 @@ class PlayState : GameState
 
             foreach (var pocketPos in poolPockets)
                 Raylib.DrawSphereWires(pocketPos, POCKET_RADIUS, 8, 8, Color.Purple);
-        }
+        }*/
     }
 }

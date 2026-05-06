@@ -85,11 +85,7 @@ class GameServer
         }
 
         var lobbyData = new GameLobbyData(code);
-        Lobbies.TryAdd(code, new ServerLobbyData()
-        {
-            Lobby = lobbyData,
-            GamemodeConfig = gamemodeConfigs[PoolGamemodeType.Classic]
-        });
+        Lobbies.TryAdd(code, new ServerLobbyData(lobbyData, gamemodeConfigs[PoolGamemodeType.Classic]));
 
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new lobby [code {code}]");
         return code;
@@ -181,7 +177,7 @@ class GameServer
                     }
 
                     lobbyData.Start();
-                    lobbyData.Broadcast(this, startPacket);
+                    lobbyData.Broadcast(this, new UpdateLobbyPacket() { LobbyData = lobbyData.Lobby });
 
                     break;
                 }
@@ -274,6 +270,14 @@ class GameServer
             foreach (var lobby in Lobbies.Values)
             {
                 lobby.Update(delta);
+
+                if (lobby.Lobby.Started)
+                {
+                    lobby.Broadcast(this, new UpdateLobbyPacket()
+                    {
+                        LobbyData = lobby.Lobby
+                    });
+                }
             }
 
             Thread.Sleep((int)(delta * 1000));

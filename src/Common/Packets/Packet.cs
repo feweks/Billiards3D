@@ -18,6 +18,8 @@ class Packet
                 return new JoinedLobbyPacket();
             case PacketType.StartLobby:
                 return new StartLobbyPacket();
+            case PacketType.UpdateLobby:
+                return new UpdateLobbyPacket();
             default:
                 Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to create packet of type {type}");
                 return new Packet(PacketType.Ping);

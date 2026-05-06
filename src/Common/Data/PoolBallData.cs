@@ -1,0 +1,45 @@
+using System.Numerics;
+
+namespace Game.Common.Data;
+
+class PoolBallData : ISerializableData
+{
+    public string Identifier { get; set; } = "";
+    public Vector3 Position = Vector3.Zero;
+    public Vector3 Velocity = Vector3.Zero;
+    public Vector3 Rotation = Vector3.Zero;
+
+    public void Serialize(BinaryWriter writer)
+    {
+        writer.Write(Identifier);
+
+        writer.Write(Position.X);
+        writer.Write(Position.Y);
+        writer.Write(Position.Z);
+
+        writer.Write(Velocity.X);
+        writer.Write(Velocity.Y);
+        writer.Write(Velocity.Z);
+
+        writer.Write(Rotation.X);
+        writer.Write(Rotation.Y);
+        writer.Write(Rotation.Z);
+    }
+
+    public void Deserialize(BinaryReader reader)
+    {
+        Identifier = reader.ReadString();
+
+        Position.X = reader.ReadSingle();
+        Position.Y = reader.ReadSingle();
+        Position.Z = reader.ReadSingle();
+
+        Velocity.X = reader.ReadSingle();
+        Velocity.Y = reader.ReadSingle();
+        Velocity.Z = reader.ReadSingle();
+
+        Rotation.X = reader.ReadSingle();
+        Rotation.Y = reader.ReadSingle();
+        Rotation.Z = reader.ReadSingle();
+    }
+}

@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Client.Entities;
 using Game.Client.Net;
 using Game.Common;
 using ImGuiNET;
@@ -13,7 +14,6 @@ class MainMenuState : GameState
 
     public MainMenuState() : base("main_menu_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
-
     }
 
     public override void Update(float dt)
