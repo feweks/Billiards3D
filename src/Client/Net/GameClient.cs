@@ -236,6 +236,8 @@ static class GameClient
         }
     }
 
+    public static PlayerLobbyData GetSelfPlayer() => LobbyData!.Host.Nickname == PlayerNick ? LobbyData.Host : LobbyData.Guest;
+
     public static bool IsHost() => LobbyData != null && LobbyData.Host.Nickname == PlayerNick;
 
     public static bool CheckConnection() => client != null && client.Connected;

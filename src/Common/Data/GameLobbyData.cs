@@ -4,11 +4,13 @@ namespace Game.Common.Data;
 class GameLobbyData : ISerializableData
 {
     public string Code { get; internal set; }
-    public PlayerLobbyData Host { get; }
-    public PlayerLobbyData Guest { get; }
+    public PlayerLobbyData Host { get; set; }
+    public PlayerLobbyData Guest { get; set; }
     public bool Started { get; set; } = false;
     public PoolBallData? PoolCueBall { get; set; }
     public List<PoolBallData> PoolBalls { get; }
+    public PoolGameState State { get; set; } = PoolGameState.None;
+    public string CurPlayer { get; set; } = string.Empty;
 
     public GameLobbyData(string code)
     {
@@ -19,6 +21,8 @@ class GameLobbyData : ISerializableData
 
         PoolBalls = new List<PoolBallData>();
     }
+
+    public PlayerLobbyData GetPlayerByNick(string nick) => Host.Nickname == nick ? Host : Guest;
 
     public bool CheckIfPlayerExists(string nick) => Host.Nickname == nick || Guest.Nickname == nick;
 
@@ -39,6 +43,8 @@ class GameLobbyData : ISerializableData
         Host.Serialize(writer);
         Guest.Serialize(writer);
         writer.Write(Started);
+        writer.Write((byte)State);
+        writer.Write(CurPlayer);
 
         PoolCueBall!.Serialize(writer);
 
@@ -55,6 +61,8 @@ class GameLobbyData : ISerializableData
         Host.Deserialize(reader);
         Guest.Deserialize(reader);
         Started = reader.ReadBoolean();
+        State = (PoolGameState)reader.ReadByte();
+        CurPlayer = reader.ReadString();
 
         PoolCueBall = new PoolBallData();
         PoolCueBall.Deserialize(reader);

@@ -7,5 +7,7 @@ enum PacketType : byte
     JoinLobby,
     JoinedLobby,
     StartLobby,
-    UpdateLobby
+    UpdateLobby,
+    UpdatePlayerLobby,
+    ShotLobby,
 }

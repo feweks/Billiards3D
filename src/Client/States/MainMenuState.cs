@@ -22,6 +22,7 @@ class MainMenuState : GameState
 
         if (GameClient.LobbyData != null && GameClient.LobbyData.Started)
         {
+            Thread.Sleep(100);
             ChangeState(new PlayState());
         }
     }
@@ -70,6 +71,11 @@ class MainMenuState : GameState
         else if (GameClient.LobbyStatus == Common.Packets.JoinedLobbyStatus.Success && GameClient.LobbyData != null)
         {
             ImGui.Text($"Lobby {GameClient.LobbyData.Code} ({GameClient.LobbyData.GetPlayerCount()}/2)");
+            ImGui.SameLine();
+            if (ImGui.Button("Copy"))
+            {
+                Raylib.SetClipboardText(GameClient.LobbyData.Code);
+            }
 
             ImGui.TextColored(Utils.ColorToVec4(Color.Green), $"{GameClient.LobbyData.Host.Nickname}");
 

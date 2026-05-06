@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Text;
 using Game.Common;
 using Game.Common.Data;
@@ -177,7 +178,44 @@ class GameServer
                     }
 
                     lobbyData.Start();
-                    lobbyData.Broadcast(this, new UpdateLobbyPacket() { LobbyData = lobbyData.Lobby });
+
+                    break;
+                }
+            case PacketType.UpdatePlayerLobby:
+                {
+                    var updatePlayerPacket = (UpdatePlayerLobbyPacket)packet;
+
+                    if (!Lobbies.TryGetValue(updatePlayerPacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    {
+                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to update lobby {updatePlayerPacket.LobbyCode}: lobby does not exist");
+                        break;
+                    }
+
+                    if (lobbyData.Lobby.Host.Nickname == updatePlayerPacket.Sender)
+                    {
+                        lobbyData.Lobby.Host = updatePlayerPacket.PlayerData!;
+                    }
+                    else
+                    {
+                        lobbyData.Lobby.Guest = updatePlayerPacket.PlayerData!;
+                    }
+
+                    break;
+                }
+            case PacketType.ShotLobby:
+                {
+                    var shotPacket = (ShotLobbyPacket)packet;
+
+                    if (!Lobbies.TryGetValue(shotPacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    {
+                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to register shot in lobby {shotPacket.LobbyCode}: lobby does not exist");
+                        break;
+                    }
+
+                    var ply = lobbyData.Lobby.GetPlayerByNick(shotPacket.Sender);
+                    lobbyData.Lobby.PoolCueBall!.Velocity = ply.AimDir * ply.CueForce;
+                    ply.CueForce = 0;
+                    lobbyData.Lobby.State = PoolGameState.Update;
 
                     break;
                 }
