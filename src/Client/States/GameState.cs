@@ -1,5 +1,6 @@
 using System.Numerics;
 using Game.Client.Entities;
+using Game.Client.Net;
 using ImGuiNET;
 using Raylib_cs;
 
@@ -75,7 +76,10 @@ abstract class GameState
             string info = $"FPS: {Raylib.GetFPS()}\n";
             info += $"Render Res: {cfg.RenderResolution[0]}x{cfg.RenderResolution[1]}\n";
             info += $"Window Res: {Raylib.GetScreenWidth()}x{Raylib.GetScreenHeight()}\n";
-            info += $"Fullscreen: {Raylib.IsWindowFullscreen()}";
+            info += $"Fullscreen: {Raylib.IsWindowFullscreen()}\n";
+            info += $"Server: {GameClient.Config?.Ip}:{GameClient.Config?.Port}\n";
+            info += $"Connected: {GameClient.CheckConnection()}\n";
+            info += $"Ping: {GameClient.Latency}ms";
             ImGui.Text(info);
 
             ImGui.End();

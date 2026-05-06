@@ -2,7 +2,8 @@ namespace Game.Common;
 
 enum PacketType : byte
 {
-    HostLobby = 0,
+    Ping = 0,
+    HostLobby,
     JoinLobby,
-    JoinedLobby
+    JoinedLobby,
 }

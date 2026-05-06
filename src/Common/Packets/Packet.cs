@@ -8,6 +8,8 @@ class Packet
     {
         switch (type)
         {
+            case PacketType.Ping:
+                return new PingPacket();
             case PacketType.HostLobby:
                 return new HostLobbyPacket();
             case PacketType.JoinLobby:
@@ -16,7 +18,7 @@ class Packet
                 return new JoinedLobbyPacket();
             default:
                 Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to create packet of type {type}");
-                return new Packet(PacketType.HostLobby);
+                return new Packet(PacketType.Ping);
         }
     }
 

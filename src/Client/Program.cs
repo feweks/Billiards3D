@@ -47,6 +47,7 @@ class Program
         }
 
         curState?.Update(dt);
+        GameClient.Update(dt);
     }
 
     private void Draw()

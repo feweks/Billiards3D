@@ -77,6 +77,11 @@ class GameServer
     {
         switch (packet.Type)
         {
+            case PacketType.Ping:
+                {
+                    Send(client, packet);
+                    break;
+                }
             case PacketType.HostLobby:
                 {
                     var hostPacket = (HostLobbyPacket)packet;
@@ -134,6 +139,11 @@ class GameServer
 
                     Send(client, response);
 
+                    break;
+                }
+            default:
+                {
+                    Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process packet {packet}: no packet logic of that type");
                     break;
                 }
         }

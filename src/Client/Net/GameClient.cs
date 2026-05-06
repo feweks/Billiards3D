@@ -1,7 +1,6 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using Game.Client.Data;
 using Game.Client.Data.Files;
 using Game.Common;
 using Game.Common.Data;
@@ -13,29 +12,33 @@ namespace Game.Client.Net;
 static class GameClient
 {
     private const int MAX_PACKET_SIZE = 1024;
+    private const float MAX_LATENCY_TIMER = 1f;
 
+    public static double Latency { get; internal set; } = 0;
     public static GameLobbyData? LobbyData { get; internal set; }
     public static JoinedLobbyStatus LobbyStatus { get; internal set; } = JoinedLobbyStatus.None;
     public static string? PlayerNick { get; internal set; } = null;
+    public static NetServerFileData? Config { get; internal set; }
 
-    private static NetServerFileData? config;
     private static TcpClient? client;
     private static NetworkStream? stream;
-    private static bool running = false;
     private static Thread? receiveThread;
+    private static bool running = false;
+    private static Stopwatch latencyStopwatch = new Stopwatch();
+    private static float latencyTimer = 0f;
 
     public static void Init()
     {
-        config = Resources.GetJson("resources/data/net_config.json", NetServerFileDataCtx.Default.NetServerFileData);
+        Config = Resources.GetJson("resources/data/net_config.json", NetServerFileDataCtx.Default.NetServerFileData);
 
         IPAddress ip = IPAddress.Parse("127.0.0.1");
-        if (IPAddress.TryParse(config.Ip, out IPAddress? parsedAddr))
+        if (IPAddress.TryParse(Config.Ip, out IPAddress? parsedAddr))
         {
             ip = parsedAddr;
         }
 
         client = new TcpClient();
-        client.Connect(new IPEndPoint(ip, config.Port));
+        client.Connect(new IPEndPoint(ip, Config.Port));
         stream = client.GetStream();
 
         receiveThread = new Thread(new ThreadStart(UpdateConnection))
@@ -102,6 +105,14 @@ static class GameClient
 
         switch (packet.Type)
         {
+            case PacketType.Ping:
+                {
+                    latencyStopwatch.Stop();
+                    Latency = latencyStopwatch.Elapsed.TotalMilliseconds;
+                    latencyStopwatch.Reset();
+
+                    break;
+                }
             case PacketType.HostLobby:
                 {
                     var hostPacket = (HostLobbyPacket)packet;
@@ -174,6 +185,20 @@ static class GameClient
                 Shutdown();
                 Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Error recv from server: {error.Message}");
             }
+        }
+    }
+
+    public static void Update(float dt)
+    {
+        if (!CheckConnection())
+            return;
+
+        latencyTimer += dt;
+        if (latencyTimer > MAX_LATENCY_TIMER && !latencyStopwatch.IsRunning)
+        {
+            latencyTimer = 0;
+            Send(new PingPacket());
+            latencyStopwatch.Start();
         }
     }
 
