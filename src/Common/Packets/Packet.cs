@@ -24,6 +24,8 @@ class Packet
                 return new UpdatePlayerLobbyPacket();
             case PacketType.ShotLobby:
                 return new ShotLobbyPacket();
+            case PacketType.PlaceCueLobby:
+                return new PlaceCueLobbyPacket();
             default:
                 Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to create packet of type {type}");
                 return new Packet(PacketType.Ping);

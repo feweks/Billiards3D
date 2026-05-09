@@ -59,10 +59,7 @@ static class GameClient
             return;
         }
 
-        Send(new HostLobbyPacket()
-        {
-            Sender = nick
-        });
+        SendPacket(new HostLobbyPacket() { Sender = nick });
     }
 
     public static void JoinLobby(string code, string nick)
@@ -73,7 +70,7 @@ static class GameClient
             return;
         }
 
-        Send(new JoinLobbyPacket()
+        SendPacket(new JoinLobbyPacket()
         {
             LobbyCode = code,
             Sender = nick
@@ -100,14 +97,14 @@ static class GameClient
             return;
         }
 
-        Send(new StartLobbyPacket()
+        SendPacket(new StartLobbyPacket()
         {
             LobbyCode = LobbyData.Code,
             Sender = PlayerNick
         });
     }
 
-    public static void Send(Packet packet)
+    public static void SendPacket(Packet packet)
     {
         if (!CheckConnection())
         {
@@ -120,6 +117,26 @@ static class GameClient
         packet.Serialize(packetWriter);
 
         stream!.Write(packetStream.ToArray());
+    }
+
+    public static void SendLobbyPacket(LobbyPacket packet)
+    {
+        if (!CheckConnection())
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send lobby packet {packet.Type}: client is not connected");
+            return;
+        }
+
+        if (LobbyData == null || PlayerNick == null)
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send lobby packet {packet.Type}: client is not connected to any lobby");
+            return;
+        }
+
+        packet.LobbyCode = LobbyData.Code;
+        packet.Sender = PlayerNick;
+
+        SendPacket(packet);
     }
 
     private static void ProcessPacket(Packet packet)
@@ -231,7 +248,7 @@ static class GameClient
         if (latencyTimer > MAX_LATENCY_TIMER && !latencyStopwatch.IsRunning)
         {
             latencyTimer = 0;
-            Send(new PingPacket());
+            SendPacket(new PingPacket());
             latencyStopwatch.Start();
         }
     }

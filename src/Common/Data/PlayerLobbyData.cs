@@ -7,6 +7,7 @@ class PlayerLobbyData : ISerializableData
     public string? Nickname { get; set; }
     public Vector3 CamPos;
     public Vector3 AimDir;
+    public Vector3 PlacePos;
     public float CueForce { get; set; }
 
     public PlayerLobbyData(string? nick)
@@ -26,6 +27,10 @@ class PlayerLobbyData : ISerializableData
         writer.Write(AimDir.Y);
         writer.Write(AimDir.Z);
 
+        writer.Write(PlacePos.X);
+        writer.Write(PlacePos.Y);
+        writer.Write(PlacePos.Z);
+
         writer.Write(CueForce);
     }
 
@@ -41,6 +46,10 @@ class PlayerLobbyData : ISerializableData
         AimDir.X = reader.ReadSingle();
         AimDir.Y = reader.ReadSingle();
         AimDir.Z = reader.ReadSingle();
+
+        PlacePos.X = reader.ReadSingle();
+        PlacePos.Y = reader.ReadSingle();
+        PlacePos.Z = reader.ReadSingle();
 
         CueForce = reader.ReadSingle();
     }

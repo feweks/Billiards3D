@@ -6,9 +6,11 @@ namespace Game.Server.Data;
 
 class PoolGamemodeConfig
 {
-    public int PoolBallsCount { get; set; } = 0;
     public float PoolTableWidth { get; set; } = 0.95f;
     public float PoolTableLength { get; set; } = 1.88f;
+    public float PoolTablePocketRadius { get; set; } = 0.04f;
+    public List<Vector3> PoolTablePockets { get; set; } = new List<Vector3>();
+    public int PoolBallsCount { get; set; } = 0;
     public float PoolBallFriction { get; set; } = 0.98f;
     public float PoolBallMass { get; set; } = 0.17f;
     public float PoolBallRadius { get; set; } = 0.035f;
@@ -22,6 +24,14 @@ class PoolGamemodeConfig
         switch (gmType)
         {
             case PoolGamemodeType.Classic:
+                cfg.PoolTablePockets = [
+                    new Vector3(-cfg.PoolTableWidth / 2 - (cfg.PoolTablePocketRadius * 0.95f), 1, 0),
+                    new Vector3(cfg.PoolTableWidth / 2 + (cfg.PoolTablePocketRadius * 0.95f), 1, 0),
+                    new Vector3(-cfg.PoolTableWidth / 2.05f, 1, -cfg.PoolTableLength / 2.05f),
+                    new Vector3(cfg.PoolTableWidth / 2.05f, 1, -cfg.PoolTableLength / 2.05f),
+                    new Vector3(-cfg.PoolTableWidth / 2.05f, 1, cfg.PoolTableLength / 2.05f),
+                    new Vector3(cfg.PoolTableWidth / 2.05f, 1, cfg.PoolTableLength / 2.05f),
+                ];
                 cfg.PoolBallsCount = 15;
                 cfg.CueBallPos = new Vector3(0, 1, 0.5f);
                 cfg.PoolBallsPos = [

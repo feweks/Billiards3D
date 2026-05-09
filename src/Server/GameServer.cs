@@ -219,6 +219,23 @@ class GameServer
 
                     break;
                 }
+            case PacketType.PlaceCueLobby:
+                {
+                    var placePacket = (PlaceCueLobbyPacket)packet;
+
+                    if (!Lobbies.TryGetValue(placePacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    {
+                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to place cue ball in lobby {placePacket.LobbyCode}: lobby does not exist");
+                        break;
+                    }
+
+                    if (lobbyData.Lobby.CanPlaceCueBall)
+                    {
+                        lobbyData.Lobby.State = PoolGameState.Shooting;
+                    }
+
+                    break;
+                }
             default:
                 {
                     Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process packet {packet}: no packet logic of that type");

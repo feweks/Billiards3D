@@ -15,8 +15,8 @@ class PlayState : GameState
     const float MAX_CAM_DISTANCE = 1.5f;
     const float MIN_CUE_FORCE = 0f;
     const float MAX_CUE_FORCE = 6f;
-    const float POCKET_RADIUS = 0.04f;
 
+    GameEntity poolTable;
     GameEntity poolCue;
     PoolBallEntity poolCueBall;
     PoolBallEntity[] poolBalls;
@@ -31,7 +31,8 @@ class PlayState : GameState
 
     public PlayState() : base("play_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
-        PlaceEntity(new GameEntity("resources/gfx/models/pool_table.obj", Vector3.Zero));
+        poolTable = new GameEntity("resources/gfx/models/pool_table.obj", Vector3.Zero);
+        PlaceEntity(poolTable);
 
         poolCue = new GameEntity("resources/gfx/models/pool_cue.obj", Vector3.Zero)
         {
@@ -49,15 +50,6 @@ class PlayState : GameState
             poolBalls[i] = new PoolBallEntity(GameClient.LobbyData.PoolBalls[i]);
             PlaceEntity(poolBalls[i]);
         }
-
-        /*poolPockets = [
-            new Vector3(-PoolBallEntity.POOL_TABLE_WIDTH / 2 - POCKET_RADIUS, 1, 0),
-            new Vector3(PoolBallEntity.POOL_TABLE_WIDTH / 2 + POCKET_RADIUS, 1, 0),
-            new Vector3(-PoolBallEntity.POOL_TABLE_WIDTH / 2.05f, 1, -PoolBallEntity.POOL_TABLE_LENGTH / 2.05f),
-            new Vector3(PoolBallEntity.POOL_TABLE_WIDTH / 2.05f, 1, -PoolBallEntity.POOL_TABLE_LENGTH / 2.05f),
-            new Vector3(-PoolBallEntity.POOL_TABLE_WIDTH / 2.05f, 1, PoolBallEntity.POOL_TABLE_LENGTH / 2.05f),
-            new Vector3(PoolBallEntity.POOL_TABLE_WIDTH / 2.05f, 1, PoolBallEntity.POOL_TABLE_LENGTH / 2.05f),
-        ];*/
     }
 
     public override void Update(float dt)
@@ -67,7 +59,7 @@ class PlayState : GameState
         if (GameClient.LobbyData == null)
             return;
 
-        poolCue.Visible = GameClient.LobbyData.State == PoolGameState.Break;
+        poolCue.Visible = GameClient.LobbyData.State == PoolGameState.Break || GameClient.LobbyData.State == PoolGameState.Shooting;
 
         poolCueBall.Data = GameClient.LobbyData.PoolCueBall!;
         for (int i = 0; i < GameClient.LobbyData.PoolBalls.Count; i++)
@@ -78,68 +70,59 @@ class PlayState : GameState
         var netPlayer = GameClient.GetSelfPlayer();
         var curPlayer = GameClient.LobbyData.GetPlayerByNick(GameClient.LobbyData.CurPlayer);
 
-        float cueLerpAmount = 10f;
+        float cueLerpAmount = 35f;
         if (curPlayer.Nickname == netPlayer.Nickname)
         {
-            if (GameClient.LobbyData.State == PoolGameState.Break)
+            if (poolCue.Visible)
             {
                 if (!canShoot)
                     canShoot = true;
 
-                UpdateCamera(dt);
+                UpdateCamera(dt, netPlayer);
                 UpdateCue(dt, netPlayer);
-                netPlayer.CamPos = camPos;
-                cueLerpAmount = 50f;
             }
+
+            if (GameClient.LobbyData.State == PoolGameState.PlaceWhite)
+            {
+                UpdateCueBall(dt, netPlayer);
+            }
+        }
+
+        if (GameClient.LobbyData.State == PoolGameState.PlaceWhite)
+        {
+            camPos = new Vector3(0.01f, 2f, 0);
+            Camera.Target = Raymath.Vector3Lerp(Camera.Target, Vector3.UnitY, dt * 10f);
+
+            float t = (float)Raylib.GetTime();
+            float pulseTime = 4f;
+
+            float alpha = 0.25f + 0.75f * ((MathF.Sin(t * pulseTime) * 0.5f) + 0.5f);
+            poolCueBall.Tint = GameClient.LobbyData!.CanPlaceCueBall ? Raylib.ColorAlpha(Color.White, alpha) : Raylib.ColorAlpha(Color.Red, alpha);
         }
         else
         {
-            Camera.Position = Raymath.Vector3Lerp(Camera.Position, curPlayer.CamPos, dt * 10f);
+            camPos = curPlayer.CamPos;
+            Camera.Target = poolCueBall.Position;
+
+            poolCueBall.Tint = Color.White;
         }
 
-        Camera.Target = poolCueBall.Position;
+        Camera.Position = Raymath.Vector3Lerp(Camera.Position, camPos, dt * 10f);
 
         float cueDistance = 0.6f + (curPlayer.CueForce * 0.05f);
         poolCue.Position = Vector3.Lerp(poolCue.Position, poolCueBall.Position - (curPlayer.AimDir * cueDistance), dt * cueLerpAmount);
         poolCue.Rotation.Y = Raymath.LerpAngle(poolCue.Rotation.Y, -90f + MathF.Atan2(curPlayer.AimDir.X, curPlayer.AimDir.Z) * Raylib.RAD2DEG, dt * cueLerpAmount);
 
-        /*foreach (var ballA in poolBalls)
-        {
-            foreach (var pocketPos in poolPockets)
-            {
-                if (Raylib.CheckCollisionBoxSphere(ballA.BoundingBox, pocketPos, POCKET_RADIUS))
-                {
-                    ballA.Active = false;
-                    ballA.Visible = false;
-                    continue;
-                }
-            }
-
-            foreach (var ballB in poolBalls)
-            {
-                if (ballA.Active && ballB.Active && ballA.CheckCollisions(ballB))
-                    ballA.HandleCollision(ballB);
-
-                if (ballA.CheckCollisions(poolCueBall))
-                    ballA.HandleCollision(poolCueBall);
-            }
-        }*/
-
         updateTime += dt;
         if (updateTime > 0.03f)
         {
-            GameClient.Send(new UpdatePlayerLobbyPacket()
-            {
-                LobbyCode = GameClient.LobbyData.Code,
-                Sender = GameClient.PlayerNick!,
-                PlayerData = netPlayer
-            });
+            GameClient.SendLobbyPacket(new UpdatePlayerLobbyPacket() { PlayerData = netPlayer });
 
             updateTime = 0f;
         }
     }
 
-    private void UpdateCamera(float dt)
+    private void UpdateCamera(float dt, PlayerLobbyData netPlayer)
     {
         if (Raylib.IsMouseButtonDown(MouseButton.Right))
         {
@@ -158,12 +141,11 @@ class PlayState : GameState
             camDistance = Math.Clamp(camDistance - mouseWheel, MIN_CAM_DISTANCE, MAX_CAM_DISTANCE);
         }
 
-        camPos = new Vector3(
+        netPlayer.CamPos = new Vector3(
             Camera.Target.X + camDistance * MathF.Cos(camPitch) * MathF.Sin(camYaw),
             Camera.Target.Y + camDistance * MathF.Sin(camPitch),
             Camera.Target.Z + camDistance * MathF.Cos(camPitch) * MathF.Cos(camYaw)
         );
-        Camera.Position = Raymath.Vector3Lerp(Camera.Position, camPos, dt * 10f);
     }
 
     private void UpdateCue(float dt, PlayerLobbyData netPlayer)
@@ -175,15 +157,27 @@ class PlayState : GameState
 
         Vector3 aimDir = GetAimDir();
         netPlayer.AimDir = aimDir;
-        if (Raylib.IsMouseButtonReleased(MouseButton.Left) && canShoot)
+        if (Raylib.IsMouseButtonReleased(MouseButton.Left) && canShoot && netPlayer.CueForce > 0)
         {
             canShoot = false;
-            GameClient.Send(new ShotLobbyPacket()
-            {
-                LobbyCode = GameClient.LobbyData!.Code,
-                Sender = GameClient.PlayerNick!
-            });
+            GameClient.SendLobbyPacket(new ShotLobbyPacket());
             Raylib.TraceLog(TraceLogLevel.Info, "Shot");
+        }
+    }
+
+    private void UpdateCueBall(float dt, PlayerLobbyData netPlayer)
+    {
+        Ray ray = Raylib.GetScreenToWorldRay(Raylib.GetMousePosition(), Camera);
+        RayCollision collision = Raylib.GetRayCollisionBox(ray, poolTable.BoundingBox);
+
+        if (collision.Hit)
+        {
+            netPlayer.PlacePos = new Vector3(collision.Point.X, 1, collision.Point.Z);
+
+            if (Raylib.IsMouseButtonReleased(MouseButton.Left))
+            {
+                GameClient.SendLobbyPacket(new PlaceCueLobbyPacket());
+            }
         }
     }
 
@@ -199,17 +193,14 @@ class PlayState : GameState
     {
         base.Draw();
 
-        /*if (DebugView)
+        if (GameClient.LobbyData == null)
+            return;
+
+        if (DebugView && GameClient.LobbyData.State == PoolGameState.PlaceWhite)
         {
-            Raylib.DrawGrid(5, 3);
-            const float LINE_Y = 1.01f;
-
-            Raylib.DrawLine3D(new Vector3(-PoolBallEntity.POOL_TABLE_WIDTH / 2, LINE_Y, 0), new Vector3(PoolBallEntity.POOL_TABLE_WIDTH / 2, LINE_Y, 0), Color.Yellow);
-            Raylib.DrawLine3D(new Vector3(0, LINE_Y, -PoolBallEntity.POOL_TABLE_LENGTH / 2), new Vector3(0, LINE_Y, PoolBallEntity.POOL_TABLE_LENGTH / 2), Color.Blue);
-
-            foreach (var pocketPos in poolPockets)
-                Raylib.DrawSphereWires(pocketPos, POCKET_RADIUS, 8, 8, Color.Purple);
-        }*/
+            Ray ray = Raylib.GetScreenToWorldRay(Raylib.GetMousePosition(), Camera);
+            Raylib.DrawRay(ray, Color.Orange);
+        }
     }
 
     public override void DrawUI()
@@ -222,6 +213,25 @@ class PlayState : GameState
         if (GameClient.LobbyData.State == PoolGameState.Break)
         {
             Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} is breaking", 5, 3, 24, Color.White);
+        }
+
+        if (GameClient.LobbyData.State == PoolGameState.Shooting)
+        {
+            Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} is shooting", 5, 3, 24, Color.White);
+        }
+
+        if (GameClient.LobbyData.State == PoolGameState.PlaceWhite)
+        {
+            Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} is placing", 5, 3, 24, Color.White);
+        }
+
+        var ply = GameClient.GetSelfPlayer();
+        if (poolCue.Visible && ply.Nickname == GameClient.LobbyData!.CurPlayer)
+        {
+            string forceTxt = $"Cue Force: {ply.CueForce:0.00}";
+            int forceTxtSize = Raylib.MeasureText(forceTxt, 24);
+
+            Raylib.DrawText(forceTxt, Program.Instance!.Config.RenderResolution[0] / 2 - forceTxtSize / 2, 3, 24, Color.White);
         }
     }
 }

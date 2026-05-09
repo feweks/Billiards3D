@@ -8,6 +8,8 @@ class PoolBallData : ISerializableData
     public Vector3 Position = Vector3.Zero;
     public Vector3 Velocity = Vector3.Zero;
     public Vector3 Rotation = Vector3.Zero;
+    public bool Pocketed { get; set; } = false;
+    public Vector3 PocketPos;
 
     public void Serialize(BinaryWriter writer)
     {
@@ -24,6 +26,12 @@ class PoolBallData : ISerializableData
         writer.Write(Rotation.X);
         writer.Write(Rotation.Y);
         writer.Write(Rotation.Z);
+
+        writer.Write(Pocketed);
+
+        writer.Write(PocketPos.X);
+        writer.Write(PocketPos.Y);
+        writer.Write(PocketPos.Z);
     }
 
     public void Deserialize(BinaryReader reader)
@@ -41,5 +49,11 @@ class PoolBallData : ISerializableData
         Rotation.X = reader.ReadSingle();
         Rotation.Y = reader.ReadSingle();
         Rotation.Z = reader.ReadSingle();
+
+        Pocketed = reader.ReadBoolean();
+
+        PocketPos.X = reader.ReadSingle();
+        PocketPos.Y = reader.ReadSingle();
+        PocketPos.Z = reader.ReadSingle();
     }
 }

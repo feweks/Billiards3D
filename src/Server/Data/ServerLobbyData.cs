@@ -1,5 +1,6 @@
 using System.Net.Sockets;
 using System.Numerics;
+using Game.Common;
 using Game.Common.Data;
 using Game.Common.Packets;
 using Raylib_cs;
@@ -52,7 +53,7 @@ class ServerLobbyData
             Lobby.CurPlayer = Lobby.Guest.Nickname!;
         }
 
-        Lobby.State = Common.PoolGameState.Break;
+        Lobby.State = PoolGameState.Break;
     }
 
     public void Update(float dt)
@@ -60,41 +61,125 @@ class ServerLobbyData
         if (!Lobby.Started)
             return;
 
-        bool tableCleared = true;
+        bool isTableCalm = true;
         UpdateBallPhysics(dt, Lobby.PoolCueBall!);
         if (Lobby.PoolCueBall!.Velocity.Length() != 0)
-            tableCleared = false;
+            isTableCalm = false;
 
-        foreach (var ball in Lobby.PoolBalls)
+        foreach (var ball in Lobby.PoolBalls.Where(b => !b.Pocketed))
         {
             UpdateBallPhysics(dt, ball);
 
             if (ball.Velocity.Length() != 0)
-                tableCleared = false;
+                isTableCalm = false;
         }
 
-        if (!tableCleared)
+        if (Lobby.State != PoolGameState.PlaceWhite)
         {
-            foreach (var ballA in Lobby.PoolBalls)
+            foreach (var ballA in Lobby.PoolBalls.Where(b => !b.Pocketed))
             {
-                foreach (var ballB in Lobby.PoolBalls.Where(b => b.Identifier != ballA.Identifier))
+                foreach (var ballB in Lobby.PoolBalls.Where(b => b.Identifier != ballA.Identifier && !b.Pocketed))
                 {
-                    if (Raylib.CheckCollisionSpheres(ballA.Position, GamemodeConfig.PoolBallRadius, ballB.Position, GamemodeConfig.PoolBallRadius))
+                    if (CheckBallsCollision(ballA, ballB))
                     {
                         HandleCollision(ballA, ballB);
                     }
 
-                    if (Raylib.CheckCollisionSpheres(ballA.Position, GamemodeConfig.PoolBallRadius, Lobby.PoolCueBall!.Position, GamemodeConfig.PoolBallRadius))
+                    if (CheckBallsCollision(ballA, Lobby.PoolCueBall))
                     {
                         HandleCollision(ballA, Lobby.PoolCueBall);
                     }
                 }
             }
         }
+
+        if (isTableCalm)
+        {
+            if (Lobby.State == PoolGameState.Update)
+            {
+                ChangePlayer();
+                Lobby.State = PoolGameState.Shooting;
+            }
+
+            if (Lobby.State == PoolGameState.PlaceWhite)
+            {
+                Vector3 plyPlacePos = Lobby.GetPlayerByNick(Lobby.CurPlayer).PlacePos + new Vector3(0, 0.01f, 0);
+                Lobby.PoolCueBall.Position = plyPlacePos;
+
+                float halfWidth = GamemodeConfig.PoolTableWidth / 2;
+                float halfLength = GamemodeConfig.PoolTableLength / 2;
+                float radius = GamemodeConfig.PoolBallRadius;
+                var minPos = new Vector3(-halfWidth + radius, 1f, -halfLength + radius);
+                var maxPos = new Vector3(halfWidth - radius, 1.01f, halfLength - radius);
+
+                Lobby.PoolCueBall.Position = Raymath.Vector3Clamp(Lobby.PoolCueBall.Position, minPos, maxPos);
+
+                Lobby.CanPlaceCueBall = true;
+                foreach (var ball in Lobby.PoolBalls)
+                {
+                    if (CheckBallsCollision(Lobby.PoolCueBall, ball))
+                    {
+                        Lobby.CanPlaceCueBall = false;
+                        break;
+                    }
+                }
+
+                foreach (var pocket in GamemodeConfig.PoolTablePockets)
+                {
+                    if (CheckPocketBallCollision(Lobby.PoolCueBall, pocket))
+                    {
+                        Lobby.CanPlaceCueBall = false;
+                        break;
+                    }
+                }
+            }
+        }
         else
         {
+            if (Lobby.State == PoolGameState.Update)
+            {
+                foreach (var pocketPos in GamemodeConfig.PoolTablePockets)
+                {
+                    foreach (var ball in Lobby.PoolBalls.Where(b => !b.Pocketed))
+                    {
+                        bool pocketed = CheckPocketBallCollision(ball, pocketPos);
+                        if (pocketed)
+                        {
+                            ball.Pocketed = true;
+                            ball.PocketPos = pocketPos;
+                        }
+                    }
 
+                    bool whitePocketed = CheckPocketBallCollision(Lobby.PoolCueBall, pocketPos);
+                    if (whitePocketed)
+                    {
+                        ChangePlayer();
+                        Lobby.GetPlayerByNick(Lobby.CurPlayer).PlacePos = Vector3.Zero;
+                        Lobby.PoolCueBall.Velocity = Vector3.Zero;
+                        Lobby.State = PoolGameState.PlaceWhite;
+                    }
+                }
+            }
         }
+    }
+
+    private void ChangePlayer()
+    {
+        string nextPlayer = Lobby.CurPlayer == Lobby.Host.Nickname ? Lobby.Guest.Nickname! : Lobby.Host.Nickname!;
+        Lobby.GetPlayerByNick(Lobby.CurPlayer).CueForce = 0;
+        Lobby.CurPlayer = nextPlayer;
+    }
+
+    private bool CheckBallsCollision(PoolBallData ballA, PoolBallData ballB)
+    {
+        bool coll = Raylib.CheckCollisionSpheres(ballA.Position, GamemodeConfig.PoolBallRadius, ballB.Position, GamemodeConfig.PoolBallRadius);
+        return coll;
+    }
+
+    private bool CheckPocketBallCollision(PoolBallData ball, Vector3 pocketPos)
+    {
+        bool coll = Raylib.CheckCollisionSpheres(ball.Position, GamemodeConfig.PoolBallRadius, pocketPos, GamemodeConfig.PoolTablePocketRadius);
+        return coll;
     }
 
     private void UpdateBallPhysics(float dt, PoolBallData ball)
@@ -137,7 +222,7 @@ class ServerLobbyData
             ball.Velocity.Z *= -1;
         }
 
-        const float VEL_SCALE = 60f;
+        const float VEL_SCALE = 300f;
         float rotationSpeed = ball.Velocity.Length() * VEL_SCALE;
         ball.Rotation += new Vector3(rotationSpeed, 0, rotationSpeed) * dt;
     }

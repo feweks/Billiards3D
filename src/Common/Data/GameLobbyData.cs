@@ -11,6 +11,7 @@ class GameLobbyData : ISerializableData
     public List<PoolBallData> PoolBalls { get; }
     public PoolGameState State { get; set; } = PoolGameState.None;
     public string CurPlayer { get; set; } = string.Empty;
+    public bool CanPlaceCueBall { get; set; } = false;
 
     public GameLobbyData(string code)
     {
@@ -45,6 +46,7 @@ class GameLobbyData : ISerializableData
         writer.Write(Started);
         writer.Write((byte)State);
         writer.Write(CurPlayer);
+        writer.Write(CanPlaceCueBall);
 
         PoolCueBall!.Serialize(writer);
 
@@ -63,6 +65,7 @@ class GameLobbyData : ISerializableData
         Started = reader.ReadBoolean();
         State = (PoolGameState)reader.ReadByte();
         CurPlayer = reader.ReadString();
+        CanPlaceCueBall = reader.ReadBoolean();
 
         PoolCueBall = new PoolBallData();
         PoolCueBall.Deserialize(reader);

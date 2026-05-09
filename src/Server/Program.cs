@@ -29,7 +29,7 @@ class Program
         Raylib.TraceLog(TraceLogLevel.Info, $"Server started on port {serverConfig.Port}");
 
         var elapsedTime = DateTime.Now.Millisecond - startTime.Millisecond;
-        Raylib.TraceLog(TraceLogLevel.Info, $"Server loaded in {elapsedTime * 0.001}s");
+        Raylib.TraceLog(TraceLogLevel.Info, $"Server loaded in {Math.Abs(Math.Round(elapsedTime * 0.001, 4))}s");
 
         running = true;
     }
