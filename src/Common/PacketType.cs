@@ -11,4 +11,5 @@ enum PacketType : byte
     UpdatePlayerLobby,
     ShotLobby,
     PlaceCueLobby,
+    LeaveLobby
 }

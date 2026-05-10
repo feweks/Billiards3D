@@ -5,6 +5,8 @@ namespace Game.Common.Data;
 class PoolBallData : ISerializableData
 {
     public string Identifier { get; set; } = "";
+    public ushort Index { get; set; }
+    public PoolBallType Type { get; set; }
     public Vector3 Position = Vector3.Zero;
     public Vector3 Velocity = Vector3.Zero;
     public Vector3 Rotation = Vector3.Zero;
@@ -14,6 +16,8 @@ class PoolBallData : ISerializableData
     public void Serialize(BinaryWriter writer)
     {
         writer.Write(Identifier);
+        writer.Write(Index);
+        writer.Write((byte)Type);
 
         writer.Write(Position.X);
         writer.Write(Position.Y);
@@ -37,6 +41,8 @@ class PoolBallData : ISerializableData
     public void Deserialize(BinaryReader reader)
     {
         Identifier = reader.ReadString();
+        Index = reader.ReadUInt16();
+        Type = (PoolBallType)reader.ReadByte();
 
         Position.X = reader.ReadSingle();
         Position.Y = reader.ReadSingle();

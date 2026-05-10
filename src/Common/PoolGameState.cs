@@ -7,4 +7,5 @@ enum PoolGameState : byte
     Update,
     Shooting,
     PlaceWhite,
+    End,
 }

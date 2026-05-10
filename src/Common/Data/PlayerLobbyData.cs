@@ -5,6 +5,7 @@ namespace Game.Common.Data;
 class PlayerLobbyData : ISerializableData
 {
     public string? Nickname { get; set; }
+    public PoolBallType BallType { get; set; } = PoolBallType.None;
     public Vector3 CamPos;
     public Vector3 AimDir;
     public Vector3 PlacePos;
@@ -18,6 +19,7 @@ class PlayerLobbyData : ISerializableData
     public void Serialize(BinaryWriter writer)
     {
         writer.Write(Nickname ?? string.Empty);
+        writer.Write((byte)BallType);
 
         writer.Write(CamPos.X);
         writer.Write(CamPos.Y);
@@ -38,6 +40,7 @@ class PlayerLobbyData : ISerializableData
     {
         string nick = reader.ReadString();
         Nickname = nick != string.Empty ? nick : null;
+        BallType = (PoolBallType)reader.ReadByte();
 
         CamPos.X = reader.ReadSingle();
         CamPos.Y = reader.ReadSingle();

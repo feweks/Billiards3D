@@ -6,6 +6,8 @@ class Entry
     {
         bool server = args.Contains("-server");
 
+        Thread.CurrentThread.Name = "Main";
+
         if (!server)
         {
             var prog = new Client.Program(args);

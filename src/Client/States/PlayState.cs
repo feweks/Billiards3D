@@ -233,5 +233,21 @@ class PlayState : GameState
 
             Raylib.DrawText(forceTxt, Program.Instance!.Config.RenderResolution[0] / 2 - forceTxtSize / 2, 3, 24, Color.White);
         }
+
+        if (ply.BallType != PoolBallType.None)
+        {
+            string ballTypeTxt = $"You are {ply.BallType.ToString().ToLower()}";
+            int ballTypeTxtSize = Raylib.MeasureText(ballTypeTxt, 24);
+
+            Raylib.DrawText(ballTypeTxt, Program.Instance!.Config.RenderResolution[0] - ballTypeTxtSize, 3, 24, Color.White);
+        }
+
+        if (GameClient.LobbyData.State == PoolGameState.End)
+        {
+            string winnerTxt = $"{GameClient.LobbyData.GetPlayerByNick(GameClient.LobbyData.CurPlayer)} won";
+            int winnerTxtSize = Raylib.MeasureText(winnerTxt, 24);
+
+            Raylib.DrawText(winnerTxt, Program.Instance!.Config.RenderResolution[0] / 2 - winnerTxtSize / 2, 3, 24, Color.White);
+        }
     }
 }

@@ -146,7 +146,7 @@ class Program
 
                 return new Tuple<string, TraceLogLevel>(lsTxt, TraceLogLevel.Info);
             default:
-                return new Tuple<string, TraceLogLevel>($"Unknown command {cmd}", TraceLogLevel.Warning);
+                return new Tuple<string, TraceLogLevel>($"Unknown command {cmd[0]}", TraceLogLevel.Warning);
         }
     }
 
