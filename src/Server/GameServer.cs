@@ -14,8 +14,6 @@ namespace Game.Server;
 
 class GameServer
 {
-    private const uint MAX_PACKET_SIZE = 4096;
-
     public ConcurrentDictionary<string, ServerLobbyData> Lobbies { get; }
 
     private GameServerConfig config;
@@ -254,7 +252,7 @@ class GameServer
             return;
         }
 
-        var stream = new MemoryStream(buf, false);
+        var stream = new MemoryStream(buf, 0, bytesCount);
         var reader = new BinaryReader(stream);
         var packetType = (PacketType)reader.ReadByte();
         var packet = Packet.Create(packetType);
@@ -278,7 +276,7 @@ class GameServer
             var readList = new List<Socket>() { listener };
             readList.AddRange(clients);
 
-            Socket.Select(readList, null, null, 10000);
+            Socket.Select(readList, null, null, 100);
 
             foreach (var socket in readList)
             {
@@ -297,7 +295,7 @@ class GameServer
                 {
                     try
                     {
-                        byte[] buf = new byte[MAX_PACKET_SIZE];
+                        byte[] buf = new byte[GameData.MaxPacketSize];
                         int recvBytes = socket.Receive(buf);
                         ProcessClient(socket, recvBytes, buf);
                     }

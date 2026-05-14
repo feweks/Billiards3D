@@ -11,7 +11,6 @@ namespace Game.Client.Net;
 
 static class GameClient
 {
-    private const int MAX_PACKET_SIZE = 1024;
     private const float MAX_LATENCY_TIMER = 1f;
 
     public static double Latency { get; internal set; } = 0;
@@ -213,7 +212,7 @@ static class GameClient
             return;
         }
 
-        var memStream = new MemoryStream(buf);
+        var memStream = new MemoryStream(buf, 0, bytesCount);
         var binReader = new BinaryReader(memStream);
         var packetType = (PacketType)binReader.ReadByte();
         var packet = Packet.Create(packetType);
@@ -227,7 +226,7 @@ static class GameClient
         {
             try
             {
-                byte[] buf = new byte[MAX_PACKET_SIZE];
+                byte[] buf = new byte[GameData.MaxPacketSize];
                 int bytesRecieved = stream!.Read(buf, 0, buf.Length);
                 ProcessData(buf, bytesRecieved);
             }

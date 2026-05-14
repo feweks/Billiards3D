@@ -38,6 +38,14 @@ class GameLobbyData : ISerializableData
         return 2;
     }
 
+    public PlayerLobbyData GetCurrentPlayer()
+    {
+        if (CurPlayer == Host.Nickname)
+            return Host;
+
+        return Guest;
+    }
+
     public void Serialize(BinaryWriter writer)
     {
         writer.Write(Code);

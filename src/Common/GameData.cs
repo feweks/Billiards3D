@@ -8,4 +8,5 @@ static class GameData
     public static string DataPath => Path.Combine(AuthorPath, Name);
     public static string ServerDataPath => Path.Combine(DataPath, "server_data");
     public static uint LobbyCodeLength => 6;
+    public static uint MaxPacketSize => 8192;
 }

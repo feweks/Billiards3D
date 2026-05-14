@@ -104,17 +104,10 @@ class ServerLobbyData
 
         bool cueHitSomething = cueHitBallsTurn.Count > 0;
         bool cueFoul = !cueHitSomething;
-
         bool anyPocketed = pocketedBallsTurn.Count > 0;
-
         bool blackPocketed = pocketedBallsTurn.Any(b => b.Type == PoolBallType.BlackBall);
-
-        bool playerHasRemainingBalls =
-            Lobby.PoolBalls.Any(b => b.Type == ply.BallType && !b.Pocketed);
-
-        bool isBlackPhase =
-            ply.BallType != PoolBallType.None &&
-            !playerHasRemainingBalls;
+        bool playerHasRemainingBalls = Lobby.PoolBalls.Any(b => b.Type == ply.BallType && !b.Pocketed);
+        bool isBlackPhase = ply.BallType != PoolBallType.None && !playerHasRemainingBalls;
 
         if (cueFoul || cueBallPocketed)
         {
@@ -151,14 +144,8 @@ class ServerLobbyData
             if (firstValid != null)
             {
                 ply.BallType = firstValid.Type;
-
-                var otherType = firstValid.Type == PoolBallType.Solid ? PoolBallType.Striped : PoolBallType.Solid;
-
-                var otherPlayer =
-                    ply.Nickname == Lobby.Host.Nickname
-                        ? Lobby.GetPlayerByNick(Lobby.Guest.Nickname!)
-                        : Lobby.GetPlayerByNick(Lobby.Host.Nickname!);
-
+                var otherType = ply.BallType == PoolBallType.Striped ? PoolBallType.Solid : PoolBallType.Striped;
+                var otherPlayer = ply.Nickname == Lobby.Host.Nickname ? Lobby.Guest : Lobby.Host;
                 otherPlayer.BallType = otherType;
             }
 

@@ -20,7 +20,7 @@ class PoolBallEntity : GameEntity
 
         Visible = !Data.Pocketed;
 
-        float lerpAmount = dt * 35f;
+        float lerpAmount = dt * 30f;
         Position = Raymath.Vector3Lerp(Position, Data.Position, lerpAmount);
         Rotation.X = Raymath.LerpAngle(Rotation.X, Data.Rotation.X, lerpAmount);
         Rotation.Y = Raymath.LerpAngle(Rotation.Y, Data.Rotation.Y, lerpAmount);
