@@ -1,18 +1,18 @@
-using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
-using Game.Common;
-using Game.Server.Data;
+using Game.Common.Data;
+using Game.Common.Enums;
+using Game.Server.Data.Files;
 using Raylib_cs;
 
 namespace Game.Server;
 
 class Program
 {
-    GameServerConfig serverConfig;
+    GameServerConfigFileData serverConfig;
     GameServer server;
     bool running = false;
-    Dictionary<PoolGamemodeType, PoolGamemodeConfig> gamemodeConfigs;
+    Dictionary<PoolGamemodeType, PoolGamemodeConfigFileData> gamemodeConfigs;
 
     public Program(string[] args)
     {
@@ -21,8 +21,8 @@ class Program
         _ = Raylib.SetRandomSeed((uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         SetupConfigPaths();
 
-        serverConfig = GetData("srv_config.json", GameServerConfigCtx.Default.GameServerConfig);
-        gamemodeConfigs = new Dictionary<PoolGamemodeType, PoolGamemodeConfig>();
+        serverConfig = GetData("srv_config.json", GameServerConfigFileDataCtx.Default.GameServerConfigFileData);
+        gamemodeConfigs = new Dictionary<PoolGamemodeType, PoolGamemodeConfigFileData>();
         LoadGamemodeConfig(PoolGamemodeType.Classic);
 
         server = new GameServer(serverConfig, gamemodeConfigs);
@@ -56,12 +56,12 @@ class Program
         {
             Raylib.TraceLog(TraceLogLevel.Info, $"Initializing gamemode config for {type} at {fullPath}");
 
-            var gmCfg = PoolGamemodeConfig.GetDefault(type);
-            string serialized = JsonSerializer.Serialize(gmCfg, PoolGamemodeConfigCtx.Default.PoolGamemodeConfig);
+            var gmCfg = PoolGamemodeConfigFileData.GetDefault(type);
+            string serialized = JsonSerializer.Serialize(gmCfg, PoolGamemodeConfigFileDataCtx.Default.PoolGamemodeConfigFileData);
             File.WriteAllText(fullPath, serialized);
         }
 
-        gamemodeConfigs.Add(type, GetData(typePath, PoolGamemodeConfigCtx.Default.PoolGamemodeConfig, false));
+        gamemodeConfigs.Add(type, GetData(typePath, PoolGamemodeConfigFileDataCtx.Default.PoolGamemodeConfigFileData, false));
     }
 
     private static T GetData<T>(string path, JsonTypeInfo<T> ctx, bool writeOnFailure = true) where T : new()
@@ -138,7 +138,7 @@ class Program
                 var lastLobby = server.Lobbies.Last();
                 foreach (var lobby in server.Lobbies)
                 {
-                    lsTxt += $"#{lobby.Key}: {lobby.Value.Lobby.GetPlayerCount()}/2";
+                    lsTxt += $"#{lobby.Key}: {lobby.Value.Data.GetPlayerCount()}/2";
 
                     if (lastLobby.Key != lobby.Key)
                         lsTxt += "\n";

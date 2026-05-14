@@ -1,4 +1,4 @@
-namespace Game.Common;
+namespace Game.Common.Enums;
 
 enum PoolBallType : byte
 {

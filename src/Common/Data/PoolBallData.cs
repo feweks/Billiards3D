@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Common.Enums;
 
 namespace Game.Common.Data;
 

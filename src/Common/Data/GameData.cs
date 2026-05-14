@@ -1,4 +1,4 @@
-namespace Game.Common;
+namespace Game.Common.Data;
 
 static class GameData
 {

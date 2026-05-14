@@ -2,6 +2,8 @@ using System.Numerics;
 using Game.Client.Entities;
 using Game.Client.Net;
 using Game.Common;
+using Game.Common.Data;
+using Game.Common.Enums;
 using ImGuiNET;
 using Raylib_cs;
 
@@ -40,7 +42,7 @@ class MainMenuState : GameState
 
         ImGui.Begin("MainMenu");
 
-        if (GameClient.LobbyStatus != Common.Packets.JoinedLobbyStatus.Success)
+        if (GameClient.LobbyStatus != JoinedLobbyStatus.Success)
         {
             ImGui.InputText("Nickname", ref nickInp, 32);
             ImGui.InputText("Code", ref codeInp, GameData.LobbyCodeLength);
@@ -55,20 +57,20 @@ class MainMenuState : GameState
                 GameClient.JoinLobby(codeInp, nickInp);
             }
 
-            if (GameClient.LobbyStatus == Common.Packets.JoinedLobbyStatus.NickCollision)
+            if (GameClient.LobbyStatus == JoinedLobbyStatus.NickCollision)
             {
                 ImGui.TextColored(Utils.ColorToVec4(Color.Red), "Failed to join lobby: player with that name is already in");
             }
-            else if (GameClient.LobbyStatus == Common.Packets.JoinedLobbyStatus.Missing)
+            else if (GameClient.LobbyStatus == JoinedLobbyStatus.Missing)
             {
                 ImGui.TextColored(Utils.ColorToVec4(Color.Red), "Failed to join lobby: lobby with that code does not exist");
             }
-            else if (GameClient.LobbyStatus == Common.Packets.JoinedLobbyStatus.Full)
+            else if (GameClient.LobbyStatus == JoinedLobbyStatus.Full)
             {
                 ImGui.TextColored(Utils.ColorToVec4(Color.Red), "Failed to join lobby: lobby is full");
             }
         }
-        else if (GameClient.LobbyStatus == Common.Packets.JoinedLobbyStatus.Success && GameClient.LobbyData != null)
+        else if (GameClient.LobbyStatus == JoinedLobbyStatus.Success && GameClient.LobbyData != null)
         {
             ImGui.Text($"Lobby {GameClient.LobbyData.Code} ({GameClient.LobbyData.GetPlayerCount()}/2)");
             ImGui.SameLine();

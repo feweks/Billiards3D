@@ -1,13 +1,12 @@
-using System.Diagnostics.CodeAnalysis;
+using Game.Common.Enums;
 
 namespace Game.Common.Packets;
 
 class LobbyPacket : Packet
 {
-    public required string Sender { get; set; } = string.Empty;
-    public required string LobbyCode { get; set; } = string.Empty;
+    public string Sender { get; set; } = string.Empty;
+    public string LobbyCode { get; set; } = string.Empty;
 
-    [SetsRequiredMembers]
     public LobbyPacket(PacketType type) : base(type) { }
 
     public override void Serialize(BinaryWriter writer)

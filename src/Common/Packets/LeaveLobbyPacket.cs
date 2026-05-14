@@ -1,9 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
+using Game.Common.Enums;
 
 namespace Game.Common.Packets;
 
 class LeaveLobbyPacket : LobbyPacket
 {
-    [SetsRequiredMembers]
     public LeaveLobbyPacket() : base(PacketType.LeaveLobby) { }
 }

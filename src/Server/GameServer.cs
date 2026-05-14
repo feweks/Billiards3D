@@ -1,13 +1,12 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using System.Numerics;
 using System.Text;
-using Game.Common;
 using Game.Common.Data;
 using Game.Common.Packets;
+using Game.Common.Enums;
 using Game.Server.Data;
+using Game.Server.Data.Files;
 using Raylib_cs;
 
 namespace Game.Server;
@@ -16,15 +15,15 @@ class GameServer
 {
     public ConcurrentDictionary<string, ServerLobbyData> Lobbies { get; }
 
-    private GameServerConfig config;
-    private Dictionary<PoolGamemodeType, PoolGamemodeConfig> gamemodeConfigs;
+    private GameServerConfigFileData config;
+    private Dictionary<PoolGamemodeType, PoolGamemodeConfigFileData> gamemodeConfigs;
     private Socket listener;
     private List<Socket> clients;
     private Thread? connThread;
     private Thread? lobbiesThread;
     private bool running = false;
 
-    public GameServer(GameServerConfig config, Dictionary<PoolGamemodeType, PoolGamemodeConfig> gamemodeConfigs)
+    public GameServer(GameServerConfigFileData config, Dictionary<PoolGamemodeType, PoolGamemodeConfigFileData> gamemodeConfigs)
     {
         this.config = config;
         this.gamemodeConfigs = gamemodeConfigs;
@@ -99,6 +98,13 @@ class GameServer
 
     private void ProcessPacket(Socket client, Packet packet)
     {
+        if (packet is LobbyPacket lobbyPacket)
+        {
+            Lobbies.TryGetValue(lobbyPacket.LobbyCode, out ServerLobbyData? lobbyData);
+            ProcessLobbyPacket(client, lobbyPacket, lobbyData);
+            return;
+        }
+
         switch (packet.Type)
         {
             case PacketType.Ping:
@@ -106,6 +112,18 @@ class GameServer
                     Send(client, packet);
                     break;
                 }
+            default:
+                {
+                    Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process packet {packet}: no packet logic of that type");
+                    break;
+                }
+        }
+    }
+
+    private void ProcessLobbyPacket(Socket client, LobbyPacket packet, ServerLobbyData? lobby)
+    {
+        switch (packet.Type)
+        {
             case PacketType.HostLobby:
                 {
                     var hostPacket = (HostLobbyPacket)packet;
@@ -128,31 +146,31 @@ class GameServer
                         LobbyData = null
                     };
 
-                    if (!Lobbies.TryGetValue(joinPacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    if (lobby == null)
                     {
                         response.Status = JoinedLobbyStatus.Missing;
                     }
                     else
                     {
-                        if (lobbyData.Lobby.CheckIfPlayerExists(joinPacket.Sender))
+                        if (lobby.Data.CheckIfPlayerExists(joinPacket.Sender))
                         {
                             response.Status = JoinedLobbyStatus.NickCollision;
                         }
                         else
                         {
                             response.Status = JoinedLobbyStatus.Success;
-                            response.LobbyData = lobbyData.Lobby;
+                            response.LobbyData = lobby.Data;
 
-                            if (lobbyData.HostConnection == null)
+                            if (lobby.HostConnection == null)
                             {
-                                lobbyData.HostConnection = client;
-                                lobbyData.Lobby.Host.Nickname = joinPacket.Sender;
+                                lobby.HostConnection = client;
+                                lobby.Data.Host.Nickname = joinPacket.Sender;
                             }
-                            else if (lobbyData.GuestConnection == null)
+                            else if (lobby.GuestConnection == null)
                             {
-                                lobbyData.GuestConnection = client;
-                                lobbyData.Lobby.Guest.Nickname = joinPacket.Sender;
-                                Send(lobbyData.HostConnection, joinPacket);
+                                lobby.GuestConnection = client;
+                                lobby.Data.Guest.Nickname = joinPacket.Sender;
+                                Send(lobby.HostConnection, joinPacket);
                             }
                             else
                             {
@@ -169,13 +187,13 @@ class GameServer
                 {
                     var startPacket = (StartLobbyPacket)packet;
 
-                    if (!Lobbies.TryGetValue(startPacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    if (lobby == null)
                     {
                         Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to start lobby {startPacket.LobbyCode}: lobby does not exist");
                         break;
                     }
 
-                    lobbyData.Start();
+                    lobby.Start();
 
                     break;
                 }
@@ -183,7 +201,7 @@ class GameServer
                 {
                     var updatePlayerPacket = (UpdatePlayerLobbyPacket)packet;
 
-                    if (!Lobbies.TryGetValue(updatePlayerPacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    if (lobby == null)
                     {
                         Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to update lobby {updatePlayerPacket.LobbyCode}: lobby does not exist");
                         break;
@@ -192,7 +210,7 @@ class GameServer
                     if (updatePlayerPacket.PlayerData == null)
                         break;
 
-                    var sendingPlayer = lobbyData.Lobby.GetPlayerByNick(updatePlayerPacket.Sender);
+                    var sendingPlayer = lobby.Data.GetPlayerByNick(updatePlayerPacket.Sender);
                     sendingPlayer.AimDir = updatePlayerPacket.PlayerData.AimDir;
                     sendingPlayer.CamPos = updatePlayerPacket.PlayerData.CamPos;
                     sendingPlayer.CueForce = updatePlayerPacket.PlayerData.CueForce;
@@ -204,16 +222,16 @@ class GameServer
                 {
                     var shotPacket = (ShotLobbyPacket)packet;
 
-                    if (!Lobbies.TryGetValue(shotPacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    if (lobby == null)
                     {
                         Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to register shot in lobby {shotPacket.LobbyCode}: lobby does not exist");
                         break;
                     }
 
-                    var ply = lobbyData.Lobby.GetPlayerByNick(shotPacket.Sender);
-                    lobbyData.Lobby.PoolCueBall!.Velocity = ply.AimDir * ply.CueForce;
+                    var ply = lobby.Data.GetPlayerByNick(shotPacket.Sender);
+                    lobby.Data.PoolCueBall!.Velocity = ply.AimDir * ply.CueForce;
                     ply.CueForce = 0;
-                    lobbyData.Lobby.State = PoolGameState.Update;
+                    lobby.Data.State = PoolGameState.Updating;
 
                     break;
                 }
@@ -221,24 +239,22 @@ class GameServer
                 {
                     var placePacket = (PlaceCueLobbyPacket)packet;
 
-                    if (!Lobbies.TryGetValue(placePacket.LobbyCode, out ServerLobbyData? lobbyData))
+                    if (lobby == null)
                     {
                         Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to place cue ball in lobby {placePacket.LobbyCode}: lobby does not exist");
                         break;
                     }
 
-                    if (lobbyData.Lobby.CanPlaceCueBall)
+                    if (lobby.Data.CanPlaceCueBall)
                     {
-                        lobbyData.Lobby.State = PoolGameState.Shooting;
+                        lobby.Data.State = PoolGameState.Aiming;
                     }
 
                     break;
                 }
             default:
-                {
-                    Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process packet {packet}: no packet logic of that type");
-                    break;
-                }
+                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process packet {packet.Type}: no packet processing logic exists");
+                break;
         }
     }
 
@@ -262,6 +278,9 @@ class GameServer
 
     public void Send(Socket client, Packet packet)
     {
+        if (!client.Connected || !clients.Contains(client))
+            return;
+
         var memStream = new MemoryStream();
         var binStream = new BinaryWriter(memStream);
         packet.Serialize(binStream);
@@ -317,23 +336,14 @@ class GameServer
     private void UpdateLobbies()
     {
         float delta = 1f / config.Tickrate;
+        int sleepAmount = (int)(delta * 1000);
 
         while (running)
         {
             foreach (var lobby in Lobbies.Values)
-            {
-                lobby.Update(delta);
+                lobby.Update(delta, this);
 
-                if (lobby.Lobby.Started)
-                {
-                    lobby.Broadcast(this, new UpdateLobbyPacket()
-                    {
-                        LobbyData = lobby.Lobby
-                    });
-                }
-            }
-
-            Thread.Sleep((int)(delta * 1000));
+            Thread.Sleep(sleepAmount);
         }
     }
 

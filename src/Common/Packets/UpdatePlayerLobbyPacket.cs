@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Game.Common.Data;
+using Game.Common.Enums;
 
 namespace Game.Common.Packets;
 
@@ -7,7 +8,6 @@ class UpdatePlayerLobbyPacket : LobbyPacket
 {
     public PlayerLobbyData? PlayerData { get; set; }
 
-    [SetsRequiredMembers]
     public UpdatePlayerLobbyPacket() : base(PacketType.UpdatePlayerLobby) { }
 
     public override void Serialize(BinaryWriter writer)

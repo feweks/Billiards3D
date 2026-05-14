@@ -1,9 +1,8 @@
 using System.Diagnostics;
 using System.Numerics;
-using Game.Client.Data.Files;
 using Game.Client.Entities;
 using Game.Client.Net;
-using Game.Common;
+using Game.Common.Enums;
 using Game.Common.Data;
 using Game.Common.Packets;
 using Raylib_cs;
@@ -73,7 +72,7 @@ class PlayState : GameState
         if (GameClient.LobbyData == null)
             return;
 
-        poolCue.Visible = GameClient.LobbyData.State == PoolGameState.Break || GameClient.LobbyData.State == PoolGameState.Shooting;
+        poolCue.Visible = GameClient.LobbyData.State == PoolGameState.Breaking || GameClient.LobbyData.State == PoolGameState.Aiming;
 
         poolCueBall.Data = GameClient.LobbyData.PoolCueBall!;
         for (int i = 0; i < GameClient.LobbyData.PoolBalls.Count; i++)
@@ -96,13 +95,13 @@ class PlayState : GameState
                 UpdateCue(dt, netPlayer);
             }
 
-            if (GameClient.LobbyData.State == PoolGameState.PlaceWhite)
+            if (GameClient.LobbyData.State == PoolGameState.BallInHand)
             {
                 UpdateCueBall(dt, netPlayer);
             }
         }
 
-        if (GameClient.LobbyData.State == PoolGameState.PlaceWhite)
+        if (GameClient.LobbyData.State == PoolGameState.BallInHand)
         {
             camPos = new Vector3(0.01f, 2f, 0);
             Camera.Target = Raymath.Vector3Lerp(Camera.Target, Vector3.UnitY, dt * 10f);
@@ -220,7 +219,7 @@ class PlayState : GameState
         if (GameClient.LobbyData == null)
             return;
 
-        if (DebugView && GameClient.LobbyData.State == PoolGameState.PlaceWhite)
+        if (DebugView && GameClient.LobbyData.State == PoolGameState.BallInHand)
         {
             Ray ray = Raylib.GetScreenToWorldRay(Raylib.GetMousePosition(), Camera);
             Raylib.DrawRay(ray, Color.Orange);
@@ -234,19 +233,19 @@ class PlayState : GameState
         if (GameClient.LobbyData == null)
             return;
 
-        if (GameClient.LobbyData.State == PoolGameState.Break)
+        if (GameClient.LobbyData.State == PoolGameState.Breaking)
         {
             Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} is breaking", 5, 3, 24, Color.White);
         }
 
-        if (GameClient.LobbyData.State == PoolGameState.Shooting)
+        if (GameClient.LobbyData.State == PoolGameState.Aiming)
         {
-            Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} is shooting", 5, 3, 24, Color.White);
+            Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} is aiming", 5, 3, 24, Color.White);
         }
 
-        if (GameClient.LobbyData.State == PoolGameState.PlaceWhite)
+        if (GameClient.LobbyData.State == PoolGameState.BallInHand)
         {
-            Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} is placing", 5, 3, 24, Color.White);
+            Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} has cue ball in hand", 5, 3, 24, Color.White);
         }
 
         var ply = GameClient.GetSelfPlayer();
@@ -266,7 +265,7 @@ class PlayState : GameState
             Raylib.DrawText(ballTypeTxt, Program.Instance!.Config.RenderResolution[0] - ballTypeTxtSize, 3, 24, Color.White);
         }
 
-        if (GameClient.LobbyData.State == PoolGameState.End)
+        if (GameClient.LobbyData.State == PoolGameState.Finished)
         {
             string winnerTxt = $"{GameClient.LobbyData.GetPlayerByNick(GameClient.LobbyData.CurPlayer).Nickname} won";
             int winnerTxtSize = Raylib.MeasureText(winnerTxt, 24);

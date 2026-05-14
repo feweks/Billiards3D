@@ -1,9 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
+using Game.Common.Enums;
 
 namespace Game.Common.Packets;
 
 class HostLobbyPacket : LobbyPacket
 {
-    [SetsRequiredMembers]
     public HostLobbyPacket() : base(PacketType.HostLobby) { }
 }

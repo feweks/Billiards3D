@@ -1,16 +1,17 @@
 using System.Net.Sockets;
 using System.Numerics;
-using Game.Common;
 using Game.Common.Data;
+using Game.Common.Enums;
 using Game.Common.Packets;
+using Game.Server.Data.Files;
 using Raylib_cs;
 
 namespace Game.Server.Data;
 
 class ServerLobbyData
 {
-    public GameLobbyData Lobby { get; }
-    public PoolGamemodeConfig GamemodeConfig { get; }
+    public GameLobbyData Data { get; }
+    public PoolGamemodeConfigFileData GamemodeConfig { get; }
     public Socket? HostConnection { get; set; }
     public Socket? GuestConnection { get; set; }
 
@@ -19,12 +20,12 @@ class ServerLobbyData
     private bool cueBallPocketedTurn = false;
     private bool railTouchedTurn = false;
 
-    public ServerLobbyData(GameLobbyData lobbyData, PoolGamemodeConfig gamemodeCfg)
+    public ServerLobbyData(GameLobbyData lobbyData, PoolGamemodeConfigFileData gamemodeCfg)
     {
-        Lobby = lobbyData;
+        Data = lobbyData;
         GamemodeConfig = gamemodeCfg;
 
-        Lobby.PoolCueBall = new PoolBallData()
+        Data.PoolCueBall = new PoolBallData()
         {
             Identifier = "cue",
             Position = gamemodeCfg.PoolCueBall.Position,
@@ -43,7 +44,7 @@ class ServerLobbyData
                 Velocity = Vector3.Zero
             };
 
-            Lobby.PoolBalls.Add(ball);
+            Data.PoolBalls.Add(ball);
         }
 
         cueHitBallsTurn = new List<PoolBallData>();
@@ -52,32 +53,32 @@ class ServerLobbyData
 
     public void Start()
     {
-        Lobby.Started = true;
+        Data.Started = true;
 
         int breakingPlayer = Raylib.GetRandomValue(0, 1);
         if (breakingPlayer == 0)
         {
-            Lobby.CurPlayer = Lobby.Host.Nickname!;
+            Data.CurPlayer = Data.Host.Nickname!;
         }
         else
         {
-            Lobby.CurPlayer = Lobby.Guest.Nickname!;
+            Data.CurPlayer = Data.Guest.Nickname!;
         }
 
-        Lobby.State = PoolGameState.Break;
+        Data.State = PoolGameState.Breaking;
     }
 
-    public void Update(float dt)
+    public void Update(float dt, GameServer server)
     {
-        if (!Lobby.Started)
+        if (!Data.Started)
             return;
 
         bool isTableCalm = true;
-        UpdateBallPhysics(dt, Lobby.PoolCueBall!);
-        if (Lobby.PoolCueBall!.Velocity.Length() != 0)
+        UpdateBallPhysics(dt, Data.PoolCueBall!);
+        if (Data.PoolCueBall!.Velocity.Length() != 0)
             isTableCalm = false;
 
-        foreach (var ball in Lobby.PoolBalls.Where(b => !b.Pocketed))
+        foreach (var ball in Data.PoolBalls.Where(b => !b.Pocketed))
         {
             UpdateBallPhysics(dt, ball);
 
@@ -87,20 +88,25 @@ class ServerLobbyData
 
         UpdateCollisions();
 
-        switch (Lobby.State)
+        switch (Data.State)
         {
-            case PoolGameState.Update:
+            case PoolGameState.Updating:
                 UpdateTable(isTableCalm);
                 break;
-            case PoolGameState.PlaceWhite:
+            case PoolGameState.BallInHand:
                 UpdateCueBall(isTableCalm);
                 break;
         }
+
+        Broadcast(server, new UpdateLobbyPacket()
+        {
+            LobbyData = Data
+        });
     }
 
     private void ResolveTurn()
     {
-        var ply = Lobby.GetCurrentPlayer();
+        var ply = Data.GetCurrentPlayer();
 
         if (pocketedBallsTurn.Count > 0)
         {
@@ -108,9 +114,9 @@ class ServerLobbyData
 
             if (blackPocketed != null)
             {
-                bool couldPocketBlack = !Lobby.PoolBalls.Any(b => b.Type == ply.BallType) && ply.BallType != PoolBallType.None && !cueBallPocketedTurn;
+                bool couldPocketBlack = !Data.PoolBalls.Any(b => b.Type == ply.BallType) && ply.BallType != PoolBallType.None && !cueBallPocketedTurn;
 
-                EndTurn(PoolGameState.End, !couldPocketBlack);
+                EndTurn(PoolGameState.Finished, !couldPocketBlack);
                 return;
             }
         }
@@ -119,7 +125,7 @@ class ServerLobbyData
         foul |= cueBallPocketedTurn;
         var firstBall = cueHitBallsTurn.FirstOrDefault();
         foul |= firstBall == null;
-        bool shootingBlack = ply.BallType != PoolBallType.None && !Lobby.PoolBalls.Any(b => b.Type == ply.BallType);
+        bool shootingBlack = ply.BallType != PoolBallType.None && !Data.PoolBalls.Any(b => b.Type == ply.BallType);
         PoolBallType requiredType = shootingBlack ? PoolBallType.BlackBall : ply.BallType;
         foul |= firstBall != null && ply.BallType != PoolBallType.None && firstBall.Type != requiredType;
         bool legalAfterContact = pocketedBallsTurn.Count > 0 || railTouchedTurn;
@@ -127,7 +133,7 @@ class ServerLobbyData
 
         if (foul)
         {
-            EndTurn(PoolGameState.PlaceWhite, true);
+            EndTurn(PoolGameState.BallInHand, true);
             return;
         }
 
@@ -142,23 +148,23 @@ class ServerLobbyData
                 ply.BallType = pocketedBallsTurn.First(b => b.Type == PoolBallType.Solid || b.Type == PoolBallType.Striped).Type;
 
                 PlayerLobbyData otherPlayer;
-                if (ply.Nickname == Lobby.Host.Nickname)
-                    otherPlayer = Lobby.Guest;
+                if (ply.Nickname == Data.Host.Nickname)
+                    otherPlayer = Data.Guest;
                 else
-                    otherPlayer = Lobby.Host;
+                    otherPlayer = Data.Host;
 
                 otherPlayer.BallType = ply.BallType == PoolBallType.Solid ? PoolBallType.Striped : PoolBallType.Solid;
 
-                EndTurn(PoolGameState.Shooting, false);
+                EndTurn(PoolGameState.Aiming, false);
                 return;
             }
 
-            EndTurn(PoolGameState.Shooting, true);
+            EndTurn(PoolGameState.Aiming, true);
             return;
         }
 
         bool continueTurn = pocketedBallsTurn.Any(b => b.Type == ply.BallType);
-        EndTurn(PoolGameState.Shooting, !continueTurn);
+        EndTurn(PoolGameState.Aiming, !continueTurn);
     }
 
     private void UpdateTable(bool calm)
@@ -171,7 +177,7 @@ class ServerLobbyData
 
         foreach (var pocketPos in GamemodeConfig.PoolTablePockets)
         {
-            foreach (var ball in Lobby.PoolBalls.Where(b => !b.Pocketed))
+            foreach (var ball in Data.PoolBalls.Where(b => !b.Pocketed))
             {
                 if (CheckPocketBallCollision(ball, pocketPos))
                 {
@@ -181,10 +187,10 @@ class ServerLobbyData
                 }
             }
 
-            if (CheckPocketBallCollision(Lobby.PoolCueBall!, pocketPos))
+            if (CheckPocketBallCollision(Data.PoolCueBall!, pocketPos))
             {
-                Lobby.GetPlayerByNick(Lobby.CurPlayer).PlacePos = Vector3.Zero;
-                Lobby.PoolCueBall!.Velocity = Vector3.Zero;
+                Data.GetPlayerByNick(Data.CurPlayer).PlacePos = Vector3.Zero;
+                Data.PoolCueBall!.Velocity = Vector3.Zero;
                 cueBallPocketedTurn = true;
                 return;
             }
@@ -196,7 +202,7 @@ class ServerLobbyData
         if (ply.BallType == PoolBallType.None)
             return ball.Type != PoolBallType.BlackBall;
 
-        if (!Lobby.PoolBalls.Any(b => !b.Pocketed && b.Type == ply.BallType))
+        if (!Data.PoolBalls.Any(b => !b.Pocketed && b.Type == ply.BallType))
         {
             return ball.Type == PoolBallType.BlackBall;
         }
@@ -209,8 +215,8 @@ class ServerLobbyData
         if (!calm)
             return;
 
-        Vector3 plyPlacePos = Lobby.GetPlayerByNick(Lobby.CurPlayer).PlacePos + new Vector3(0, 0.01f, 0);
-        Lobby.PoolCueBall!.Position = plyPlacePos;
+        Vector3 plyPlacePos = Data.GetPlayerByNick(Data.CurPlayer).PlacePos + new Vector3(0, 0.01f, 0);
+        Data.PoolCueBall!.Position = plyPlacePos;
 
         float halfWidth = GamemodeConfig.PoolTableWidth / 2;
         float halfLength = GamemodeConfig.PoolTableLength / 2;
@@ -218,23 +224,23 @@ class ServerLobbyData
         var minPos = new Vector3(-halfWidth + radius, 1f, -halfLength + radius);
         var maxPos = new Vector3(halfWidth - radius, 1.01f, halfLength - radius);
 
-        Lobby.PoolCueBall.Position = Raymath.Vector3Clamp(Lobby.PoolCueBall.Position, minPos, maxPos);
+        Data.PoolCueBall.Position = Raymath.Vector3Clamp(Data.PoolCueBall.Position, minPos, maxPos);
 
-        Lobby.CanPlaceCueBall = true;
-        foreach (var ball in Lobby.PoolBalls.Where(b => !b.Pocketed))
+        Data.CanPlaceCueBall = true;
+        foreach (var ball in Data.PoolBalls.Where(b => !b.Pocketed))
         {
-            if (CheckBallsCollision(Lobby.PoolCueBall, ball))
+            if (CheckBallsCollision(Data.PoolCueBall, ball))
             {
-                Lobby.CanPlaceCueBall = false;
+                Data.CanPlaceCueBall = false;
                 break;
             }
         }
 
         foreach (var pocket in GamemodeConfig.PoolTablePockets)
         {
-            if (CheckPocketBallCollision(Lobby.PoolCueBall, pocket))
+            if (CheckPocketBallCollision(Data.PoolCueBall, pocket))
             {
-                Lobby.CanPlaceCueBall = false;
+                Data.CanPlaceCueBall = false;
                 break;
             }
         }
@@ -242,8 +248,8 @@ class ServerLobbyData
 
     private void ChangePlayer()
     {
-        string nextPlayer = Lobby.CurPlayer == Lobby.Host.Nickname ? Lobby.Guest.Nickname! : Lobby.Host.Nickname!;
-        Lobby.CurPlayer = nextPlayer;
+        string nextPlayer = Data.CurPlayer == Data.Host.Nickname ? Data.Guest.Nickname! : Data.Host.Nickname!;
+        Data.CurPlayer = nextPlayer;
     }
 
     private bool CheckBallsCollision(PoolBallData ballA, PoolBallData ballB)
@@ -315,22 +321,22 @@ class ServerLobbyData
 
     private void UpdateCollisions()
     {
-        if (Lobby.State != PoolGameState.PlaceWhite)
+        if (Data.State != PoolGameState.BallInHand)
         {
-            for (int i = 0; i < Lobby.PoolBalls.Count; i++)
+            for (int i = 0; i < Data.PoolBalls.Count; i++)
             {
-                var ballA = Lobby.PoolBalls[i];
-                for (int j = i + 1; j < Lobby.PoolBalls.Count; j++)
+                var ballA = Data.PoolBalls[i];
+                for (int j = i + 1; j < Data.PoolBalls.Count; j++)
                 {
-                    var ballB = Lobby.PoolBalls[j];
+                    var ballB = Data.PoolBalls[j];
 
                     if (!ballA.Pocketed && !ballB.Pocketed && CheckBallsCollision(ballA, ballB))
                         HandleCollision(ballA, ballB);
                 }
 
-                if (CheckBallsCollision(ballA, Lobby.PoolCueBall!))
+                if (CheckBallsCollision(ballA, Data.PoolCueBall!))
                 {
-                    HandleCollision(ballA, Lobby.PoolCueBall!);
+                    HandleCollision(ballA, Data.PoolCueBall!);
 
                     if (!cueHitBallsTurn.Contains(ballA))
                         cueHitBallsTurn.Add(ballA);
@@ -369,11 +375,11 @@ class ServerLobbyData
 
     private void EndTurn(PoolGameState nextState, bool changePlayer)
     {
-        Lobby.State = nextState;
+        Data.State = nextState;
         pocketedBallsTurn.Clear();
         cueHitBallsTurn.Clear();
 
-        var ply = Lobby.GetPlayerByNick(Lobby.CurPlayer);
+        var ply = Data.GetPlayerByNick(Data.CurPlayer);
         ply.CueForce = 0;
         cueBallPocketedTurn = false;
         railTouchedTurn = false;

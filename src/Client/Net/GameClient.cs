@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using Game.Client.Data.Files;
-using Game.Common;
+using Game.Common.Enums;
 using Game.Common.Data;
 using Game.Common.Packets;
 using Raylib_cs;
@@ -101,6 +101,8 @@ static class GameClient
             LobbyCode = LobbyData.Code,
             Sender = PlayerNick
         });
+
+        LobbyStatus = JoinedLobbyStatus.None;
     }
 
     public static void SendPacket(Packet packet)

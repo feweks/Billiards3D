@@ -1,3 +1,5 @@
+using Game.Common.Enums;
+
 namespace Game.Common.Packets;
 
 class PingPacket : Packet

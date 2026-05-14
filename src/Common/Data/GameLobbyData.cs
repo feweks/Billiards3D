@@ -1,5 +1,7 @@
+using Game.Common.Enums;
 
 namespace Game.Common.Data;
+
 
 class GameLobbyData : ISerializableData
 {

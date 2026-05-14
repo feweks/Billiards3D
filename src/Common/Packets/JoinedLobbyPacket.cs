@@ -1,23 +1,13 @@
-using System.Diagnostics.CodeAnalysis;
+using Game.Common.Enums;
 using Game.Common.Data;
 
 namespace Game.Common.Packets;
 
-enum JoinedLobbyStatus : byte
-{
-    None = 0,
-    Success,
-    NickCollision,
-    Missing,
-    Full
-}
-
 class JoinedLobbyPacket : LobbyPacket
 {
-    public required JoinedLobbyStatus Status { get; set; }
+    public JoinedLobbyStatus Status { get; set; }
     public GameLobbyData? LobbyData { get; set; } = null;
 
-    [SetsRequiredMembers]
     public JoinedLobbyPacket() : base(PacketType.JoinedLobby) { }
 
     public override void Serialize(BinaryWriter writer)

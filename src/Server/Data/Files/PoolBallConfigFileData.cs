@@ -1,9 +1,9 @@
 using System.Numerics;
-using Game.Common;
+using Game.Common.Enums;
 
-namespace Game.Server.Data;
+namespace Game.Server.Data.Files;
 
-class PoolBallConfig
+class PoolBallConfigFileData
 {
     public required Vector3 Position;
     public required PoolBallType Type { get; set; }
