@@ -189,14 +189,14 @@ class GameServer
                         break;
                     }
 
-                    if (lobbyData.Lobby.Host.Nickname == updatePlayerPacket.Sender)
-                    {
-                        lobbyData.Lobby.Host = updatePlayerPacket.PlayerData!;
-                    }
-                    else
-                    {
-                        lobbyData.Lobby.Guest = updatePlayerPacket.PlayerData!;
-                    }
+                    if (updatePlayerPacket.PlayerData == null)
+                        break;
+
+                    var sendingPlayer = lobbyData.Lobby.GetPlayerByNick(updatePlayerPacket.Sender);
+                    sendingPlayer.AimDir = updatePlayerPacket.PlayerData.AimDir;
+                    sendingPlayer.CamPos = updatePlayerPacket.PlayerData.CamPos;
+                    sendingPlayer.CueForce = updatePlayerPacket.PlayerData.CueForce;
+                    sendingPlayer.PlacePos = updatePlayerPacket.PlayerData.PlacePos;
 
                     break;
                 }

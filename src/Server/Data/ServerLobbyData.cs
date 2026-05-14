@@ -16,8 +16,8 @@ class ServerLobbyData
 
     private List<PoolBallData> cueHitBallsTurn;
     private List<PoolBallData> pocketedBallsTurn;
-
-    private bool cueBallPocketed;
+    private bool cueBallPocketedTurn = false;
+    private bool railTouchedTurn = false;
 
     public ServerLobbyData(GameLobbyData lobbyData, PoolGamemodeConfig gamemodeCfg)
     {
@@ -100,74 +100,65 @@ class ServerLobbyData
 
     private void ResolveTurn()
     {
-        var ply = Lobby.GetPlayerByNick(Lobby.CurPlayer);
+        var ply = Lobby.GetCurrentPlayer();
 
-        bool cueHitSomething = cueHitBallsTurn.Count > 0;
-        bool cueFoul = !cueHitSomething;
-        bool anyPocketed = pocketedBallsTurn.Count > 0;
-        bool blackPocketed = pocketedBallsTurn.Any(b => b.Type == PoolBallType.BlackBall);
-        bool playerHasRemainingBalls = Lobby.PoolBalls.Any(b => b.Type == ply.BallType && !b.Pocketed);
-        bool isBlackPhase = ply.BallType != PoolBallType.None && !playerHasRemainingBalls;
-
-        if (cueFoul || cueBallPocketed)
+        if (pocketedBallsTurn.Count > 0)
         {
-            EndTurn(PoolGameState.PlaceWhite, true);
-            return;
-        }
+            var blackPocketed = pocketedBallsTurn.Find(b => b.Type == PoolBallType.BlackBall);
 
-        if (blackPocketed)
-        {
-            bool win = isBlackPhase && cueHitSomething && !playerHasRemainingBalls;
-
-            EndTurn(PoolGameState.End, !win);
-            return;
-        }
-
-        if (!cueHitSomething)
-        {
-            EndTurn(PoolGameState.PlaceWhite, true);
-            return;
-        }
-
-        var firstHit = cueHitBallsTurn.First();
-
-        if (!ValidateHit(firstHit, ply))
-        {
-            EndTurn(PoolGameState.PlaceWhite, true);
-            return;
-        }
-
-        if (ply.BallType == PoolBallType.None && anyPocketed)
-        {
-            var firstValid = pocketedBallsTurn.FirstOrDefault(b => b.Type == PoolBallType.Solid || b.Type == PoolBallType.Striped);
-
-            if (firstValid != null)
+            if (blackPocketed != null)
             {
-                ply.BallType = firstValid.Type;
-                var otherType = ply.BallType == PoolBallType.Striped ? PoolBallType.Solid : PoolBallType.Striped;
-                var otherPlayer = ply.Nickname == Lobby.Host.Nickname ? Lobby.Guest : Lobby.Host;
-                otherPlayer.BallType = otherType;
+                bool couldPocketBlack = !Lobby.PoolBalls.Any(b => b.Type == ply.BallType) && ply.BallType != PoolBallType.None && !cueBallPocketedTurn;
+
+                EndTurn(PoolGameState.End, !couldPocketBlack);
+                return;
+            }
+        }
+
+        bool foul = false;
+        foul |= cueBallPocketedTurn;
+        var firstBall = cueHitBallsTurn.FirstOrDefault();
+        foul |= firstBall == null;
+        bool shootingBlack = ply.BallType != PoolBallType.None && !Lobby.PoolBalls.Any(b => b.Type == ply.BallType);
+        PoolBallType requiredType = shootingBlack ? PoolBallType.BlackBall : ply.BallType;
+        foul |= firstBall != null && ply.BallType != PoolBallType.None && firstBall.Type != requiredType;
+        bool legalAfterContact = pocketedBallsTurn.Count > 0 || railTouchedTurn;
+        foul |= !legalAfterContact;
+
+        if (foul)
+        {
+            EndTurn(PoolGameState.PlaceWhite, true);
+            return;
+        }
+
+        bool tableOpened = ply.BallType == PoolBallType.None;
+        if (tableOpened && pocketedBallsTurn.Count > 0)
+        {
+            bool pocketedSolids = pocketedBallsTurn.Any(b => b.Type == PoolBallType.Solid);
+            bool pocketedStriped = pocketedBallsTurn.Any(b => b.Type == PoolBallType.Striped);
+
+            if (!(pocketedSolids && pocketedStriped))
+            {
+                ply.BallType = pocketedBallsTurn.First(b => b.Type == PoolBallType.Solid || b.Type == PoolBallType.Striped).Type;
+
+                PlayerLobbyData otherPlayer;
+                if (ply.Nickname == Lobby.Host.Nickname)
+                    otherPlayer = Lobby.Guest;
+                else
+                    otherPlayer = Lobby.Host;
+
+                otherPlayer.BallType = ply.BallType == PoolBallType.Solid ? PoolBallType.Striped : PoolBallType.Solid;
+
+                EndTurn(PoolGameState.Shooting, false);
+                return;
             }
 
-            EndTurn(PoolGameState.Shooting, false);
-            return;
-        }
-
-        if (!anyPocketed)
-        {
             EndTurn(PoolGameState.Shooting, true);
             return;
         }
 
-        bool validPocket = pocketedBallsTurn.Any(b => b.Type == ply.BallType);
-
-        if (!validPocket)
-        {
-            EndTurn(PoolGameState.PlaceWhite, true);
-            return;
-        }
-
-        EndTurn(PoolGameState.Shooting, false);
+        bool continueTurn = pocketedBallsTurn.Any(b => b.Type == ply.BallType);
+        EndTurn(PoolGameState.Shooting, !continueTurn);
     }
 
     private void UpdateTable(bool calm)
@@ -194,7 +185,7 @@ class ServerLobbyData
             {
                 Lobby.GetPlayerByNick(Lobby.CurPlayer).PlacePos = Vector3.Zero;
                 Lobby.PoolCueBall!.Velocity = Vector3.Zero;
-                cueBallPocketed = true;
+                cueBallPocketedTurn = true;
                 return;
             }
         }
@@ -295,22 +286,26 @@ class ServerLobbyData
         {
             ball.Position.X = -halfWidth + radius;
             ball.Velocity.X *= -1;
+            railTouchedTurn = true;
         }
         else if (maxPos.X > halfWidth)
         {
             ball.Position.X = halfWidth - radius;
             ball.Velocity.X *= -1;
+            railTouchedTurn = true;
         }
 
         if (minPos.Z < -halfLength)
         {
             ball.Position.Z = -halfLength + radius;
             ball.Velocity.Z *= -1;
+            railTouchedTurn = true;
         }
         else if (maxPos.Z > halfLength)
         {
             ball.Position.Z = halfLength - radius;
             ball.Velocity.Z *= -1;
+            railTouchedTurn = true;
         }
 
         const float VEL_SCALE = 300f;
@@ -380,7 +375,8 @@ class ServerLobbyData
 
         var ply = Lobby.GetPlayerByNick(Lobby.CurPlayer);
         ply.CueForce = 0;
-        cueBallPocketed = false;
+        cueBallPocketedTurn = false;
+        railTouchedTurn = false;
 
         if (changePlayer)
             ChangePlayer();
