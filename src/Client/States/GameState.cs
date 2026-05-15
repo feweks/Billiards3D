@@ -1,6 +1,8 @@
 using System.Numerics;
+using Game.Client.Data.Files;
 using Game.Client.Entities;
 using Game.Client.Net;
+using Game.Common.Enums;
 using ImGuiNET;
 using Raylib_cs;
 
@@ -14,6 +16,8 @@ abstract class GameState
     public Camera3D Camera;
     public string Name { get; }
 
+    public MapType CurLoadedMap { get; internal set; } = MapType.None;
+
     private List<GameEntity> entities;
 
     public GameState(string name, Vector3 camPos, Vector3 camTarget, float fovy)
@@ -24,9 +28,57 @@ abstract class GameState
         entities = new List<GameEntity>();
     }
 
+    public void LoadMap(MapType type)
+    {
+        if (CurLoadedMap != MapType.None)
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to load map {type}: map is already loaded");
+            return;
+        }
+
+        string mapPath = GetMapFilePath(type);
+        MapFileData mapData = Resources.GetJson(mapPath, MapFileDataCtx.Default.MapFileData);
+
+        foreach (var entData in mapData.Entities)
+        {
+            var ent = new GameEntity(entData.ModelPath, entData.Position, entData.Name)
+            {
+                Rotation = entData.Rotation,
+                Scale = entData.Scale,
+                Map = type
+            };
+            PlaceEntity(ent);
+        }
+
+        Raylib.TraceLog(TraceLogLevel.Info, $"Loaded new map [{type}]");
+        CurLoadedMap = type;
+    }
+
+    public void LoadMap()
+    {
+        if (CurLoadedMap == MapType.None)
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to unload map: no map is currently loaded");
+            return;
+        }
+
+        foreach (var ent in entities.Where(e => e.Map == CurLoadedMap))
+        {
+            RemoveEntity(ent);
+        }
+
+        Raylib.TraceLog(TraceLogLevel.Info, $"Unloaded current map {CurLoadedMap}");
+        CurLoadedMap = MapType.None;
+    }
+
     public void PlaceEntity(GameEntity ent)
     {
         entities.Add(ent);
+    }
+
+    public void RemoveEntity(GameEntity ent)
+    {
+        entities.Remove(ent);
     }
 
     public virtual void Update(float dt)
@@ -95,4 +147,17 @@ abstract class GameState
     }
 
     public virtual void Destroy() { }
+
+    private static string GetMapFilePath(MapType type)
+    {
+        const string MAPS_DIR = "resources/data/maps/{0}.json";
+
+        switch (type)
+        {
+            case MapType.TestRoom:
+                return string.Format(MAPS_DIR, "test_room");
+            default:
+                throw new NotImplementedException($"No map for {type} exists");
+        }
+    }
 }

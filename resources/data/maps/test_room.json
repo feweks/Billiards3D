@@ -1,0 +1,8 @@
+{
+    "Entities": [
+        {
+            "ModelPath": "resources/gfx/models/map/testroom/floor.obj",
+            "Position": { "X": 0, "Y": 0, "Z": 0 }
+        }
+    ]
+}

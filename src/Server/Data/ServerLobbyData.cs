@@ -19,6 +19,7 @@ class ServerLobbyData
     private List<PoolBallData> pocketedBallsTurn;
     private bool cueBallPocketedTurn = false;
     private bool railTouchedTurn = false;
+    private bool canHitBlackTurn = false;
 
     public ServerLobbyData(GameLobbyData lobbyData, PoolGamemodeConfigFileData gamemodeCfg)
     {
@@ -114,7 +115,7 @@ class ServerLobbyData
 
             if (blackPocketed != null)
             {
-                bool couldPocketBlack = !Data.PoolBalls.Any(b => b.Type == ply.BallType) && ply.BallType != PoolBallType.None && !cueBallPocketedTurn;
+                bool couldPocketBlack = canHitBlackTurn && !cueBallPocketedTurn;
 
                 EndTurn(PoolGameState.Finished, !couldPocketBlack);
                 return;
@@ -125,8 +126,7 @@ class ServerLobbyData
         foul |= cueBallPocketedTurn;
         var firstBall = cueHitBallsTurn.FirstOrDefault();
         foul |= firstBall == null;
-        bool shootingBlack = ply.BallType != PoolBallType.None && !Data.PoolBalls.Any(b => b.Type == ply.BallType);
-        PoolBallType requiredType = shootingBlack ? PoolBallType.BlackBall : ply.BallType;
+        PoolBallType requiredType = canHitBlackTurn ? PoolBallType.BlackBall : ply.BallType;
         foul |= firstBall != null && ply.BallType != PoolBallType.None && firstBall.Type != requiredType;
         bool legalAfterContact = pocketedBallsTurn.Count > 0 || railTouchedTurn;
         foul |= !legalAfterContact;
@@ -373,16 +373,27 @@ class ServerLobbyData
         ballB.Velocity += impulse * m;
     }
 
+    public void BeginTurn()
+    {
+        var ply = Data.GetCurrentPlayer();
+        Data.PoolCueBall!.Velocity = ply.AimDir * ply.CueForce;
+        ply.CueForce = 0;
+        Data.State = PoolGameState.Updating;
+        canHitBlackTurn = ply.BallType != PoolBallType.None && !Data.PoolBalls.Any(b => !b.Pocketed && b.Type == ply.BallType);
+    }
+
     private void EndTurn(PoolGameState nextState, bool changePlayer)
     {
         Data.State = nextState;
+
         pocketedBallsTurn.Clear();
         cueHitBallsTurn.Clear();
+        cueBallPocketedTurn = false;
+        railTouchedTurn = false;
+        canHitBlackTurn = false;
 
         var ply = Data.GetPlayerByNick(Data.CurPlayer);
         ply.CueForce = 0;
-        cueBallPocketedTurn = false;
-        railTouchedTurn = false;
 
         if (changePlayer)
             ChangePlayer();

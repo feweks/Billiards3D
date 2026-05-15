@@ -63,6 +63,8 @@ class PlayState : GameState
             Camera.Target.Y + camDistance * MathF.Sin(camPitch),
             Camera.Target.Z + camDistance * MathF.Cos(camPitch) * MathF.Cos(camYaw)
         );
+
+        LoadMap(MapType.TestRoom);
     }
 
     public override void Update(float dt)

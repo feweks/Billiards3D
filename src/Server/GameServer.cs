@@ -228,10 +228,7 @@ class GameServer
                         break;
                     }
 
-                    var ply = lobby.Data.GetPlayerByNick(shotPacket.Sender);
-                    lobby.Data.PoolCueBall!.Velocity = ply.AimDir * ply.CueForce;
-                    ply.CueForce = 0;
-                    lobby.Data.State = PoolGameState.Updating;
+                    lobby.BeginTurn();
 
                     break;
                 }

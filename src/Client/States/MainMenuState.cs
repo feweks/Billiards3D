@@ -36,6 +36,15 @@ class MainMenuState : GameState
         Raylib.DrawGrid(5, 3);
     }
 
+    public override void DrawUI()
+    {
+        base.DrawUI();
+
+        string txt = $"billiards v{GameData.Version}";
+        int txtY = (int)(Program.Instance!.Config.RenderResolution[1] - Raylib.MeasureTextEx(Raylib.GetFontDefault(), txt, 24, 1).Y);
+        Raylib.DrawText(txt, 3, txtY, 24, Color.White);
+    }
+
     public override void DrawImGui()
     {
         base.DrawImGui();

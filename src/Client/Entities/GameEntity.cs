@@ -1,3 +1,4 @@
+using Game.Common.Enums;
 using Raylib_cs;
 using System.Numerics;
 
@@ -16,16 +17,19 @@ class GameEntity
     public bool Visible { get; set; } = true;
     public bool Active { get; set; } = true;
     public Color Tint = Color.White;
+    public string? Name { get; }
+    public MapType Map { get; set; } = MapType.None;
 
     public BoundingBox BoundingBox { get => boundingBox; }
 
     private Model modelData;
     private BoundingBox boundingBox;
 
-    public GameEntity(string modelPath, Vector3 pos)
+    public GameEntity(string modelPath, Vector3 pos, string? name = null)
     {
         Position = pos;
         modelData = Resources.GetModel(modelPath);
+        Name = name;
     }
 
     public virtual void Update(float dt)
