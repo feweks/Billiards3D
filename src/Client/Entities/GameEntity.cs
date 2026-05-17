@@ -17,8 +17,9 @@ class GameEntity
     public bool Visible { get; set; } = true;
     public bool Active { get; set; } = true;
     public Color Tint = Color.White;
+    public string ModelPath { get; }
     public string? Name { get; }
-    public MapType Map { get; set; } = MapType.None;
+    public string? Map { get; set; }
 
     public BoundingBox BoundingBox { get => boundingBox; }
 
@@ -29,6 +30,7 @@ class GameEntity
     {
         Position = pos;
         modelData = Resources.GetModel(modelPath);
+        ModelPath = modelPath;
         Name = name;
     }
 
@@ -44,6 +46,29 @@ class GameEntity
         }
 
         Position += Velocity * dt;
+    }
+
+    public unsafe RayCollision CheckCollisionRay(Ray ray)
+    {
+        var result = new RayCollision()
+        {
+            Hit = false,
+            Distance = float.MaxValue
+        };
+
+        if (!Raylib.IsModelValid(modelData))
+            return result;
+
+        for (int i = 0; i < modelData.MeshCount; i++)
+        {
+            Mesh mesh = modelData.Meshes[i];
+            RayCollision meshCol = Raylib.GetRayCollisionMesh(ray, mesh, modelData.Transform);
+
+            if (meshCol.Hit && meshCol.Distance < result.Distance)
+                result = meshCol;
+        }
+
+        return result;
     }
 
     public virtual void Draw()

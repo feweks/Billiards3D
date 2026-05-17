@@ -109,6 +109,19 @@ static class Resources
         return File.ReadAllText(path);
     }
 
+    public static void SaveFile(string path, string? content) => File.WriteAllText(path, content);
+
+    public static string[] GetDirectoryFiles(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to list files of {path}: directory does not exist");
+            return [];
+        }
+
+        return Directory.GetFiles(path);
+    }
+
     public static T GetJson<T>(string path, JsonTypeInfo<T> ctx) where T : new()
     {
         string serializedData = GetFile(path);
@@ -126,6 +139,12 @@ static class Resources
         }
 
         return deserializedData;
+    }
+
+    public static void SaveJson<T>(string path, T data, JsonTypeInfo<T> ctx)
+    {
+        string serializedData = JsonSerializer.Serialize(data, ctx);
+        SaveFile(path, serializedData);
     }
 
     public static void Unload()

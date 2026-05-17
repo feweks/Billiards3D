@@ -1,8 +1,124 @@
 {
-    "Entities": [
-        {
-            "ModelPath": "resources/gfx/models/map/testroom/floor.obj",
-            "Position": { "X": 0, "Y": 0, "Z": 0 }
-        }
-    ]
+  "Entities": [
+    {
+      "ModelPath": "resources/gfx/models/map/testroom/floor.obj",
+      "Culling": true,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "ModelPath": "resources/gfx/models/map/testroom/walls.obj",
+      "Culling": true,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "ModelPath": "resources/gfx/models/map/testroom/ceiling.obj",
+      "Culling": true,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "ModelPath": "resources/gfx/models/map/testroom/lamp.obj",
+      "Culling": false,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 3.6,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 90,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "ModelPath": "resources/gfx/models/map/testroom/rack.obj",
+      "Culling": true,
+      "Name": null,
+      "Position": {
+        "X": -2.19,
+        "Y": 0,
+        "Z": 1.8
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "ModelPath": "resources/gfx/models/map/testroom/darts.obj",
+      "Culling": true,
+      "Name": null,
+      "Position": {
+        "X": 1.4,
+        "Y": 2.1,
+        "Z": -3.18
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    }
+  ]
 }

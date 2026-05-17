@@ -20,19 +20,23 @@ class Program
     public Program(string[] args)
     {
         DebugMode = args.Contains("-debug");
+        bool editor = args.Contains("-editor");
+
         Config = Resources.GetJson("resources/data/game_config.json", GameConfigFileDataCtx.Default.GameConfigFileData);
         Config.ApplyFlags();
 
         Raylib.InitWindow(1280, 720, Config.WindowTitle); // TODO: Load window size based on settings
         Raylib.InitAudioDevice();
+        Raylib.SetExitKey(KeyboardKey.Null);
 
         Resources.Init();
         rlImGui.Setup(true);
-        GameClient.Init();
+        if (!editor)
+            GameClient.Init();
 
         renderTex = Raylib.LoadRenderTexture(Config.RenderResolution[0], Config.RenderResolution[1]);
 
-        curState = new MainMenuState();
+        curState = !editor ? new MainMenuState() : new MapEditorState();
 
         Instance ??= this;
     }

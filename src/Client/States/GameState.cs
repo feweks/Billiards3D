@@ -16,27 +16,26 @@ abstract class GameState
     public Camera3D Camera;
     public string Name { get; }
 
-    public MapType CurLoadedMap { get; internal set; } = MapType.None;
-
-    private List<GameEntity> entities;
+    public string? CurLoadedMap { get; internal set; }
+    public List<GameEntity> Entities { get; set; }
 
     public GameState(string name, Vector3 camPos, Vector3 camTarget, float fovy)
     {
         Camera = new Camera3D(camPos, camTarget, Vector3.UnitY, fovy, CameraProjection.Perspective);
         Name = name;
 
-        entities = new List<GameEntity>();
+        Entities = new List<GameEntity>();
     }
 
-    public void LoadMap(MapType type)
+    public void LoadMap(string mapName)
     {
-        if (CurLoadedMap != MapType.None)
+        if (CurLoadedMap != null)
         {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to load map {type}: map is already loaded");
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to load map {mapName}: map is already loaded");
             return;
         }
 
-        string mapPath = GetMapFilePath(type);
+        string mapPath = $"resources/data/maps/{mapName}.json";
         MapFileData mapData = Resources.GetJson(mapPath, MapFileDataCtx.Default.MapFileData);
 
         foreach (var entData in mapData.Entities)
@@ -45,40 +44,41 @@ abstract class GameState
             {
                 Rotation = entData.Rotation,
                 Scale = entData.Scale,
-                Map = type
+                Culling = entData.Culling,
+                Map = mapName
             };
             PlaceEntity(ent);
         }
 
-        Raylib.TraceLog(TraceLogLevel.Info, $"Loaded new map [{type}]");
-        CurLoadedMap = type;
+        Raylib.TraceLog(TraceLogLevel.Info, $"Loaded new map [{mapName}]");
+        CurLoadedMap = mapName;
     }
 
-    public void LoadMap()
+    public void UnloadMap()
     {
-        if (CurLoadedMap == MapType.None)
+        if (CurLoadedMap == null)
         {
             Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to unload map: no map is currently loaded");
             return;
         }
 
-        foreach (var ent in entities.Where(e => e.Map == CurLoadedMap))
+        foreach (var ent in Entities.Where(e => e.Map == CurLoadedMap))
         {
             RemoveEntity(ent);
         }
 
         Raylib.TraceLog(TraceLogLevel.Info, $"Unloaded current map {CurLoadedMap}");
-        CurLoadedMap = MapType.None;
+        CurLoadedMap = null;
     }
 
     public void PlaceEntity(GameEntity ent)
     {
-        entities.Add(ent);
+        Entities.Add(ent);
     }
 
     public void RemoveEntity(GameEntity ent)
     {
-        entities.Remove(ent);
+        Entities.Remove(ent);
     }
 
     public virtual void Update(float dt)
@@ -101,13 +101,13 @@ abstract class GameState
         if (Raylib.IsKeyReleased(KeyboardKey.F3))
             DebugView = !DebugView;
 
-        foreach (var ent in entities)
+        foreach (var ent in Entities)
             ent.Update(dt);
     }
 
     public virtual void Draw()
     {
-        foreach (var ent in entities)
+        foreach (var ent in Entities)
         {
             ent.Draw();
 
@@ -147,17 +147,4 @@ abstract class GameState
     }
 
     public virtual void Destroy() { }
-
-    private static string GetMapFilePath(MapType type)
-    {
-        const string MAPS_DIR = "resources/data/maps/{0}.json";
-
-        switch (type)
-        {
-            case MapType.TestRoom:
-                return string.Format(MAPS_DIR, "test_room");
-            default:
-                throw new NotImplementedException($"No map for {type} exists");
-        }
-    }
 }

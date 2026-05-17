@@ -64,7 +64,7 @@ class PlayState : GameState
             Camera.Target.Z + camDistance * MathF.Cos(camPitch) * MathF.Cos(camYaw)
         );
 
-        LoadMap(MapType.TestRoom);
+        LoadMap("test_room");
     }
 
     public override void Update(float dt)
@@ -105,7 +105,7 @@ class PlayState : GameState
 
         if (GameClient.LobbyData.State == PoolGameState.BallInHand)
         {
-            camPos = new Vector3(0.01f, 2f, 0);
+            camPos = new Vector3(0.01f, 1.8f, 0);
             Camera.Target = Raymath.Vector3Lerp(Camera.Target, Vector3.UnitY, dt * 10f);
 
             float t = (float)Raylib.GetTime();
