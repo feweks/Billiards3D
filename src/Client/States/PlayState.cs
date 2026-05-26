@@ -124,9 +124,11 @@ class PlayState : GameState
 
         Camera.Position = Raymath.Vector3Lerp(Camera.Position, camPos, dt * 10f);
 
-        float curPlayerCueForce = curPlayer.Nickname == netPlayer.Nickname ? playerCueForce : netPlayer.CueForce;
+        float curPlayerCueForce = curPlayer.Nickname == netPlayer.Nickname ? playerCueForce : curPlayer.CueForce;
         poolCue.Position = Vector3.Lerp(poolCue.Position, GetCueTargetPos(curPlayer.AimDir, curPlayerCueForce), dt * cueLerpAmount);
         poolCue.Rotation.Y = Raymath.LerpAngle(poolCue.Rotation.Y, GetCueTargetRotY(curPlayer.AimDir), dt * cueLerpAmount);
+
+        //Raylib.TraceLog(TraceLogLevel.Info, $"CurPlayerNick: {curPlayer.Nickname}, CurPlayerForce: {curPlayer.CueForce}");
 
         updateTime += dt;
         if (updateTime > 0.03f)
