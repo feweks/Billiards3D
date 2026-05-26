@@ -1,8 +1,8 @@
 using System.Numerics;
+using Game.Client.Data;
 using Game.Client.Data.Files;
 using Game.Client.Entities;
 using Game.Client.Net;
-using Game.Common.Enums;
 using ImGuiNET;
 using Raylib_cs;
 
@@ -19,12 +19,16 @@ abstract class GameState
     public string Name { get; }
 
     public string? CurLoadedMap { get; internal set; }
+    public LightingShaderData LightingShader { get; }
     public List<GameEntity> Entities { get; }
 
     public GameState(string name, Vector3 camPos, Vector3 camTarget, float fovy)
     {
         Camera = new Camera3D(camPos, camTarget, Vector3.UnitY, fovy, CameraProjection.Perspective);
         Name = name;
+        LightingShader = new LightingShaderData();
+        LightingShader.SetAmbient(Vector3.One);
+        LightingShader.Toggle(true);
 
         Entities = new List<GameEntity>();
     }
@@ -52,6 +56,22 @@ abstract class GameState
             PlaceEntity(ent);
         }
 
+        foreach (var lightData in mapData.Lights)
+        {
+            var ent = new LightEntity(lightData.Position, lightData.Name)
+            {
+                Rotation = lightData.Rotation,
+                Scale = lightData.Scale,
+                Map = mapName,
+                Enabled = lightData.Enabled,
+                Color = lightData.Color,
+                Intensity = lightData.Intensity
+            };
+            PlaceLight(ent);
+        }
+
+        LightingShader.SetAmbient(mapData.AmbientColor);
+
         Raylib.TraceLog(TraceLogLevel.Info, $"Loaded new map [{mapName}]");
         CurLoadedMap = mapName;
     }
@@ -77,12 +97,19 @@ abstract class GameState
 
     public void PlaceEntity(GameEntity ent)
     {
+        ent.SetLightingShader(LightingShader);
         Entities.Add(ent);
     }
 
     public void RemoveEntity(GameEntity ent)
     {
         Entities.Remove(ent);
+    }
+
+    public void PlaceLight(LightEntity light)
+    {
+        light.SetLightingShader(LightingShader);
+        Entities.Add(light);
     }
 
     public virtual void Update(float dt)
@@ -150,5 +177,8 @@ abstract class GameState
         Raylib.TraceLog(TraceLogLevel.Info, $"Changed state [{Name} -> {next.Name}]");
     }
 
-    public virtual void Destroy() { }
+    public virtual void Destroy()
+    {
+        LightEntity.IndexCounter = 0;
+    }
 }

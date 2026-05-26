@@ -1,3 +1,4 @@
+using Game.Client.Data;
 using Game.Common.Enums;
 using Raylib_cs;
 using System.Numerics;
@@ -12,6 +13,7 @@ class GameEntity
     public Vector3 Rotation = Vector3.Zero;
     public Vector3 Scale = Vector3.One;
     public Vector3 Velocity = Vector3.Zero;
+    public LightingShaderData? LightingShader { get; internal set; }
 
     public bool Culling { get; set; } = true;
     public bool Visible { get; set; } = true;
@@ -39,6 +41,19 @@ class GameEntity
         ModelPath = path;
     }
 
+    public void SetLightingShader(LightingShaderData shader)
+    {
+        LightingShader = shader;
+
+        if (!Raylib.IsModelValid(modelData))
+            return;
+
+        for (int i = 0; i < modelData.MaterialCount; i++)
+        {
+            Raylib.SetMaterialShader(ref modelData, i, ref shader.Shader);
+        }
+    }
+
     public virtual void Update(float dt)
     {
         if (!Active)
@@ -53,7 +68,7 @@ class GameEntity
         Position += Velocity * dt;
     }
 
-    public unsafe RayCollision CheckCollisionRay(Ray ray)
+    public unsafe virtual RayCollision CheckCollisionRay(Ray ray)
     {
         var result = new RayCollision()
         {

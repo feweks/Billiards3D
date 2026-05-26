@@ -1,0 +1,177 @@
+[Info] Initializing raylib 5.5
+[Info] Platform backend: DESKTOP (GLFW)
+[Info] Supported raylib modules:
+[Info]     > rcore:..... loaded (mandatory)
+[Info]     > rlgl:...... loaded (mandatory)
+[Info]     > rshapes:... loaded (optional)
+[Info]     > rtextures:. loaded (optional)
+[Info]     > rtext:..... loaded (optional)
+[Info]     > rmodels:... loaded (optional)
+[Info]     > raudio:.... loaded (optional)
+[Info] DISPLAY: Trying to enable VSYNC
+[Info] DISPLAY: Device initialized successfully
+[Info]     > Display size: 1920 x 1080
+[Info]     > Screen size:  1280 x 720
+[Info]     > Render size:  1280 x 720
+[Info]     > Viewport offsets: 0, 0
+[Info] GLAD: OpenGL extensions loaded successfully
+[Info] GL: Supported extensions count: 403
+[Info] GL: OpenGL device information:
+[Info]     > Vendor:   NVIDIA Corporation
+[Info]     > Renderer: NVIDIA GeForce RTX 3060/PCIe/SSE2
+[Info]     > Version:  3.3.0 NVIDIA 591.86
+[Info]     > GLSL:     3.30 NVIDIA via Cg compiler
+[Info] GL: VAO extension detected, VAO functions loaded successfully
+[Info] GL: NPOT textures extension detected, full NPOT textures supported
+[Info] GL: DXT compressed textures supported
+[Info] GL: ETC2/EAC compressed textures supported
+[Info] PLATFORM: DESKTOP (GLFW - Win32): Initialized successfully
+[Info] TEXTURE: [ID 1] Texture loaded successfully (1x1 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 1] Default texture loaded successfully
+[Info] SHADER: [ID 1] Vertex shader compiled successfully
+[Info] SHADER: [ID 2] Fragment shader compiled successfully
+[Info] SHADER: [ID 3] Program shader loaded successfully
+[Info] SHADER: [ID 3] Default shader loaded successfully
+[Info] RLGL: Render batch vertex buffers loaded successfully in RAM (CPU)
+[Info] RLGL: Render batch vertex buffers loaded successfully in VRAM (GPU)
+[Info] RLGL: Default OpenGL state initialized successfully
+[Info] TEXTURE: [ID 2] Texture loaded successfully (128x128 | GRAY_ALPHA | 1 mipmaps)
+[Info] FONT: Default font loaded successfully (224 glyphs)
+[Info] SYSTEM: Working Directory: C:\Users\filip\Desktop\projects\c#\Billiards3D
+[Info] AUDIO: Device initialized successfully
+[Info]     > Backend:       miniaudio | WASAPI
+[Info]     > Format:        32-bit IEEE Floating Point -> 32-bit IEEE Floating Point
+[Info]     > Channels:      2 -> 2
+[Info]     > Sample rate:   48000 -> 48000
+[Info]     > Periods size:  1440
+[Info] TEXTURE: [ID 3] Texture loaded successfully (100x100 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 2] Mesh uploaded successfully to VRAM (GPU)
+[Info] TEXTURE: [ID 4] Texture loaded successfully (512x1024 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 5] Texture loaded successfully (960x540 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 1] Depth renderbuffer loaded successfully (32 bits)
+[Info] FBO: [ID 1] Framebuffer object created successfully
+[Info] SHADER: [ID 4] Vertex shader compiled successfully
+[Info] SHADER: [ID 5] Fragment shader compiled successfully
+[Info] SHADER: [ID 6] Program shader loaded successfully
+[Error] <1  1  1>
+[Info] FILEIO: [resources/gfx/models/pool_table.obj] Text file loaded successfully
+[Info] FILEIO: [pool_table.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 6] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 3] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 3] Trying to re-load an already loaded mesh
+[Info] Set lighting shader
+[Info] FILEIO: [resources/gfx/models/map/testroom/floor.obj] Text file loaded successfully
+[Info] FILEIO: [carpet.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (64x64 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 7] Texture loaded successfully (64x64 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 4] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 4] Trying to re-load an already loaded mesh
+[Info] Set lighting shader
+[Info] FILEIO: [resources/gfx/models/map/testroom/walls.obj] Text file loaded successfully
+[Info] FILEIO: [door.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 8] Texture loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [wall.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 9] Texture loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 5] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 6] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 5] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 6] Trying to re-load an already loaded mesh
+[Info] Set lighting shader
+[Info] FILEIO: [resources/gfx/models/map/testroom/ceiling.obj] Text file loaded successfully
+[Info] FILEIO: [ceiling.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 10] Texture loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 7] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 7] Trying to re-load an already loaded mesh
+[Info] Set lighting shader
+[Info] FILEIO: [resources/gfx/models/map/testroom/lamp.obj] Text file loaded successfully
+[Info] FILEIO: [light.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 11] Texture loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 8] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 8] Trying to re-load an already loaded mesh
+[Info] Set lighting shader
+[Info] FILEIO: [resources/gfx/models/map/testroom/rack.obj] Text file loaded successfully
+[Info] FILEIO: [C:/Users/filip/Desktop/projects/c#/Billiards3D/resources/gfx/models/pool_props.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 12] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [C:/Users/filip/Desktop/projects/c#/Billiards3D/resources/gfx/models/pool_props.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 13] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [C:/Users/filip/Desktop/projects/c#/Billiards3D/resources/gfx/models/pool_props.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 14] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [C:/Users/filip/Desktop/projects/c#/Billiards3D/resources/gfx/models/pool_props.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 15] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [C:/Users/filip/Desktop/projects/c#/Billiards3D/resources/gfx/models/pool_props.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 16] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [props.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 17] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 9] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 10] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 11] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 12] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 13] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 14] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 9] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 10] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 11] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 12] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 13] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 14] Trying to re-load an already loaded mesh
+[Info] Set lighting shader
+[Info] FILEIO: [resources/gfx/models/map/testroom/darts.obj] Text file loaded successfully
+[Info] FILEIO: [C:/Users/filip/Desktop/projects/c#/Billiards3D/resources/gfx/models/pool_props.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 18] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [door.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 19] Texture loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [C:/Users/filip/Desktop/projects/c#/Billiards3D/resources/gfx/models/pool_props.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 20] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 15] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 16] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 17] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 15] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 16] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 17] Trying to re-load an already loaded mesh
+[Info] Set lighting shader
+[Error] <0,14  0,13  0,12>
+[Info] Loaded new map [test_room]
+[Info] VAO: [ID 3] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 4] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 5] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 6] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 7] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 8] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 9] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 10] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 11] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 12] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 13] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 14] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 15] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 16] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 17] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] TEXTURE: [ID 3] Unloaded texture data from VRAM (GPU)
+[Info] VAO: [ID 2] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] TEXTURE: [ID 2] Unloaded texture data from VRAM (GPU)
+[Info] SHADER: [ID 3] Default shader unloaded successfully
+[Info] TEXTURE: [ID 1] Default texture unloaded successfully
+[Info] Window closed successfully
+Trwa próba anulowania kompilacji...

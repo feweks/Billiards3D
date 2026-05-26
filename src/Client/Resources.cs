@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using Raylib_cs;
@@ -13,6 +15,8 @@ static class Resources
     private static Texture2D errorTex;
     private static Model errorMdl;
     private static Font errorFnt;
+    private static string? errorFragShader;
+    private static string? errorVertShader;
 
     public static void Init()
     {
@@ -27,6 +31,9 @@ static class Resources
         Raylib.SetMaterialTexture(ref errorMat, MaterialMapIndex.Albedo, errorTex);
 
         errorFnt = Raylib.GetFontDefault();
+
+        errorFragShader = GetFile("resources/data/shaders/default.fs");
+        errorVertShader = GetFile("resources/data/shaders/default.vs");
     }
 
     public static Texture2D GetTexture(string? path)
@@ -105,6 +112,33 @@ static class Resources
 
         fonts.Add(path, fnt);
         return fnt;
+    }
+
+    public static Shader GetShader(string? vertexPath = null, string? fragmentPath = null)
+    {
+        Debug.Assert(errorVertShader != null && errorFragShader != null, "Uninitialized resources system");
+
+        string vertSrc = errorVertShader;
+        string fragSrc = errorFragShader;
+
+        if (vertexPath != null)
+        {
+            if (File.Exists(vertexPath))
+                vertSrc = GetFile(vertexPath);
+            else
+                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to load vertex shader {vertexPath}: file does not exist");
+        }
+
+        if (fragmentPath != null)
+        {
+            if (File.Exists(fragmentPath))
+                fragSrc = GetFile(fragmentPath);
+            else
+                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to load fragment shader {fragmentPath}: file does not exist");
+        }
+
+        Shader shd = Raylib.LoadShaderFromMemory(vertSrc, fragSrc);
+        return shd;
     }
 
     public static string GetFile(string path)

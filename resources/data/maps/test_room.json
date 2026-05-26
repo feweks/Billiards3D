@@ -1,4 +1,58 @@
 {
+  "Lights": [
+    {
+      "Enabled": true,
+      "Intensity": 1.1,
+      "Color": {
+        "R": 151,
+        "G": 150,
+        "B": 150,
+        "A": 255
+      },
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 1.9865669,
+        "Z": -0.41720477
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1.0475739
+      }
+    },
+    {
+      "Enabled": true,
+      "Intensity": 1.1,
+      "Color": {
+        "R": 151,
+        "G": 150,
+        "B": 150,
+        "A": 255
+      },
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 1.987,
+        "Z": 0.417
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    }
+  ],
   "Entities": [
     {
       "ModelPath": "resources/gfx/models/map/testroom/floor.obj",
@@ -120,5 +174,10 @@
         "Z": 1
       }
     }
-  ]
+  ],
+  "AmbientColor": {
+    "X": 0.5686275,
+    "Y": 0.529604,
+    "Z": 0.49058056
+  }
 }

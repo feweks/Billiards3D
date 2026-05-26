@@ -21,6 +21,12 @@ enum TransformationType
     Scale
 }
 
+enum EditorEntityType
+{
+    ModelEntity = 0,
+    LightEntity
+}
+
 class SelectedEntityData
 {
     public GameEntity? Entity { get; internal set; }
@@ -128,12 +134,15 @@ class MapEditorState : GameState
 
     private static bool drawGridOpt = true;
     private static bool previewTableOpt = true;
+    private static bool toggleLightingOpt = true;
+    private static bool drawLightsOriginOpt = false;
 
     private bool cameraLocked = false;
     private GuiPopupType guiState = GuiPopupType.None;
     private string mapCreationNameInp = string.Empty;
     private int curSelectedMapInp = 0;
     private int curSelectedEntityInp = 0;
+    private int curSelectedEntityTypeInp = 0;
 
     private SelectedEntityData curSelectedEntity;
     private GameEntity poolTable;
@@ -214,18 +223,37 @@ class MapEditorState : GameState
     {
         string path = GetMapPath(name);
 
-        var mapData = new MapFileData();
+        var mapData = new MapFileData()
+        {
+            AmbientColor = LightingShader.GetAmbient()
+        };
         foreach (var ent in Entities.Where(e => e.Map == name))
         {
-            mapData.Entities.Add(new MapEntityFileData()
+            if (ent is LightEntity lightEnt)
             {
-                ModelPath = ent.ModelPath,
-                Culling = ent.Culling,
-                Position = ent.Position,
-                Rotation = ent.Rotation,
-                Scale = ent.Scale,
-                Name = ent.Name
-            });
+                mapData.Lights.Add(new MapLightFileData()
+                {
+                    Position = lightEnt.Position,
+                    Rotation = lightEnt.Rotation,
+                    Scale = lightEnt.Scale,
+                    Name = lightEnt.Name,
+                    Enabled = lightEnt.Enabled,
+                    Color = lightEnt.Color,
+                    Intensity = lightEnt.Intensity
+                });
+            }
+            else
+            {
+                mapData.Entities.Add(new MapEntityFileData()
+                {
+                    ModelPath = ent.ModelPath,
+                    Culling = ent.Culling,
+                    Position = ent.Position,
+                    Rotation = ent.Rotation,
+                    Scale = ent.Scale,
+                    Name = ent.Name
+                });
+            }
         }
 
         Resources.SaveJson(path, mapData, MapFileDataCtx.Default.MapFileData);
@@ -283,6 +311,12 @@ class MapEditorState : GameState
 
         ImGui.Checkbox("Draw Grid", ref drawGridOpt);
         ImGui.Checkbox("Preview Pool Table", ref previewTableOpt);
+        if (ImGui.Checkbox("Preview Lighting", ref toggleLightingOpt))
+            LightingShader.Toggle(toggleLightingOpt);
+        if (ImGui.Checkbox("Draw Lights Origin", ref drawLightsOriginOpt))
+        {
+            LightEntity.DrawLightsSources = drawLightsOriginOpt;
+        }
 
         ImGui.End();
     }
@@ -297,18 +331,37 @@ class MapEditorState : GameState
         var selEnt = curSelectedEntity.Entity;
         if (selEnt != null)
         {
-            ImGui.InputText("Entity Model Path", ref curSelectedEntity.ModelPathInp, MAX_INP_CHARS);
-            ImGui.SameLine();
-            if (ImGui.Button("Load"))
-                selEnt.LoadModelData(curSelectedEntity.ModelPathInp);
+            if (selEnt is not LightEntity lightSelEnt)
+            {
+                ImGui.InputText("Entity Model Path", ref curSelectedEntity.ModelPathInp, MAX_INP_CHARS);
+                ImGui.SameLine();
+                if (ImGui.Button("Load"))
+                    selEnt.LoadModelData(curSelectedEntity.ModelPathInp);
 
-            string entName = selEnt.Name ?? string.Empty;
-            if (ImGui.InputText("Entity Name", ref entName, MAX_INP_CHARS))
-                selEnt.Name = entName == string.Empty ? null : entName;
+                string entName = selEnt.Name ?? string.Empty;
+                if (ImGui.InputText("Entity Name", ref entName, MAX_INP_CHARS))
+                    selEnt.Name = entName == string.Empty ? null : entName;
 
-            bool entCulling = selEnt.Culling;
-            if (ImGui.Checkbox("Entity Culling", ref entCulling))
-                selEnt.Culling = entCulling;
+                bool entCulling = selEnt.Culling;
+                if (ImGui.Checkbox("Entity Culling", ref entCulling))
+                    selEnt.Culling = entCulling;
+            }
+            else
+            {
+                bool lightEnabled = lightSelEnt.Enabled;
+                if (ImGui.Checkbox("Light Enabled", ref lightEnabled))
+                    lightSelEnt.Enabled = lightEnabled;
+
+                var lightCol = Utils.ColorToVec3(lightSelEnt.Color);
+                if (ImGui.ColorEdit3("Light Color", ref lightCol))
+                    lightSelEnt.Color = Utils.ColorFromVec3(lightCol);
+
+                var lightIntensity = lightSelEnt.Intensity;
+                const float LIGHT_INTENSITY_MIN = 0.1f;
+                const float LIGHT_INTENSITY_MAX = 12f;
+                if (ImGui.SliderFloat("Light Intensity", ref lightIntensity, LIGHT_INTENSITY_MIN, LIGHT_INTENSITY_MAX))
+                    lightSelEnt.Intensity = lightIntensity;
+            }
 
             Vector3 entPos = selEnt.Position;
             if (ImGui.InputFloat3("Entity Position", ref entPos))
@@ -337,8 +390,8 @@ class MapEditorState : GameState
             string[] entitiesNames = new string[mapEntities.Count];
             for (int i = 0; i < mapEntities.Count; i++)
             {
-                string entName = $"Entity #{i + 1}";
                 var ent = mapEntities[i];
+                string entName = $"{(ent is LightEntity ? "Light" : "Entity")} #{i + 1}";
                 if (ent.Name != null)
                     entName += $" ({ent.Name})";
 
@@ -410,6 +463,10 @@ class MapEditorState : GameState
             {
                 DeleteMap();
             }
+
+            Vector3 mapAmbientCol = LightingShader.GetAmbient();
+            if (ImGui.ColorEdit3("Ambient Color", ref mapAmbientCol))
+                LightingShader.SetAmbient(mapAmbientCol);
         }
 
         ImGui.End();
@@ -449,15 +506,31 @@ class MapEditorState : GameState
     {
         ImGui.Begin("Create Entity");
 
-        // TODO: ENTITY TYPE
+        string[] entityTypeNames = Enum.GetNames<EditorEntityType>();
+        ImGui.Combo("Entity Type", ref curSelectedEntityTypeInp, entityTypeNames, entityTypeNames.Length);
 
         if (ImGui.Button("Create"))
         {
-            var ent = new GameEntity(null, Vector3.Zero)
+            GameEntity ent;
+            var entType = (EditorEntityType)curSelectedEntityTypeInp;
+
+            if (entType == EditorEntityType.LightEntity)
             {
-                Map = CurLoadedMap
-            };
-            PlaceEntity(ent);
+                ent = new LightEntity(Vector3.Zero, null)
+                {
+                    Map = CurLoadedMap,
+                    Intensity = 2
+                };
+                PlaceLight((LightEntity)ent);
+            }
+            else
+            {
+                ent = new GameEntity(null, Vector3.Zero)
+                {
+                    Map = CurLoadedMap
+                };
+                PlaceEntity(ent);
+            }
             curSelectedEntity.Select(ent);
 
             guiState = GuiPopupType.None;
