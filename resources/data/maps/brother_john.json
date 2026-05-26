@@ -1,8 +1,0 @@
-{
-    "Entities": [
-        {
-            "ModelPath": "resources/gfx/models/map/brotherjohn/testworld.glb",
-            "Position": { "X": 0, "Y": 0, "Z": 0 }
-        }
-    ]
-}

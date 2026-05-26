@@ -10,6 +10,8 @@ namespace Game.Client.States;
 
 abstract class GameState
 {
+    public const string MAPS_DIRECTORY = "resources/data/maps";
+
     public static bool DebugView { get; internal set; } = false;
     public static bool CursorLocked { get; internal set; } = false;
 
@@ -17,7 +19,7 @@ abstract class GameState
     public string Name { get; }
 
     public string? CurLoadedMap { get; internal set; }
-    public List<GameEntity> Entities { get; set; }
+    public List<GameEntity> Entities { get; }
 
     public GameState(string name, Vector3 camPos, Vector3 camTarget, float fovy)
     {
@@ -35,7 +37,7 @@ abstract class GameState
             return;
         }
 
-        string mapPath = $"resources/data/maps/{mapName}.json";
+        string mapPath = GetMapPath(mapName);
         MapFileData mapData = Resources.GetJson(mapPath, MapFileDataCtx.Default.MapFileData);
 
         foreach (var entData in mapData.Entities)
@@ -62,7 +64,7 @@ abstract class GameState
             return;
         }
 
-        foreach (var ent in Entities.Where(e => e.Map == CurLoadedMap))
+        foreach (var ent in Entities.Where(e => e.Map == CurLoadedMap).ToList())
         {
             RemoveEntity(ent);
         }
@@ -70,6 +72,8 @@ abstract class GameState
         Raylib.TraceLog(TraceLogLevel.Info, $"Unloaded current map {CurLoadedMap}");
         CurLoadedMap = null;
     }
+
+    public string GetMapPath(string mapName) => $"{MAPS_DIRECTORY}/{mapName}.json";
 
     public void PlaceEntity(GameEntity ent)
     {

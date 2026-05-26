@@ -17,8 +17,8 @@ class GameEntity
     public bool Visible { get; set; } = true;
     public bool Active { get; set; } = true;
     public Color Tint = Color.White;
-    public string ModelPath { get; }
-    public string? Name { get; }
+    public string? ModelPath { get; internal set; }
+    public string? Name { get; set; }
     public string? Map { get; set; }
 
     public BoundingBox BoundingBox { get => boundingBox; }
@@ -26,12 +26,17 @@ class GameEntity
     private Model modelData;
     private BoundingBox boundingBox;
 
-    public GameEntity(string modelPath, Vector3 pos, string? name = null)
+    public GameEntity(string? modelPath, Vector3 pos, string? name = null)
     {
         Position = pos;
-        modelData = Resources.GetModel(modelPath);
-        ModelPath = modelPath;
         Name = name;
+        LoadModelData(modelPath);
+    }
+
+    public void LoadModelData(string? path)
+    {
+        modelData = Resources.GetModel(path);
+        ModelPath = path;
     }
 
     public virtual void Update(float dt)

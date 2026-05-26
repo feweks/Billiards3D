@@ -29,8 +29,11 @@ static class Resources
         errorFnt = Raylib.GetFontDefault();
     }
 
-    public static Texture2D GetTexture(string path)
+    public static Texture2D GetTexture(string? path)
     {
+        if (path == null)
+            return errorTex;
+
         if (textures.TryGetValue(path, out Texture2D cacheTex))
             return cacheTex;
 
@@ -52,8 +55,11 @@ static class Resources
         return tex;
     }
 
-    public static Model GetModel(string path)
+    public static Model GetModel(string? path)
     {
+        if (path == null)
+            return errorMdl;
+
         if (models.TryGetValue(path, out Model cacheMdl))
             return cacheMdl;
 
@@ -75,8 +81,11 @@ static class Resources
         return mdl;
     }
 
-    public static Font GetFont(string path)
+    public static Font GetFont(string? path)
     {
+        if (path == null)
+            return errorFnt;
+
         if (fonts.TryGetValue(path, out Font cacheFont))
             return cacheFont;
 
@@ -111,7 +120,7 @@ static class Resources
 
     public static void SaveFile(string path, string? content) => File.WriteAllText(path, content);
 
-    public static string[] GetDirectoryFiles(string path)
+    public static string[] GetDirectoryFiles(string path, string? extension = null)
     {
         if (!Directory.Exists(path))
         {
@@ -119,7 +128,11 @@ static class Resources
             return [];
         }
 
-        return Directory.GetFiles(path);
+        string[] files = Directory.GetFiles(path);
+        if (extension != null)
+            files = files.Where(f => f.EndsWith(extension)).ToArray();
+
+        return files;
     }
 
     public static T GetJson<T>(string path, JsonTypeInfo<T> ctx) where T : new()
