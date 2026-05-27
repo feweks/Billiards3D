@@ -1,14 +1,77 @@
 #version 330
 
 in vec2 fragTexCoord;
-in vec4 fragColor;
+in vec3 fragWorldPos;
+in vec3 fragNormal;
 
 uniform sampler2D texture0;
 uniform vec4 colDiffuse;
+uniform int useLighting;
+
+struct Light
+{
+    int enabled;
+    vec3 position;
+    vec3 color;
+    float intensity;
+    
+    vec3 direction;    
+    float cutoff;      
+    float spotExponent;
+};
+
+#define MAX_LIGHTS 8
+uniform Light lights[MAX_LIGHTS];
+uniform vec3 ambientColor;
 
 out vec4 finalColor;
 
 void main()
 {
-    finalColor = texture(texture0, fragTexCoord) * fragColor * colDiffuse;
+    vec3 totalLighting = vec3(1.0);
+
+    if (useLighting == 1)
+    {
+        vec3 normal = normalize(fragNormal);
+        totalLighting = ambientColor;
+
+        for (int i = 0; i < MAX_LIGHTS; i++) 
+        {
+            if (lights[i].enabled == 1)
+            {
+                vec3 lightDir = lights[i].position - fragWorldPos;
+                float distance = length(lightDir);
+                lightDir = normalize(lightDir);
+                
+                // One-sided diffuse lighting calculation
+                float NdotL = max(dot(normal, lightDir), 0.0);
+                
+                // Distance Attenuation (smooth inverse-square approximation)
+                float attenuation = lights[i].intensity / (1.0 + 0.1 * distance + 0.05 * distance * distance);
+                
+                // Check if Point Light or Spotlight
+                float dirLengthSq = dot(lights[i].direction, lights[i].direction);
+                
+                if (dirLengthSq < 0.0001)
+                {
+                    // --- POINT LIGHT MODE ---
+                    totalLighting += lights[i].color * NdotL * attenuation;
+                }
+                else
+                {
+                    // --- SPOTLIGHT MODE ---
+                    float spotEffect = dot(normalize(lights[i].direction), -lightDir);
+                    
+                    if (spotEffect > lights[i].cutoff) 
+                    {
+                        spotEffect = pow(spotEffect, lights[i].spotExponent);
+                        totalLighting += lights[i].color * NdotL * attenuation * spotEffect;
+                    }
+                }
+            }
+        }
+    }
+
+    // Combine texture, diffuse color tint, and per-pixel lighting calculations
+    finalColor = texture(texture0, fragTexCoord) * vec4(totalLighting, 1.0) * colDiffuse;
 }

@@ -65,7 +65,10 @@ abstract class GameState
                 Map = mapName,
                 Enabled = lightData.Enabled,
                 Color = lightData.Color,
-                Intensity = lightData.Intensity
+                Intensity = lightData.Intensity,
+                Direction = lightData.Direction,
+                Cutoff = lightData.Cutoff,
+                SpotExponent = lightData.SpotExponent
             };
             PlaceLight(ent);
         }

@@ -14,6 +14,7 @@ class Program
     public bool DebugMode { get; }
     public GameConfigFileData Config { get; }
 
+    private Shader postShader;
     private RenderTexture2D renderTex;
     private GameState? curState;
 
@@ -37,6 +38,8 @@ class Program
         renderTex = Raylib.LoadRenderTexture(Config.RenderResolution[0], Config.RenderResolution[1]);
 
         curState = !editor ? new MainMenuState() : new MapEditorState();
+
+        postShader = Resources.GetShader(null, "resources/data/shaders/psx_post.fs");
 
         Instance ??= this;
     }
@@ -77,7 +80,9 @@ class Program
         var src = new Rectangle(0, 0, rtt.Width, -rtt.Height);
         var dest = new Rectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
 
+        Raylib.BeginShaderMode(postShader);
         Raylib.DrawTexturePro(rtt, src, dest, Vector2.Zero, 0, Color.White);
+        Raylib.EndShaderMode();
 
         rlImGui.Begin();
         curState?.DrawImGui();

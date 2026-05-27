@@ -239,7 +239,10 @@ class MapEditorState : GameState
                     Name = lightEnt.Name,
                     Enabled = lightEnt.Enabled,
                     Color = lightEnt.Color,
-                    Intensity = lightEnt.Intensity
+                    Intensity = lightEnt.Intensity,
+                    Direction = lightEnt.Direction,
+                    Cutoff = lightEnt.Cutoff,
+                    SpotExponent = lightEnt.SpotExponent
                 });
             }
             else
@@ -357,10 +360,20 @@ class MapEditorState : GameState
                     lightSelEnt.Color = Utils.ColorFromVec3(lightCol);
 
                 var lightIntensity = lightSelEnt.Intensity;
-                const float LIGHT_INTENSITY_MIN = 0.1f;
-                const float LIGHT_INTENSITY_MAX = 12f;
-                if (ImGui.SliderFloat("Light Intensity", ref lightIntensity, LIGHT_INTENSITY_MIN, LIGHT_INTENSITY_MAX))
+                if (ImGui.InputFloat("Light Intensity", ref lightIntensity))
                     lightSelEnt.Intensity = lightIntensity;
+
+                var lightDir = lightSelEnt.Direction;
+                if (ImGui.InputFloat3("Light Direction", ref lightDir))
+                    lightSelEnt.Direction = lightDir;
+
+                float lightCutoffAngle = lightSelEnt.Cutoff;
+                if (ImGui.InputFloat("Light Cutoff Angle", ref lightCutoffAngle))
+                    lightSelEnt.Cutoff = lightCutoffAngle;
+
+                float lightExpo = lightSelEnt.SpotExponent;
+                if (ImGui.InputFloat("Light Spot Exponent", ref lightExpo))
+                    lightSelEnt.SpotExponent = lightExpo;
             }
 
             Vector3 entPos = selEnt.Position;

@@ -5,7 +5,7 @@ out vec4 finalColor;
 
 uniform sampler2D texture0;
 
-vec3 Posterize(vec3 color, float steps)
+vec3 posterize(vec3 color, float steps)
 {
     return floor(color * steps) / steps;
 }
@@ -14,7 +14,7 @@ void main()
 {
     vec4 texelColor = texture(texture0, fragTexCoord);
     
-    texelColor.rgb = Posterize(texelColor.rgb, 32.0);
+    texelColor.rgb = posterize(texelColor.rgb, 24.0);
     
     finalColor = texelColor;
 }

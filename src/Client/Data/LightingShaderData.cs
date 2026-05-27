@@ -11,6 +11,9 @@ struct LightData
     public int PositionLoc { get; set; }
     public int ColorLoc { get; set; }
     public int IntensityLoc { get; set; }
+    public int DirectionLoc { get; set; }
+    public int CutoffLoc { get; set; }
+    public int SpotExponentLoc { get; set; }
 }
 
 class LightingShaderData
@@ -38,7 +41,10 @@ class LightingShaderData
                 EnabledLoc = Raylib.GetShaderLocation(Shader, $"lights[{i}].enabled"),
                 PositionLoc = Raylib.GetShaderLocation(Shader, $"lights[{i}].position"),
                 ColorLoc = Raylib.GetShaderLocation(Shader, $"lights[{i}].color"),
-                IntensityLoc = Raylib.GetShaderLocation(Shader, $"lights[{i}].intensity")
+                IntensityLoc = Raylib.GetShaderLocation(Shader, $"lights[{i}].intensity"),
+                DirectionLoc = Raylib.GetShaderLocation(Shader, $"lights[{i}].direction"),
+                CutoffLoc = Raylib.GetShaderLocation(Shader, $"lights[{i}].cutoff"),
+                SpotExponentLoc = Raylib.GetShaderLocation(Shader, $"lights[{i}].spotExponent")
             };
             lights[i] = lightData;
         }
@@ -54,6 +60,9 @@ class LightingShaderData
         Raylib.SetShaderValue(Shader, lightData.PositionLoc, light.Position, ShaderUniformDataType.Vec3);
         Raylib.SetShaderValue(Shader, lightData.ColorLoc, new Vector3(light.Color.R, light.Color.G, light.Color.B) / 255f, ShaderUniformDataType.Vec3);
         Raylib.SetShaderValue(Shader, lightData.IntensityLoc, light.Intensity, ShaderUniformDataType.Float);
+        Raylib.SetShaderValue(Shader, lightData.DirectionLoc, light.Direction, ShaderUniformDataType.Vec3);
+        Raylib.SetShaderValue(Shader, lightData.CutoffLoc, light.Cutoff * Raylib.DEG2RAD, ShaderUniformDataType.Float);
+        Raylib.SetShaderValue(Shader, lightData.SpotExponentLoc, light.SpotExponent, ShaderUniformDataType.Float);
     }
 
     public void SetAmbient(Vector3 ambient)
