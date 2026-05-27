@@ -14,7 +14,7 @@ void main()
 {
     vec4 texelColor = texture(texture0, fragTexCoord);
     
-    texelColor.rgb = posterize(texelColor.rgb, 24.0);
+    texelColor.rgb = posterize(texelColor.rgb, 20.0);
     
     finalColor = texelColor;
 }
