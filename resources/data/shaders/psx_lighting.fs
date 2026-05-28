@@ -28,6 +28,12 @@ out vec4 finalColor;
 
 void main()
 {
+    vec4 texColor = texture(texture0, fragTexCoord);
+    if (texColor.a < 0.1)
+    {
+        discard;
+    }
+
     vec3 totalLighting = vec3(1.0);
 
     if (useLighting == 1)

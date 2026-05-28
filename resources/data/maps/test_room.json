@@ -104,6 +104,7 @@
     {
       "ModelPath": "resources/gfx/models/map/testroom/floor.obj",
       "Culling": true,
+      "HasShadow": false,
       "Name": null,
       "Position": {
         "X": 0,
@@ -124,6 +125,7 @@
     {
       "ModelPath": "resources/gfx/models/map/testroom/walls.obj",
       "Culling": true,
+      "HasShadow": false,
       "Name": null,
       "Position": {
         "X": 0,
@@ -144,6 +146,7 @@
     {
       "ModelPath": "resources/gfx/models/map/testroom/ceiling.obj",
       "Culling": true,
+      "HasShadow": false,
       "Name": null,
       "Position": {
         "X": 0,
@@ -164,6 +167,7 @@
     {
       "ModelPath": "resources/gfx/models/map/testroom/lamp.obj",
       "Culling": false,
+      "HasShadow": false,
       "Name": null,
       "Position": {
         "X": 0,
@@ -184,16 +188,17 @@
     {
       "ModelPath": "resources/gfx/models/map/testroom/rack.obj",
       "Culling": true,
+      "HasShadow": true,
       "Name": null,
       "Position": {
         "X": -2.1523101,
-        "Y": 0.8884826,
-        "Z": 1.7505988
+        "Y": 0.014393778,
+        "Z": 2.1036553
       },
       "Rotation": {
         "X": 0,
         "Y": 180,
-        "Z": 1
+        "Z": 2
       },
       "Scale": {
         "X": 1,
@@ -204,10 +209,11 @@
     {
       "ModelPath": "resources/gfx/models/map/testroom/darts.obj",
       "Culling": true,
+      "HasShadow": false,
       "Name": null,
       "Position": {
         "X": 1.0072361,
-        "Y": 2.0684268,
+        "Y": 2.1,
         "Z": -3.1302655
       },
       "Rotation": {
@@ -218,6 +224,48 @@
       "Scale": {
         "X": 1,
         "Y": 0.98618764,
+        "Z": 1
+      }
+    },
+    {
+      "ModelPath": "resources/gfx/models/map/testroom/painting_01.obj",
+      "Culling": true,
+      "HasShadow": false,
+      "Name": null,
+      "Position": {
+        "X": -2.2498887,
+        "Y": 2.1,
+        "Z": -1.9653578
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 90,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1.4,
+        "Y": 1.4,
+        "Z": 1
+      }
+    },
+    {
+      "ModelPath": "resources/gfx/models/map/testroom/painting_02.obj",
+      "Culling": true,
+      "HasShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 2.2777467,
+        "Y": 2.1,
+        "Z": 1.965
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": -90,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1.4,
+        "Y": 1.4,
         "Z": 1
       }
     }

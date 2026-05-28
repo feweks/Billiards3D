@@ -22,8 +22,12 @@ abstract class GameState
     public LightingShaderData LightingShader { get; }
     public List<GameEntity> Entities { get; }
 
+    private ShadowData shadowData;
+
     public GameState(string name, Vector3 camPos, Vector3 camTarget, float fovy)
     {
+        shadowData = new ShadowData();
+
         Camera = new Camera3D(camPos, camTarget, Vector3.UnitY, fovy, CameraProjection.Perspective);
         Name = name;
         LightingShader = new LightingShaderData();
@@ -51,7 +55,8 @@ abstract class GameState
                 Rotation = entData.Rotation,
                 Scale = entData.Scale,
                 Culling = entData.Culling,
-                Map = mapName
+                Map = mapName,
+                HasShadow = entData.HasShadow
             };
             PlaceEntity(ent);
         }
@@ -96,7 +101,7 @@ abstract class GameState
         CurLoadedMap = null;
     }
 
-    public string GetMapPath(string mapName) => $"{MAPS_DIRECTORY}/{mapName}.json";
+    public static string GetMapPath(string mapName) => $"{MAPS_DIRECTORY}/{mapName}.json";
 
     public void PlaceEntity(GameEntity ent)
     {
@@ -141,6 +146,7 @@ abstract class GameState
 
     public virtual void Draw()
     {
+        Rlgl.EnableDepthMask();
         foreach (var ent in Entities)
         {
             ent.Draw();
@@ -148,6 +154,18 @@ abstract class GameState
             if (DebugView)
                 Raylib.DrawBoundingBox(ent.BoundingBox, Color.Red);
         }
+
+        Rlgl.DisableDepthMask();
+
+        foreach (var ent in Entities.Where(e => e.HasShadow))
+        {
+            float sizeX = (ent.BoundingBox.Max.X - ent.BoundingBox.Min.X) * 1.5f;
+            float sizeZ = (ent.BoundingBox.Max.Z - ent.BoundingBox.Min.Z) * 1.5f;
+
+            shadowData.Draw(ent.Position + new Vector3(0, 0.02f, 0), sizeX, sizeZ);
+        }
+
+        Rlgl.EnableDepthMask();
     }
 
     public virtual void DrawUI() { }

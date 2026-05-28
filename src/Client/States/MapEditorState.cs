@@ -153,6 +153,8 @@ class MapEditorState : GameState
 
         poolTable = new GameEntity("resources/gfx/models/pool_table.obj", Vector3.Zero);
         PlaceEntity(poolTable);
+
+        poolTable.HasShadow = true;
     }
 
     public override void Update(float dt)
@@ -254,7 +256,8 @@ class MapEditorState : GameState
                     Position = ent.Position,
                     Rotation = ent.Rotation,
                     Scale = ent.Scale,
-                    Name = ent.Name
+                    Name = ent.Name,
+                    HasShadow = ent.HasShadow
                 });
             }
         }
@@ -348,6 +351,10 @@ class MapEditorState : GameState
                 bool entCulling = selEnt.Culling;
                 if (ImGui.Checkbox("Entity Culling", ref entCulling))
                     selEnt.Culling = entCulling;
+
+                bool entHasShadow = selEnt.HasShadow;
+                if (ImGui.Checkbox("Entity Cast Shadow", ref entHasShadow))
+                    selEnt.HasShadow = entHasShadow;
             }
             else
             {

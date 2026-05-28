@@ -40,7 +40,6 @@ class Program
         curState = !editor ? new MainMenuState() : new MapEditorState();
 
         postShader = Resources.GetShader(null, "resources/data/shaders/psx_post.fs");
-
         Instance ??= this;
     }
 

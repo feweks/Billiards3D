@@ -1,4 +1,5 @@
 using Game.Client.Data;
+using Game.Client.States;
 using Game.Common.Enums;
 using Raylib_cs;
 using System.Numerics;
@@ -16,6 +17,7 @@ class GameEntity
     public LightingShaderData? LightingShader { get; internal set; }
 
     public bool Culling { get; set; } = true;
+    public bool HasShadow { get; set; } = false;
     public bool Visible { get; set; } = true;
     public bool Active { get; set; } = true;
     public Color Tint = Color.White;
@@ -28,17 +30,23 @@ class GameEntity
     private Model modelData;
     private BoundingBox boundingBox;
 
+    private Texture2D shadowTex;
+
     public GameEntity(string? modelPath, Vector3 pos, string? name = null)
     {
         Position = pos;
         Name = name;
         LoadModelData(modelPath);
+
+        shadowTex = Resources.GetTexture("resources/gfx/shadow.png");
     }
 
     public void LoadModelData(string? path)
     {
         modelData = Resources.GetModel(path);
         ModelPath = path;
+
+        UpdateBoundingBox();
     }
 
     public void SetLightingShader(LightingShaderData shader)
@@ -61,7 +69,7 @@ class GameEntity
 
         if (Raylib.IsModelValid(modelData))
         {
-            modelData.Transform = UpdateMatrix();
+            modelData.Transform = Utils.CalculateMatrix(Position, Rotation, Scale);
             boundingBox = UpdateBoundingBox();
         }
 
@@ -108,38 +116,44 @@ class GameEntity
             Rlgl.EnableBackfaceCulling();
     }
 
-    private Matrix4x4 UpdateMatrix()
-    {
-        var matScale = Raymath.MatrixScale(Scale.X, Scale.Y, Scale.Z);
-        var matRot = Raymath.MatrixRotateXYZ(Rotation * Raylib.DEG2RAD);
-        var matTrans = Raymath.MatrixTranslate(Position.X, Position.Y, Position.Z);
-
-        return Raymath.MatrixMultiply(Raymath.MatrixMultiply(matScale, matRot), matTrans);
-    }
-
     private BoundingBox UpdateBoundingBox()
     {
-        var box = new BoundingBox();
+        // hack to get bounding box without any transformations done to it
+        var prevTrans = modelData.Transform;
+        modelData.Transform = Matrix4x4.Identity;
+        var box = Raylib.GetModelBoundingBox(modelData);
+        modelData.Transform = prevTrans;
 
-        unsafe
+        Vector3[] corners = [
+            new Vector3(box.Min.X, box.Min.Y, box.Min.Z),
+            new Vector3(box.Max.X, box.Min.Y, box.Min.Z),
+            new Vector3(box.Min.X, box.Max.Y, box.Min.Z),
+            new Vector3(box.Max.X, box.Max.Y, box.Min.Z),
+            new Vector3(box.Min.X, box.Min.Y, box.Max.Z),
+            new Vector3(box.Max.X, box.Min.Y, box.Max.Z),
+            new Vector3(box.Min.X, box.Max.Y, box.Max.Z),
+            new Vector3(box.Max.X, box.Max.Y, box.Max.Z)
+        ];
+
+        var result = new BoundingBox()
         {
-            for (int i = 0; i < modelData.MeshCount; i++)
-            {
-                var mesh = modelData.Meshes[i];
-                BoundingBox meshBox = Raylib.GetMeshBoundingBox(mesh);
+            Min = Raymath.Vector3Transform(corners[0], prevTrans),
+            Max = Raymath.Vector3Transform(corners[0], prevTrans)
+        };
 
-                Vector3 min = Raymath.Vector3Min(box.Min, meshBox.Min);
-                Vector3 max = Raymath.Vector3Max(box.Max, meshBox.Max);
+        for (int i = 0; i < corners.Length; i++)
+        {
+            Vector3 p = Raymath.Vector3Transform(corners[i], prevTrans);
 
-                box.Min = min;
-                box.Max = max;
-            }
+            result.Min.X = MathF.Min(result.Min.X, p.X);
+            result.Min.Y = MathF.Min(result.Min.Y, p.Y);
+            result.Min.Z = MathF.Min(result.Min.Z, p.Z);
+
+            result.Max.X = MathF.Max(result.Max.X, p.X);
+            result.Max.Y = MathF.Max(result.Max.Y, p.Y);
+            result.Max.Z = MathF.Max(result.Max.Z, p.Z);
         }
 
-        Matrix4x4 trans = Raymath.MatrixMultiply(Raymath.MatrixTranslate(Position.X, Position.Y, Position.Z), Raymath.MatrixScale(Scale.X, Scale.Y, Scale.Z));
-        box.Min = Raymath.Vector3Transform(box.Min, trans);
-        box.Max = Raymath.Vector3Transform(box.Max, trans);
-
-        return box;
+        return result;
     }
 }
