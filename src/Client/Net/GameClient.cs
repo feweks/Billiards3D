@@ -78,32 +78,18 @@ static class GameClient
 
     public static void StartLobby()
     {
-        if (!CheckConnection())
-        {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to start lobby: client is not connected");
-            return;
-        }
-
-        if (LobbyData == null || PlayerNick == null)
-        {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to start lobby: client is not in any lobby");
-            return;
-        }
-
         if (!IsHost())
         {
             Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to start lobby: client is not host");
             return;
         }
 
-        SendPacket(new StartLobbyPacket()
-        {
-            LobbyCode = LobbyData.Code,
-            Sender = PlayerNick
-        });
+        SendLobbyPacket(new StartLobbyPacket());
 
         LobbyStatus = JoinedLobbyStatus.None;
     }
+
+    public static void LeaveLobby() => SendLobbyPacket(new LeaveLobbyPacket());
 
     public static void SendPacket(Packet packet)
     {
@@ -202,6 +188,41 @@ static class GameClient
 
                     break;
                 }
+            case PacketType.LeaveLobby:
+                {
+                    var leavePacket = (LeaveLobbyPacket)packet;
+                    if (LobbyData == null)
+                        break;
+
+                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Player {leavePacket.Sender} left the lobby");
+
+                    if (leavePacket.Sender == PlayerNick)
+                    {
+                        LobbyStatus = JoinedLobbyStatus.None;
+                        PlayerNick = null;
+
+                        if (!LobbyData.Started)
+                        {
+                            LobbyData = null;
+                        }
+                    }
+                    else
+                    {
+                        if (!LobbyData.Started)
+                        {
+                            if (IsHost())
+                            {
+                                LobbyData.Guest = new PlayerLobbyData(null);
+                            }
+                            else
+                            {
+                                LeaveLobby();
+                            }
+                        }
+                    }
+
+                    break;
+                }
         }
     }
 
@@ -265,6 +286,12 @@ static class GameClient
         running = false;
         if (CheckConnection())
         {
+            if (LobbyData != null && PlayerNick != null)
+            {
+                LeaveLobby();
+                Raylib.TraceLog(TraceLogLevel.Info, $"leave lobby on shutdown");
+            }
+
             client!.Close();
         }
     }

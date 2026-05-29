@@ -102,6 +102,11 @@ class MainMenuState : GameState
                     GameClient.StartLobby();
                 }
             }
+
+            if (ImGui.Button("Leave"))
+            {
+                GameClient.LeaveLobby();
+            }
         }
 
         ImGui.End();

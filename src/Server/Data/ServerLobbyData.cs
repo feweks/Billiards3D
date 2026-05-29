@@ -382,7 +382,7 @@ class ServerLobbyData
         canHitBlackTurn = ply.BallType != PoolBallType.None && !Data.PoolBalls.Any(b => !b.Pocketed && b.Type == ply.BallType);
     }
 
-    private void EndTurn(PoolGameState nextState, bool changePlayer)
+    public void EndTurn(PoolGameState nextState, bool changePlayer)
     {
         Data.State = nextState;
 
@@ -392,7 +392,7 @@ class ServerLobbyData
         railTouchedTurn = false;
         canHitBlackTurn = false;
 
-        var ply = Data.GetPlayerByNick(Data.CurPlayer);
+        var ply = Data.GetCurrentPlayer();
         ply.CueForce = 0;
 
         if (changePlayer)

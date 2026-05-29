@@ -52,7 +52,7 @@ class GameServer
         lobbiesThread.Start();
     }
 
-    private string CreateLobby()
+    private string CreateLobby(Socket host)
     {
         var builder = new StringBuilder();
 
@@ -79,11 +79,15 @@ class GameServer
         if (Lobbies.ContainsKey(code))
         {
             Raylib.TraceLog(TraceLogLevel.Warning, $"Generated already existing lobby code!");
-            return CreateLobby();
+            return CreateLobby(host);
         }
 
         var lobbyData = new GameLobbyData(code);
-        Lobbies.TryAdd(code, new ServerLobbyData(lobbyData, gamemodeConfigs[PoolGamemodeType.Classic]));
+        var svLobby = new ServerLobbyData(lobbyData, gamemodeConfigs[PoolGamemodeType.Classic])
+        {
+            HostConnection = host
+        };
+        Lobbies.TryAdd(code, svLobby);
 
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new lobby [code {code}]");
         return code;
@@ -130,7 +134,7 @@ class GameServer
                     string hostName = hostPacket.Sender;
                     Send(client, new HostLobbyPacket()
                     {
-                        LobbyCode = CreateLobby(),
+                        LobbyCode = CreateLobby(client),
                         Sender = hostName
                     });
 
@@ -161,16 +165,16 @@ class GameServer
                             response.Status = JoinedLobbyStatus.Success;
                             response.LobbyData = lobby.Data;
 
-                            if (lobby.HostConnection == null)
+                            if (lobby.Data.Host.Nickname == null)
                             {
                                 lobby.HostConnection = client;
                                 lobby.Data.Host.Nickname = joinPacket.Sender;
                             }
-                            else if (lobby.GuestConnection == null)
+                            else if (lobby.Data.Guest.Nickname == null)
                             {
                                 lobby.GuestConnection = client;
                                 lobby.Data.Guest.Nickname = joinPacket.Sender;
-                                Send(lobby.HostConnection, joinPacket);
+                                Send(lobby.HostConnection!, joinPacket);
                             }
                             else
                             {
@@ -194,6 +198,41 @@ class GameServer
                     }
 
                     lobby.Start();
+
+                    break;
+                }
+            case PacketType.LeaveLobby:
+                {
+                    if (lobby == null)
+                    {
+                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to leave lobby {packet.LobbyCode}: lobby does not exist");
+                        break;
+                    }
+
+                    lobby.Broadcast(this, (LeaveLobbyPacket)packet);
+
+                    string winningPlayer = "";
+                    if (packet.Sender == lobby.Data.Host.Nickname)
+                    {
+                        winningPlayer = lobby.Data.Guest.Nickname!;
+                        lobby.HostConnection = null;
+                    }
+                    else if (packet.Sender == lobby.Data.Guest.Nickname)
+                    {
+                        winningPlayer = lobby.Data.Host.Nickname!;
+                        lobby.GuestConnection = null;
+
+                        if (!lobby.Data.Started)
+                        {
+                            lobby.Data.Guest = new PlayerLobbyData(null);
+                        }
+                    }
+
+                    if (lobby.Data.Started)
+                    {
+                        lobby.EndTurn(PoolGameState.Finished, false);
+                        lobby.Data.CurPlayer = winningPlayer;
+                    }
 
                     break;
                 }
@@ -338,7 +377,17 @@ class GameServer
         while (running)
         {
             foreach (var lobby in Lobbies.Values)
+            {
                 lobby.Update(delta, this);
+
+                if (lobby.HostConnection == null && lobby.GuestConnection == null)
+                {
+                    if (!Lobbies.Remove(lobby.Data.Code, out ServerLobbyData? _))
+                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to remove lobby {lobby.Data.Code}");
+                    else
+                        Raylib.TraceLog(TraceLogLevel.Info, $"Lobby {lobby.Data.Code} has decayed");
+                }
+            }
 
             Thread.Sleep(sleepAmount);
         }

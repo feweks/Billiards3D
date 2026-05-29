@@ -161,8 +161,13 @@ abstract class GameState
         {
             float sizeX = (ent.BoundingBox.Max.X - ent.BoundingBox.Min.X) * 1.5f;
             float sizeZ = (ent.BoundingBox.Max.Z - ent.BoundingBox.Min.Z) * 1.5f;
+            var pos = new Vector3(
+                ent.BoundingBox.Min.X + (ent.BoundingBox.Max.X - ent.BoundingBox.Min.X) / 2f,
+                ent.BoundingBox.Min.Y + 0.001f,
+                ent.BoundingBox.Min.Z + (ent.BoundingBox.Max.Z - ent.BoundingBox.Min.Z) / 2f
+            );
 
-            shadowData.Draw(ent.Position + new Vector3(0, 0.02f, 0), sizeX, sizeZ);
+            shadowData.Draw(pos, sizeX, sizeZ);
         }
 
         Rlgl.EnableDepthMask();

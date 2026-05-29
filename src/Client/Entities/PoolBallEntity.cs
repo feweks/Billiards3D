@@ -11,6 +11,7 @@ class PoolBallEntity : GameEntity
     public PoolBallEntity(PoolBallData data) : base($"resources/gfx/models/balls/pool_ball_{data.Identifier}.obj", data.Position)
     {
         Data = data;
+        BoundingBoxRotation = false;
         Raylib.TraceLog(TraceLogLevel.Info, $"{Data.Identifier}, {Data.Position}");
     }
 

@@ -20,6 +20,7 @@ class GameEntity
     public bool HasShadow { get; set; } = false;
     public bool Visible { get; set; } = true;
     public bool Active { get; set; } = true;
+    public bool BoundingBoxRotation { get; set; } = true;
     public Color Tint = Color.White;
     public string? ModelPath { get; internal set; }
     public string? Name { get; set; }
@@ -124,6 +125,10 @@ class GameEntity
         var box = Raylib.GetModelBoundingBox(modelData);
         modelData.Transform = prevTrans;
 
+        var trans = prevTrans;
+        if (!BoundingBoxRotation)
+            trans = Utils.CalculateMatrix(Position, Vector3.Zero, Scale);
+
         Vector3[] corners = [
             new Vector3(box.Min.X, box.Min.Y, box.Min.Z),
             new Vector3(box.Max.X, box.Min.Y, box.Min.Z),
@@ -137,13 +142,13 @@ class GameEntity
 
         var result = new BoundingBox()
         {
-            Min = Raymath.Vector3Transform(corners[0], prevTrans),
-            Max = Raymath.Vector3Transform(corners[0], prevTrans)
+            Min = Raymath.Vector3Transform(corners[0], trans),
+            Max = Raymath.Vector3Transform(corners[0], trans)
         };
 
         for (int i = 0; i < corners.Length; i++)
         {
-            Vector3 p = Raymath.Vector3Transform(corners[i], prevTrans);
+            Vector3 p = Raymath.Vector3Transform(corners[i], trans);
 
             result.Min.X = MathF.Min(result.Min.X, p.X);
             result.Min.Y = MathF.Min(result.Min.Y, p.Y);

@@ -36,17 +36,26 @@ class PlayState : GameState
 
         var startingPlayer = GameClient.LobbyData.GetCurrentPlayer();
 
-        poolTable = new GameEntity("resources/gfx/models/pool_table.obj", Vector3.Zero);
+        poolTable = new GameEntity("resources/gfx/models/pool_table.obj", Vector3.Zero)
+        {
+            HasShadow = true
+        };
         PlaceEntity(poolTable);
 
-        poolCueBall = new PoolBallEntity(GameClient.LobbyData.PoolCueBall!);
+        poolCueBall = new PoolBallEntity(GameClient.LobbyData.PoolCueBall!)
+        {
+            HasShadow = true
+        };
         PlaceEntity(poolCueBall);
 
         int ballsCount = GameClient.LobbyData.PoolBalls.Count;
         poolBalls = new PoolBallEntity[ballsCount];
         for (int i = 0; i < ballsCount; i++)
         {
-            poolBalls[i] = new PoolBallEntity(GameClient.LobbyData.PoolBalls[i]);
+            poolBalls[i] = new PoolBallEntity(GameClient.LobbyData.PoolBalls[i])
+            {
+                HasShadow = true
+            };
             PlaceEntity(poolBalls[i]);
         }
 
@@ -128,12 +137,15 @@ class PlayState : GameState
         poolCue.Position = Raymath.Vector3Lerp(poolCue.Position, GetCueTargetPos(curPlayer.AimDir, curPlayerCueForce), dt * cueLerpAmount);
         poolCue.Rotation.Y = Raymath.LerpAngle(poolCue.Rotation.Y, GetCueTargetRotY(curPlayer.AimDir), dt * cueLerpAmount);
 
-        updateTime += dt;
-        if (updateTime > 0.03f)
+        if (GameClient.LobbyData.State != PoolGameState.Finished)
         {
-            GameClient.SendLobbyPacket(new UpdatePlayerLobbyPacket() { PlayerData = netPlayer });
+            updateTime += dt;
+            if (updateTime > 0.03f)
+            {
+                GameClient.SendLobbyPacket(new UpdatePlayerLobbyPacket() { PlayerData = netPlayer });
 
-            updateTime = 0f;
+                updateTime = 0f;
+            }
         }
     }
 
