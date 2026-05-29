@@ -28,8 +28,7 @@ class JoinedLobbyPacket : LobbyPacket
         Status = (JoinedLobbyStatus)reader.ReadByte();
         if (Status == JoinedLobbyStatus.Success)
         {
-            LobbyData = new GameLobbyData(string.Empty);
-            LobbyData.Deserialize(reader);
+            LobbyData = new GameLobbyData(reader);
         }
     }
 }

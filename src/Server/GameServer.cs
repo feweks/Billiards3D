@@ -82,11 +82,7 @@ class GameServer
             return CreateLobby(host);
         }
 
-        var lobbyData = new GameLobbyData(code);
-        var svLobby = new ServerLobbyData(lobbyData, gamemodeConfigs[PoolGamemodeType.Classic])
-        {
-            HostConnection = host
-        };
+        var svLobby = new ServerLobbyData(code, host, gamemodeConfigs[PoolGamemodeType.Classic]);
         Lobbies.TryAdd(code, svLobby);
 
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new lobby [code {code}]");

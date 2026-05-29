@@ -20,7 +20,6 @@ class UpdateLobbyPacket : LobbyPacket
     {
         base.Deserialize(reader);
 
-        LobbyData = new GameLobbyData(LobbyCode);
-        LobbyData.Deserialize(reader);
+        LobbyData = new GameLobbyData(reader);
     }
 }
