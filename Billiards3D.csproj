@@ -8,6 +8,8 @@
     <PublishTrimmed>true</PublishTrimmed>
     <PublishSingleFile>true</PublishSingleFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetName>billiards</TargetName>
+    <AssemblyName>billiards</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

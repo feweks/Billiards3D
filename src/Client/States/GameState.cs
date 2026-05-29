@@ -140,6 +140,18 @@ abstract class GameState
         if (Raylib.IsKeyReleased(KeyboardKey.F3))
             DebugView = !DebugView;
 
+        if (Raylib.IsKeyReleased(KeyboardKey.F11))
+        {
+            if (!Raylib.IsWindowFullscreen())
+            {
+                int monitor = Raylib.GetCurrentMonitor();
+
+                Raylib.SetWindowSize(Raylib.GetMonitorWidth(monitor), Raylib.GetMonitorHeight(monitor));
+            }
+
+            Raylib.ToggleFullscreen();
+        }
+
         foreach (var ent in Entities)
             ent.Update(dt);
     }
