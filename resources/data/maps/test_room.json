@@ -2,9 +2,9 @@
   "Lights": [
     {
       "Enabled": true,
-      "Intensity": 1.66,
+      "Intensity": 2,
       "Cutoff": 4,
-      "SpotExponent": 2.5,
+      "SpotExponent": 3,
       "Color": {
         "R": 255,
         "G": 255,

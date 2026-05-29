@@ -157,7 +157,7 @@ abstract class GameState
 
         Rlgl.DisableDepthMask();
 
-        foreach (var ent in Entities.Where(e => e.HasShadow))
+        foreach (var ent in Entities.Where(e => e.HasShadow && e.Visible))
         {
             float sizeX = (ent.BoundingBox.Max.X - ent.BoundingBox.Min.X) * 1.5f;
             float sizeZ = (ent.BoundingBox.Max.Z - ent.BoundingBox.Min.Z) * 1.5f;
