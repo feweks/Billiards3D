@@ -20,7 +20,7 @@ struct Light
     float spotExponent;
 };
 
-#define MAX_LIGHTS 8
+#define MAX_LIGHTS 16
 uniform Light lights[MAX_LIGHTS];
 uniform vec3 ambientColor;
 

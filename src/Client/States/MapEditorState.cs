@@ -24,13 +24,14 @@ enum TransformationType
 enum EditorEntityType
 {
     ModelEntity = 0,
-    LightEntity
+    LightEntity,
+    BillboardEntity
 }
 
 class SelectedEntityData
 {
     public GameEntity? Entity { get; internal set; }
-    public string ModelPathInp = string.Empty;
+    public string ResourcePathInp = string.Empty;
     private Vector3 transAxes = Vector3.Zero;
     private Vector3 previousTrans;
     private TransformationType transformationType = TransformationType.None;
@@ -41,7 +42,7 @@ class SelectedEntityData
             Deselect();
 
         Entity = ent;
-        ModelPathInp = ent.ModelPath ?? string.Empty;
+        ResourcePathInp = ent is ModelEntity mdlEnt ? mdlEnt.Path ?? string.Empty : string.Empty;
         ent.Tint = Color.Green;
     }
 
@@ -51,7 +52,7 @@ class SelectedEntityData
             return;
 
         Entity.Tint = Color.White;
-        ModelPathInp = string.Empty;
+        ResourcePathInp = string.Empty;
         Entity = null;
 
         if (transformationType != TransformationType.None)
@@ -151,10 +152,11 @@ class MapEditorState : GameState
     {
         curSelectedEntity = new SelectedEntityData();
 
-        poolTable = new GameEntity("resources/gfx/models/pool_table.obj", Vector3.Zero);
+        poolTable = new ModelEntity("resources/gfx/models/pool_table.obj", Vector3.Zero, null)
+        {
+            CastsShadow = true
+        };
         PlaceEntity(poolTable);
-
-        poolTable.HasShadow = true;
     }
 
     public override void Update(float dt)
@@ -231,34 +233,21 @@ class MapEditorState : GameState
         };
         foreach (var ent in Entities.Where(e => e.Map == name))
         {
-            if (ent is LightEntity lightEnt)
+            if (ent is ModelEntity mdlEnt)
             {
-                mapData.Lights.Add(new MapLightFileData()
-                {
-                    Position = lightEnt.Position,
-                    Rotation = lightEnt.Rotation,
-                    Scale = lightEnt.Scale,
-                    Name = lightEnt.Name,
-                    Enabled = lightEnt.Enabled,
-                    Color = lightEnt.Color,
-                    Intensity = lightEnt.Intensity,
-                    Direction = lightEnt.Direction,
-                    Cutoff = lightEnt.Cutoff,
-                    SpotExponent = lightEnt.SpotExponent
-                });
+                mapData.Models.Add(new MapModelFileData(mdlEnt));
+            }
+            else if (ent is LightEntity lightEnt)
+            {
+                mapData.Lights.Add(new MapLightFileData(lightEnt));
+            }
+            else if (ent is BillboardEntity billEnt)
+            {
+                mapData.Billboards.Add(new MapBillboardFileData(billEnt));
             }
             else
             {
-                mapData.Entities.Add(new MapEntityFileData()
-                {
-                    ModelPath = ent.ModelPath,
-                    Culling = ent.Culling,
-                    Position = ent.Position,
-                    Rotation = ent.Rotation,
-                    Scale = ent.Scale,
-                    Name = ent.Name,
-                    HasShadow = ent.HasShadow
-                });
+                throw new NotImplementedException($"Map serialization not implemented for entity {ent.GetType().Name}");
             }
         }
 
@@ -321,7 +310,7 @@ class MapEditorState : GameState
             LightingShader.Toggle(toggleLightingOpt);
         if (ImGui.Checkbox("Draw Lights Origin", ref drawLightsOriginOpt))
         {
-            LightEntity.DrawLightsSources = drawLightsOriginOpt;
+            LightEntity.DrawLightSources = drawLightsOriginOpt;
         }
 
         ImGui.End();
@@ -337,50 +326,67 @@ class MapEditorState : GameState
         var selEnt = curSelectedEntity.Entity;
         if (selEnt != null)
         {
-            if (selEnt is not LightEntity lightSelEnt)
+            string entName = selEnt.Name ?? string.Empty;
+            if (ImGui.InputText("Entity Name", ref entName, MAX_INP_CHARS))
+                selEnt.Name = entName == string.Empty ? null : entName;
+
+            if (selEnt is ModelEntity mdlEnt)
             {
-                ImGui.InputText("Entity Model Path", ref curSelectedEntity.ModelPathInp, MAX_INP_CHARS);
+                ImGui.InputText("Entity Model Path", ref curSelectedEntity.ResourcePathInp, MAX_INP_CHARS);
                 ImGui.SameLine();
                 if (ImGui.Button("Load"))
-                    selEnt.LoadModelData(curSelectedEntity.ModelPathInp);
+                    mdlEnt.LoadModelData(curSelectedEntity.ResourcePathInp);
 
-                string entName = selEnt.Name ?? string.Empty;
-                if (ImGui.InputText("Entity Name", ref entName, MAX_INP_CHARS))
-                    selEnt.Name = entName == string.Empty ? null : entName;
-
-                bool entCulling = selEnt.Culling;
+                bool entCulling = mdlEnt.Culling;
                 if (ImGui.Checkbox("Entity Culling", ref entCulling))
-                    selEnt.Culling = entCulling;
+                    mdlEnt.Culling = entCulling;
 
-                bool entHasShadow = selEnt.HasShadow;
+                bool entHasShadow = mdlEnt.CastsShadow;
                 if (ImGui.Checkbox("Entity Cast Shadow", ref entHasShadow))
-                    selEnt.HasShadow = entHasShadow;
+                    mdlEnt.CastsShadow = entHasShadow;
             }
-            else
+            else if (selEnt is LightEntity lightEnt)
             {
-                bool lightEnabled = lightSelEnt.Enabled;
+                bool lightEnabled = lightEnt.Enabled;
                 if (ImGui.Checkbox("Light Enabled", ref lightEnabled))
-                    lightSelEnt.Enabled = lightEnabled;
+                    lightEnt.Enabled = lightEnabled;
 
-                var lightCol = Utils.ColorToVec3(lightSelEnt.Color);
+                var lightCol = Utils.ColorToVec3(lightEnt.Color);
                 if (ImGui.ColorEdit3("Light Color", ref lightCol))
-                    lightSelEnt.Color = Utils.ColorFromVec3(lightCol);
+                    lightEnt.Color = Utils.ColorFromVec3(lightCol);
 
-                var lightIntensity = lightSelEnt.Intensity;
+                var lightIntensity = lightEnt.Intensity;
                 if (ImGui.InputFloat("Light Intensity", ref lightIntensity))
-                    lightSelEnt.Intensity = lightIntensity;
+                    lightEnt.Intensity = lightIntensity;
 
-                var lightDir = lightSelEnt.Direction;
+                var lightDir = lightEnt.Direction;
                 if (ImGui.InputFloat3("Light Direction", ref lightDir))
-                    lightSelEnt.Direction = lightDir;
+                    lightEnt.Direction = lightDir;
 
-                float lightCutoffAngle = lightSelEnt.Cutoff;
+                float lightCutoffAngle = lightEnt.Cutoff;
                 if (ImGui.InputFloat("Light Cutoff Angle", ref lightCutoffAngle))
-                    lightSelEnt.Cutoff = lightCutoffAngle;
+                    lightEnt.Cutoff = lightCutoffAngle;
 
-                float lightExpo = lightSelEnt.SpotExponent;
+                float lightExpo = lightEnt.SpotExponent;
                 if (ImGui.InputFloat("Light Spot Exponent", ref lightExpo))
-                    lightSelEnt.SpotExponent = lightExpo;
+                    lightEnt.SpotExponent = lightExpo;
+            }
+            else if (selEnt is BillboardEntity billEnt)
+            {
+                string texPath = billEnt.Path ?? string.Empty;
+                if (ImGui.InputText("Billboard Texture Path", ref texPath, MAX_INP_CHARS))
+                    billEnt.Path = texPath == string.Empty ? null : texPath;
+                ImGui.SameLine();
+                if (ImGui.Button("Load"))
+                    billEnt.LoadTexture(billEnt.Path);
+
+                bool castsShadow = billEnt.CastsShadow;
+                if (ImGui.Checkbox("Billboard Casts Shadow", ref castsShadow))
+                    billEnt.CastsShadow = castsShadow;
+
+                Vector2 size = billEnt.Size;
+                if (ImGui.InputFloat2("Billboard Size", ref size))
+                    billEnt.Size = size;
             }
 
             Vector3 entPos = selEnt.Position;
@@ -411,7 +417,17 @@ class MapEditorState : GameState
             for (int i = 0; i < mapEntities.Count; i++)
             {
                 var ent = mapEntities[i];
-                string entName = $"{(ent is LightEntity ? "Light" : "Entity")} #{i + 1}";
+                string entName;
+                if (ent is ModelEntity)
+                    entName = "Model";
+                else if (ent is LightEntity)
+                    entName = "Light";
+                else if (ent is BillboardEntity)
+                    entName = "Billboard";
+                else
+                    throw new NotImplementedException($"Name displaying not impelmented for ent of type {ent.GetType().Name}");
+
+                entName += $" #{i + 1}";
                 if (ent.Name != null)
                     entName += $" ({ent.Name})";
 
@@ -442,6 +458,34 @@ class MapEditorState : GameState
             if (ImGui.Button("Deselect"))
             {
                 curSelectedEntity.Deselect();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Duplicate"))
+            {
+                GameEntity dupedEnt;
+
+                if (selEnt is ModelEntity mdlEnt)
+                {
+                    dupedEnt = mdlEnt.Copy();
+                    PlaceEntity(dupedEnt);
+                }
+                else if (selEnt is LightEntity lightEnt)
+                {
+                    dupedEnt = lightEnt.Copy();
+                    PlaceLight((LightEntity)dupedEnt);
+                }
+                else if (selEnt is BillboardEntity billEnt)
+                {
+                    dupedEnt = billEnt.Copy();
+                    PlaceBillboard((BillboardEntity)dupedEnt);
+                }
+                else
+                {
+                    throw new NotImplementedException("NIGGA");
+                }
+
+                curSelectedEntity.Deselect();
+                curSelectedEntity.Select(dupedEnt);
             }
         }
 
@@ -531,25 +575,27 @@ class MapEditorState : GameState
 
         if (ImGui.Button("Create"))
         {
-            GameEntity ent;
             var entType = (EditorEntityType)curSelectedEntityTypeInp;
+            GameEntity ent;
 
             if (entType == EditorEntityType.LightEntity)
             {
-                ent = new LightEntity(Vector3.Zero, null)
-                {
-                    Map = CurLoadedMap,
-                    Intensity = 2
-                };
+                ent = new LightEntity(CurLoadedMap);
                 PlaceLight((LightEntity)ent);
+            }
+            else if (entType == EditorEntityType.ModelEntity)
+            {
+                ent = new ModelEntity(CurLoadedMap);
+                PlaceEntity(ent);
+            }
+            else if (entType == EditorEntityType.BillboardEntity)
+            {
+                ent = new BillboardEntity(CurLoadedMap);
+                PlaceBillboard((BillboardEntity)ent);
             }
             else
             {
-                ent = new GameEntity(null, Vector3.Zero)
-                {
-                    Map = CurLoadedMap
-                };
-                PlaceEntity(ent);
+                throw new NotImplementedException($"Entity creation not implemented for entity of type {entType}");
             }
             curSelectedEntity.Select(ent);
 

@@ -1,0 +1,399 @@
+[Info] Initializing raylib 5.5
+[Info] Platform backend: DESKTOP (GLFW)
+[Info] Supported raylib modules:
+[Info]     > rcore:..... loaded (mandatory)
+[Info]     > rlgl:...... loaded (mandatory)
+[Info]     > rshapes:... loaded (optional)
+[Info]     > rtextures:. loaded (optional)
+[Info]     > rtext:..... loaded (optional)
+[Info]     > rmodels:... loaded (optional)
+[Info]     > raudio:.... loaded (optional)
+[Info] DISPLAY: Trying to enable VSYNC
+[Info] DISPLAY: Device initialized successfully
+[Info]     > Display size: 1920 x 1080
+[Info]     > Screen size:  1280 x 720
+[Info]     > Render size:  1280 x 720
+[Info]     > Viewport offsets: 0, 0
+[Info] GLAD: OpenGL extensions loaded successfully
+[Info] GL: Supported extensions count: 403
+[Info] GL: OpenGL device information:
+[Info]     > Vendor:   NVIDIA Corporation
+[Info]     > Renderer: NVIDIA GeForce RTX 3060/PCIe/SSE2
+[Info]     > Version:  3.3.0 NVIDIA 591.86
+[Info]     > GLSL:     3.30 NVIDIA via Cg compiler
+[Info] GL: VAO extension detected, VAO functions loaded successfully
+[Info] GL: NPOT textures extension detected, full NPOT textures supported
+[Info] GL: DXT compressed textures supported
+[Info] GL: ETC2/EAC compressed textures supported
+[Info] PLATFORM: DESKTOP (GLFW - Win32): Initialized successfully
+[Info] TEXTURE: [ID 1] Texture loaded successfully (1x1 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 1] Default texture loaded successfully
+[Info] SHADER: [ID 1] Vertex shader compiled successfully
+[Info] SHADER: [ID 2] Fragment shader compiled successfully
+[Info] SHADER: [ID 3] Program shader loaded successfully
+[Info] SHADER: [ID 3] Default shader loaded successfully
+[Info] RLGL: Render batch vertex buffers loaded successfully in RAM (CPU)
+[Info] RLGL: Render batch vertex buffers loaded successfully in VRAM (GPU)
+[Info] RLGL: Default OpenGL state initialized successfully
+[Info] TEXTURE: [ID 2] Texture loaded successfully (128x128 | GRAY_ALPHA | 1 mipmaps)
+[Info] FONT: Default font loaded successfully (224 glyphs)
+[Info] SYSTEM: Working Directory: C:\Users\filip\Desktop\projects\c#\Billiards3D
+[Info] AUDIO: Device initialized successfully
+[Info]     > Backend:       miniaudio | WASAPI
+[Info]     > Format:        32-bit IEEE Floating Point -> 32-bit IEEE Floating Point
+[Info]     > Channels:      2 -> 2
+[Info]     > Sample rate:   48000 -> 48000
+[Info]     > Periods size:  1440
+[Info] TEXTURE: [ID 3] Texture loaded successfully (100x100 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 2] Mesh uploaded successfully to VRAM (GPU)
+[Info] TEXTURE: [ID 4] Texture loaded successfully (512x1024 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 5] Texture loaded successfully (960x540 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 1] Depth renderbuffer loaded successfully (32 bits)
+[Info] FBO: [ID 1] Framebuffer object created successfully
+[Info] TEXTURE: [ID 6] Texture loaded successfully (64x64 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 3] Mesh uploaded successfully to VRAM (GPU)
+[Info] SHADER: [ID 4] Vertex shader compiled successfully
+[Info] SHADER: [ID 5] Fragment shader compiled successfully
+[Info] SHADER: [ID 6] Program shader loaded successfully
+[Info] FILEIO: [resources/gfx/models/pool_table.obj] Text file loaded successfully
+[Info] FILEIO: [pool_table.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 7] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 4] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 4] Trying to re-load an already loaded mesh
+[Info] SHADER: [ID 4] Vertex shader compiled successfully
+[Info] SHADER: [ID 5] Fragment shader compiled successfully
+[Info] SHADER: [ID 7] Program shader loaded successfully
+[Info] FILEIO: [resources/gfx/models/map/jan/floor.obj] Text file loaded successfully
+[Info] FILEIO: [floor.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 8] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 5] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 5] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/walls.obj] Text file loaded successfully
+[Info] FILEIO: [bricks.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 9] Texture loaded successfully (256x128 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [bricks.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 10] Texture loaded successfully (256x128 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [wood.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 11] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [menu.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (500x501 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 12] Texture loaded successfully (500x501 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [cans.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (400x400 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 13] Texture loaded successfully (400x400 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [speaker.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (275x183 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 14] Texture loaded successfully (275x183 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [concrete.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (1024x512 | R8G8B8 | 1 mipmaps)
+[Info] TEXTURE: [ID 15] Texture loaded successfully (1024x512 | R8G8B8 | 1 mipmaps)
+[Info] FILEIO: [shield3.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (64x114 | R8G8B8 | 1 mipmaps)
+[Info] TEXTURE: [ID 16] Texture loaded successfully (64x114 | R8G8B8 | 1 mipmaps)
+[Info] FILEIO: [shield2.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (701x711 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 17] Texture loaded successfully (701x711 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [shield1.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (1000x1000 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 18] Texture loaded successfully (1000x1000 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 6] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 7] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 8] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 9] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 10] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 11] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 12] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 13] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 14] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 15] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 16] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 6] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 7] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 8] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 9] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 10] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 11] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 12] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 13] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 14] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 15] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 16] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/firanki.obj] Text file loaded successfully
+[Info] FILEIO: [firanki.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (500x500 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 19] Texture loaded successfully (500x500 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 17] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 18] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 17] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 18] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/wheel.obj] Text file loaded successfully
+[Info] FILEIO: [wheel.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 20] Texture loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 19] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 19] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/sword_and_sickle.obj] Text file loaded successfully
+[Info] FILEIO: [sword_and_sickle.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x115 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 21] Texture loaded successfully (128x115 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 20] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 20] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/couch2.obj] Text file loaded successfully
+[Info] FILEIO: [couch_wood.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 22] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [couch_material.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 23] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 21] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 22] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 21] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 22] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/table1.obj] Text file loaded successfully
+[Info] FILEIO: [wood.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 24] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 23] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 23] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/table2.obj] Text file loaded successfully
+[Info] FILEIO: [wood.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 25] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 24] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 24] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/fabric.obj] Text file loaded successfully
+[Info] FILEIO: [fabric.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x129 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 26] Texture loaded successfully (128x129 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 25] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 25] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/piszki1.obj] Text file loaded successfully
+[Info] FILEIO: [metal.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (1024x1024 | R8G8B8 | 1 mipmaps)
+[Info] TEXTURE: [ID 27] Texture loaded successfully (1024x1024 | R8G8B8 | 1 mipmaps)
+[Info] FILEIO: [cans.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (400x400 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 28] Texture loaded successfully (400x400 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [cans2.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (800x800 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 29] Texture loaded successfully (800x800 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 26] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 27] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 28] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 26] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 27] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 28] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/piszki2.obj] Text file loaded successfully
+[Info] FILEIO: [metal.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (1024x1024 | R8G8B8 | 1 mipmaps)
+[Info] TEXTURE: [ID 30] Texture loaded successfully (1024x1024 | R8G8B8 | 1 mipmaps)
+[Info] FILEIO: [cans.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (400x400 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 31] Texture loaded successfully (400x400 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 29] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 30] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 31] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 29] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 30] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 31] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/costume.obj] Text file loaded successfully
+[Info] FILEIO: [wood.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 32] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [costume_fabric.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 33] Texture loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 32] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 33] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 32] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 33] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/barstool.obj] Text file loaded successfully
+[Info] FILEIO: [couch_wood.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 34] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 34] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 34] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/pizza.obj] Text file loaded successfully
+[Info] FILEIO: [pizza.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 35] Texture loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [concrete.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (1024x512 | R8G8B8 | 1 mipmaps)
+[Info] TEXTURE: [ID 36] Texture loaded successfully (1024x512 | R8G8B8 | 1 mipmaps)
+[Info] VAO: [ID 35] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 36] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 35] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 36] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/rack.obj] Text file loaded successfully
+[Info] FILEIO: [wood.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 37] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [pool_props.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 38] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 37] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 38] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 37] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 38] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/painting.obj] Text file loaded successfully
+[Info] FILEIO: [painting.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 39] Texture loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 39] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 39] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/trashcan.obj] Text file loaded successfully
+[Info] FILEIO: [metal.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (1024x1024 | R8G8B8 | 1 mipmaps)
+[Info] TEXTURE: [ID 40] Texture loaded successfully (1024x1024 | R8G8B8 | 1 mipmaps)
+[Info] FILEIO: [costume_fabric.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 41] Texture loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [trash.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (64x64 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 42] Texture loaded successfully (64x64 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 40] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 41] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 42] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 40] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 41] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 42] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/machine.obj] Text file loaded successfully
+[Info] FILEIO: [balls.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 43] Texture loaded successfully (128x128 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [metal.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (1024x1024 | R8G8B8 | 1 mipmaps)
+[Info] TEXTURE: [ID 44] Texture loaded successfully (1024x1024 | R8G8B8 | 1 mipmaps)
+[Info] VAO: [ID 43] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 44] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 43] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 44] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/chair.obj] Text file loaded successfully
+[Info] FILEIO: [wood.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 45] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 45] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 45] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/couch.obj] Text file loaded successfully
+[Info] FILEIO: [couch_wood.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 46] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [couch_material.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 47] Texture loaded successfully (256x256 | R8G8B8A8 | 1 mipmaps)
+[Info] VAO: [ID 46] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 47] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 46] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 47] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/ceiling.obj] Text file loaded successfully
+[Info] FILEIO: [costume_fabric.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 48] Texture loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [concrete.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (1024x512 | R8G8B8 | 1 mipmaps)
+[Info] TEXTURE: [ID 49] Texture loaded successfully (1024x512 | R8G8B8 | 1 mipmaps)
+[Info] VAO: [ID 48] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 49] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 48] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 49] Trying to re-load an already loaded mesh
+[Info] FILEIO: [resources/gfx/models/map/jan/lamp.obj] Text file loaded successfully
+[Info] FILEIO: [costume_fabric.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] TEXTURE: [ID 50] Texture loaded successfully (129x85 | R8G8B8A8 | 1 mipmaps)
+[Info] FILEIO: [mocnufuli.png] File loaded successfully
+[Info] IMAGE: Data loaded successfully (348x431 | R8G8B8 | 1 mipmaps)
+[Info] TEXTURE: [ID 51] Texture loaded successfully (348x431 | R8G8B8 | 1 mipmaps)
+[Info] VAO: [ID 50] Mesh uploaded successfully to VRAM (GPU)
+[Info] VAO: [ID 51] Mesh uploaded successfully to VRAM (GPU)
+[Warning] VAO: [ID 50] Trying to re-load an already loaded mesh
+[Warning] VAO: [ID 51] Trying to re-load an already loaded mesh
+[Error] {R:173 G:160 B:75 A:255}
+[Error] {R:173 G:160 B:75 A:255}
+[Error] {R:173 G:160 B:75 A:255}
+[Error] {R:173 G:160 B:75 A:255}
+[Error] {R:173 G:160 B:75 A:255}
+[Error] {R:173 G:160 B:75 A:255}
+[Info] Loaded new map [jan]
+[Info] VAO: [ID 4] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 5] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 6] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 7] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 8] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 9] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 10] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 11] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 12] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 13] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 14] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 15] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 16] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 17] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 18] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 19] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 20] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 21] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 22] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 23] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 24] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 25] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 26] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 27] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 28] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 29] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 30] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 31] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 32] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 33] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 34] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 35] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 36] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 37] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 38] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 39] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 40] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 41] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 42] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 43] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 44] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 45] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 46] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 47] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 48] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 49] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] VAO: [ID 50] Unloaded vertex array data from VRAM (GPU)
+[Info] VAO: [ID 51] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] TEXTURE: [ID 3] Unloaded texture data from VRAM (GPU)
+[Info] VAO: [ID 2] Unloaded vertex array data from VRAM (GPU)
+[Info] MODEL: Unloaded model (and meshes) from RAM and VRAM
+[Info] TEXTURE: [ID 2] Unloaded texture data from VRAM (GPU)
+[Info] SHADER: [ID 3] Default shader unloaded successfully
+[Info] TEXTURE: [ID 1] Default texture unloaded successfully
+[Info] Window closed successfully

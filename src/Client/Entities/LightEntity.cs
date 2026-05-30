@@ -1,5 +1,5 @@
 using System.Numerics;
-using Game.Client.Data;
+using Game.Client.Data.Files;
 using Raylib_cs;
 
 namespace Game.Client.Entities;
@@ -8,7 +8,7 @@ class LightEntity : GameEntity
 {
     private const float LIGHT_SPHERE_RADIUS = 0.1f;
 
-    public static bool DrawLightsSources { get; set; } = false;
+    public static bool DrawLightSources { get; set; } = false;
     public static int IndexCounter { get; set; } = 0;
 
     public int Index { get; set; } = 0;
@@ -19,10 +19,36 @@ class LightEntity : GameEntity
     public float Cutoff { get; set; }
     public float SpotExponent { get; set; }
 
-    public LightEntity(Vector3 pos, string? name = null) : base(null, pos, name)
+    private BoundingBox defaultBox = new BoundingBox();
+
+    public LightEntity(string? map) : base(Vector3.Zero, Vector3.Zero, Vector3.One, null, map)
     {
         Index = IndexCounter++;
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new light with idx {Index}");
+    }
+
+    public LightEntity(LightEntity lightEnt) : base(lightEnt)
+    {
+        Index = IndexCounter++;
+
+        Enabled = lightEnt.Enabled;
+        Intensity = lightEnt.Intensity;
+        Direction = lightEnt.Direction;
+        Cutoff = lightEnt.Cutoff;
+        Color = lightEnt.Color;
+        SpotExponent = lightEnt.SpotExponent;
+    }
+
+    public LightEntity(MapLightFileData fileData, string? map) : base(fileData, map)
+    {
+        Index = IndexCounter++;
+
+        Enabled = fileData.Enabled;
+        Intensity = fileData.Intensity;
+        Direction = fileData.Direction;
+        Color = fileData.Color;
+        Cutoff = fileData.Cutoff;
+        SpotExponent = fileData.SpotExponent;
     }
 
     public override void Update(float dt)
@@ -33,11 +59,15 @@ class LightEntity : GameEntity
         LightingShader?.UpdateLight(this);
     }
 
+    public override BoundingBox UpdateBoundingBox() => defaultBox;
+
     public override RayCollision CheckCollisionRay(Ray ray) => Raylib.GetRayCollisionSphere(ray, Position, LIGHT_SPHERE_RADIUS);
+
+    public override LightEntity Copy() => new LightEntity(this);
 
     public override void Draw()
     {
-        if (!DrawLightsSources)
+        if (!DrawLightSources)
             return;
 
         Raylib.DrawSphereEx(Position, LIGHT_SPHERE_RADIUS, 8, 8, Utils.ColorFromVec4(Utils.ColorToVec4(Tint) * Utils.ColorToVec4(Color)));

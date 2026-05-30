@@ -18,7 +18,7 @@ struct LightData
 
 class LightingShaderData
 {
-    public const uint LIGHTS_COUNT = 8;
+    public const uint LIGHTS_COUNT = 16;
 
     private Vector3 ambientColor;
     private int ambientColorLoc;

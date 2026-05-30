@@ -1,0 +1,11 @@
+# Blender 5.1.2 MTL File: 'world.blend'
+# www.blender.org
+
+newmtl firanki
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 3
+map_Kd firanki.png

@@ -4,14 +4,16 @@ using Raylib_cs;
 
 namespace Game.Client.Entities;
 
-class PoolBallEntity : GameEntity
+class PoolBallEntity : ModelEntity
 {
     public PoolBallData Data { get; set; }
 
-    public PoolBallEntity(PoolBallData data) : base($"resources/gfx/models/balls/pool_ball_{data.Identifier}.obj", data.Position)
+    public PoolBallEntity(PoolBallData data, string? map) : base(map)
     {
         Data = data;
         BoundingBoxRotation = false;
+        LoadModelData($"resources/gfx/models/balls/pool_ball_{data.Identifier}.obj");
+        Position = data.Position;
         Raylib.TraceLog(TraceLogLevel.Info, $"{Data.Identifier}, {Data.Position}");
     }
 

@@ -36,15 +36,15 @@ class PlayState : GameState
 
         var startingPlayer = GameClient.LobbyData.GetCurrentPlayer();
 
-        poolTable = new GameEntity("resources/gfx/models/pool_table.obj", Vector3.Zero)
+        poolTable = new ModelEntity("resources/gfx/models/pool_table.obj", Vector3.Zero, null)
         {
-            HasShadow = true
+            CastsShadow = true
         };
         PlaceEntity(poolTable);
 
-        poolCueBall = new PoolBallEntity(GameClient.LobbyData.PoolCueBall!)
+        poolCueBall = new PoolBallEntity(GameClient.LobbyData.PoolCueBall!, null)
         {
-            HasShadow = true
+            CastsShadow = true
         };
         PlaceEntity(poolCueBall);
 
@@ -52,14 +52,14 @@ class PlayState : GameState
         poolBalls = new PoolBallEntity[ballsCount];
         for (int i = 0; i < ballsCount; i++)
         {
-            poolBalls[i] = new PoolBallEntity(GameClient.LobbyData.PoolBalls[i])
+            poolBalls[i] = new PoolBallEntity(GameClient.LobbyData.PoolBalls[i], null)
             {
-                HasShadow = true
+                CastsShadow = true
             };
             PlaceEntity(poolBalls[i]);
         }
 
-        poolCue = new GameEntity("resources/gfx/models/pool_cue.obj", GetCueTargetPos(startingPlayer.AimDir, startingPlayer.CueForce))
+        poolCue = new ModelEntity("resources/gfx/models/pool_cue.obj", GetCueTargetPos(startingPlayer.AimDir, startingPlayer.CueForce), null)
         {
             Scale = new Vector3(0.75f),
             Rotation = new Vector3(0, GetCueTargetRotY(startingPlayer.AimDir), 0)
@@ -73,7 +73,7 @@ class PlayState : GameState
             Camera.Target.Z + camDistance * MathF.Cos(camPitch) * MathF.Cos(camYaw)
         );
 
-        LoadMap("test_room");
+        LoadMap("jan");
     }
 
     public override void Update(float dt)

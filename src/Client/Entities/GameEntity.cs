@@ -1,66 +1,59 @@
 using Game.Client.Data;
-using Game.Client.States;
-using Game.Common.Enums;
+using Game.Client.Data.Files;
 using Raylib_cs;
 using System.Numerics;
 
 namespace Game.Client.Entities;
 
-class GameEntity
+abstract class GameEntity
 {
-    public static bool DrawWired { get; set; } = false;
-
     public Vector3 Position;
     public Vector3 Rotation = Vector3.Zero;
     public Vector3 Scale = Vector3.One;
     public Vector3 Velocity = Vector3.Zero;
     public LightingShaderData? LightingShader { get; internal set; }
 
-    public bool Culling { get; set; } = true;
-    public bool HasShadow { get; set; } = false;
-    public bool Visible { get; set; } = true;
-    public bool Active { get; set; } = true;
-    public bool BoundingBoxRotation { get; set; } = true;
-    public Color Tint = Color.White;
-    public string? ModelPath { get; internal set; }
     public string? Name { get; set; }
     public string? Map { get; set; }
+    public Color Tint = Color.White;
+
+    public bool Visible { get; set; } = true;
+    public bool Active { get; set; } = true;
 
     public BoundingBox BoundingBox { get => boundingBox; }
 
-    private Model modelData;
     private BoundingBox boundingBox;
 
-    private Texture2D shadowTex;
-
-    public GameEntity(string? modelPath, Vector3 pos, string? name = null)
+    public GameEntity(Vector3 pos, Vector3 rot, Vector3 scale, string? name, string? map)
     {
         Position = pos;
+        Rotation = rot;
+        Scale = scale;
         Name = name;
-        LoadModelData(modelPath);
-
-        shadowTex = Resources.GetTexture("resources/gfx/shadow.png");
+        Map = map;
     }
 
-    public void LoadModelData(string? path)
+    public GameEntity(GameEntity ent)
     {
-        modelData = Resources.GetModel(path);
-        ModelPath = path;
-
-        UpdateBoundingBox();
+        Position = ent.Position;
+        Rotation = ent.Rotation;
+        Scale = ent.Scale;
+        Name = ent.Name;
+        Map = ent.Map;
     }
 
-    public void SetLightingShader(LightingShaderData shader)
+    public GameEntity(MapEntityFileData fileData, string? map)
+    {
+        Position = fileData.Position;
+        Rotation = fileData.Rotation;
+        Scale = fileData.Scale;
+        Name = fileData.Name;
+        Map = map;
+    }
+
+    public virtual void SetLightingShader(LightingShaderData shader)
     {
         LightingShader = shader;
-
-        if (!Raylib.IsModelValid(modelData))
-            return;
-
-        for (int i = 0; i < modelData.MaterialCount; i++)
-        {
-            Raylib.SetMaterialShader(ref modelData, i, ref shader.Shader);
-        }
     }
 
     public virtual void Update(float dt)
@@ -68,16 +61,12 @@ class GameEntity
         if (!Active)
             return;
 
-        if (Raylib.IsModelValid(modelData))
-        {
-            modelData.Transform = Utils.CalculateMatrix(Position, Rotation, Scale);
-            boundingBox = UpdateBoundingBox();
-        }
+        boundingBox = UpdateBoundingBox();
 
         Position += Velocity * dt;
     }
 
-    public unsafe virtual RayCollision CheckCollisionRay(Ray ray)
+    public virtual RayCollision CheckCollisionRay(Ray ray)
     {
         var result = new RayCollision()
         {
@@ -85,80 +74,21 @@ class GameEntity
             Distance = float.MaxValue
         };
 
-        if (!Raylib.IsModelValid(modelData))
-            return result;
-
-        for (int i = 0; i < modelData.MeshCount; i++)
-        {
-            Mesh mesh = modelData.Meshes[i];
-            RayCollision meshCol = Raylib.GetRayCollisionMesh(ray, mesh, modelData.Transform);
-
-            if (meshCol.Hit && meshCol.Distance < result.Distance)
-                result = meshCol;
-        }
-
         return result;
+    }
+
+    public virtual GameEntity Copy()
+    {
+        throw new NotImplementedException("Do not copy raw GameEntity");
     }
 
     public virtual void Draw()
     {
-        if (!Visible)
-            return;
 
-        if (!Culling)
-            Rlgl.DisableBackfaceCulling();
-
-        if (!DrawWired)
-            Raylib.DrawModel(modelData, Vector3.Zero, 1, Tint);
-        else
-            Raylib.DrawModelWires(modelData, Vector3.Zero, 1, Tint);
-
-        if (!Culling)
-            Rlgl.EnableBackfaceCulling();
     }
 
-    private BoundingBox UpdateBoundingBox()
+    public virtual BoundingBox UpdateBoundingBox()
     {
-        // hack to get bounding box without any transformations done to it
-        var prevTrans = modelData.Transform;
-        modelData.Transform = Matrix4x4.Identity;
-        var box = Raylib.GetModelBoundingBox(modelData);
-        modelData.Transform = prevTrans;
-
-        var trans = prevTrans;
-        if (!BoundingBoxRotation)
-            trans = Utils.CalculateMatrix(Position, Vector3.Zero, Scale);
-
-        Vector3[] corners = [
-            new Vector3(box.Min.X, box.Min.Y, box.Min.Z),
-            new Vector3(box.Max.X, box.Min.Y, box.Min.Z),
-            new Vector3(box.Min.X, box.Max.Y, box.Min.Z),
-            new Vector3(box.Max.X, box.Max.Y, box.Min.Z),
-            new Vector3(box.Min.X, box.Min.Y, box.Max.Z),
-            new Vector3(box.Max.X, box.Min.Y, box.Max.Z),
-            new Vector3(box.Min.X, box.Max.Y, box.Max.Z),
-            new Vector3(box.Max.X, box.Max.Y, box.Max.Z)
-        ];
-
-        var result = new BoundingBox()
-        {
-            Min = Raymath.Vector3Transform(corners[0], trans),
-            Max = Raymath.Vector3Transform(corners[0], trans)
-        };
-
-        for (int i = 0; i < corners.Length; i++)
-        {
-            Vector3 p = Raymath.Vector3Transform(corners[i], trans);
-
-            result.Min.X = MathF.Min(result.Min.X, p.X);
-            result.Min.Y = MathF.Min(result.Min.Y, p.Y);
-            result.Min.Z = MathF.Min(result.Min.Z, p.Z);
-
-            result.Max.X = MathF.Max(result.Max.X, p.X);
-            result.Max.Y = MathF.Max(result.Max.Y, p.Y);
-            result.Max.Z = MathF.Max(result.Max.Z, p.Z);
-        }
-
-        return result;
+        return new BoundingBox();
     }
 }

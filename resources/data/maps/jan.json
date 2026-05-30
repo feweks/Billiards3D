@@ -1,0 +1,1699 @@
+{
+  "Lights": [
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 2,
+      "Direction": {
+        "X": 0,
+        "Y": -1,
+        "Z": 0
+      },
+      "Cutoff": 45,
+      "SpotExponent": 10,
+      "Name": null,
+      "Position": {
+        "X": 0.12583293,
+        "Y": 2.380796,
+        "Z": 0.02187107
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 0.5,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": 5.226671,
+        "Y": 2.256465,
+        "Z": -1.7480819
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 0.13176464,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 0.5,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": -1.5569301,
+        "Y": 2.2763112,
+        "Z": 0.15374693
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 0.75,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": 4.898943,
+        "Y": 2.3952057,
+        "Z": 2.057247
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 0.13176464,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 1.5,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": 9.420493,
+        "Y": 1.7980822,
+        "Z": -0.4637394
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 0.13176464,
+        "Y": 1.5624475,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 0.2,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": 0.14982794,
+        "Y": 2.3384044,
+        "Z": 2.3250632
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 0.75,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": 2.598237,
+        "Y": 2.3952057,
+        "Z": 2.1471648
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 0.13176464,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 0.75,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": 2.598237,
+        "Y": 2.3952057,
+        "Z": 0.07622794
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 0.13176464,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 0.5,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": 2.6174114,
+        "Y": 1.5555756,
+        "Z": 7.2693543
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 0.13176464,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 0,
+        "G": 240,
+        "B": 229,
+        "A": 255
+      },
+      "Intensity": 0.5,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 1
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": 0.22412443,
+        "Y": 1.5555756,
+        "Z": 3.4699728
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": -1.7968268,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 173,
+        "G": 160,
+        "B": 75,
+        "A": 255
+      },
+      "Intensity": 0.5,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": null,
+      "Position": {
+        "X": -3.3039553,
+        "Y": 1.8048104,
+        "Z": -0.17211054
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    }
+  ],
+  "Models": [
+    {
+      "Path": "resources/gfx/models/map/jan/floor.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/walls.obj",
+      "Culling": false,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": -0.0069265,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/firanki.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/wheel.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -2.265435,
+        "Y": 0.6038631,
+        "Z": 0.5555327
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 8
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 0.92,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/wheel.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -2.265,
+        "Y": 0.604,
+        "Z": -0.73969746
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 8
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 0.92,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/sword_and_sickle.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/couch2.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 5.688175,
+        "Y": 0.3125475,
+        "Z": -2.1905413
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/table1.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 2.3609385,
+        "Y": 0.5970403,
+        "Z": 0.5275025
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 90,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/table2.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 5.2001567,
+        "Y": 0.85253245,
+        "Z": -1.8050524
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/fabric.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 2.3577778,
+        "Y": 0.925,
+        "Z": 0.5205855
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/piszki1.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 0.7466869,
+        "Y": 1.1251563,
+        "Z": 4.8402505
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/piszki2.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": -0.7223011,
+        "Y": 1.1394522,
+        "Z": 4.8357472
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/costume.obj",
+      "Culling": false,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 1.499784,
+        "Y": 1.1457971,
+        "Z": 3.055677
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/barstool.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -1.7767568,
+        "Y": 0.43128905,
+        "Z": -0.0555777
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/barstool.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -1.7776507,
+        "Y": 0.431,
+        "Z": -0.910167
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/barstool.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -1.777,
+        "Y": 0.431,
+        "Z": 0.7781968
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/pizza.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 4.5157,
+        "Y": 1.0006804,
+        "Z": -1.7581518
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/rack.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -1.2922783,
+        "Y": 0.94349855,
+        "Z": -3.2937236
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/painting.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 0.26663533,
+        "Y": 0,
+        "Z": 0.027192216
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/trashcan.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -2.062912,
+        "Y": 0.2564458,
+        "Z": 2.5771575
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/trashcan.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -2.063,
+        "Y": 0.256,
+        "Z": 1.8475007
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/machine.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0.028136102,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/machine.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -0.4371391,
+        "Y": 0.028136102,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 2.9298377,
+        "Y": 0.68069917,
+        "Z": 0.22214171
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 90,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 2.9640534,
+        "Y": 0.68069917,
+        "Z": 0.89594305
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 90,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 1.9770687,
+        "Y": 0.68069917,
+        "Z": 0.9030521
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": -75,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 1.8738265,
+        "Y": 0.68069917,
+        "Z": 0.23619968
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": -94,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 2.3728974,
+        "Y": 0.68069917,
+        "Z": -0.40919122
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": -175,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 2.3728974,
+        "Y": 0.68069917,
+        "Z": 1.3897218
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 1785,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/couch.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 6.0336347,
+        "Y": 0.91515714,
+        "Z": 1.277508
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 7.1389365,
+        "Y": 0.68069917,
+        "Z": -0.306031
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 90,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/table2.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 6.0687037,
+        "Y": 0.85253245,
+        "Z": 3.2147467
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/couch.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 6.0753937,
+        "Y": 0.91515714,
+        "Z": 5.1828923
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/table2.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 5.687751,
+        "Y": 0.85253245,
+        "Z": 7.677882
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 90,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/couch.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 7.603696,
+        "Y": 0.9082093,
+        "Z": 7.932182
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 90,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 2,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 3.8606763,
+        "Y": 0.84688205,
+        "Z": -1.8071533
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": -100,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1.15,
+        "Y": 1.15,
+        "Z": 1.15
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 5.8817773,
+        "Y": 0.79193,
+        "Z": -0.95956254
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 10,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1.15,
+        "Y": 1.15,
+        "Z": 1.15
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 4.701435,
+        "Y": 0.7842305,
+        "Z": -0.95956254
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": -15,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1.15,
+        "Y": 1.15,
+        "Z": 1.15
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/wheel.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 1.6985453,
+        "Y": 1.5486896,
+        "Z": 3.5890348
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": -9,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 0.92,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 4.9706306,
+        "Y": 0.68069917,
+        "Z": 7.0638514
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": -100,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/chair.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 5.074035,
+        "Y": 0.68069917,
+        "Z": 8.45981
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": -80,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/fabric.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 5.1564875,
+        "Y": 0.9932173,
+        "Z": -1.7618482
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/fabric.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 6.0514035,
+        "Y": 0.9932516,
+        "Z": 3.1827934
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/pizza.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 5.3550243,
+        "Y": 1.0006804,
+        "Z": 3.2015297
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/pizza.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 5.709533,
+        "Y": 1.0006804,
+        "Z": 7.1173315
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/pizza.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 5.709533,
+        "Y": 1.0006804,
+        "Z": 8.28242
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/fabric.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 5.7179303,
+        "Y": 0.9932516,
+        "Z": 7.7104664
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/ceiling.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/lamp.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 0.11131076,
+        "Y": 2.5123672,
+        "Z": 2.3114395
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/lamp.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 2.570899,
+        "Y": 2.5123672,
+        "Z": 2.082231
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/lamp.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 2.8827975,
+        "Y": 2.574456,
+        "Z": 0.065238476
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/lamp.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": -0.7138324,
+        "Y": 2.574456,
+        "Z": -1.7197407
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/lamp.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 5.34225,
+        "Y": 2.574456,
+        "Z": -1.7197407
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/lamp.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 4.8838797,
+        "Y": 2.574456,
+        "Z": 2.0577013
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/lamp.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": -1.5858613,
+        "Y": 2.5123672,
+        "Z": 0.17492957
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    }
+  ],
+  "Billboards": [
+    {
+      "Path": "resources/gfx/models/map/jan/beer1.png",
+      "CastsShadow": false,
+      "Size": {
+        "X": 0.1,
+        "Y": 0.25
+      },
+      "Name": null,
+      "Position": {
+        "X": 1.1031206,
+        "Y": 1.1866891,
+        "Z": 3.1591258
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": -0.11117997,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/beer1.png",
+      "CastsShadow": false,
+      "Size": {
+        "X": 0.1,
+        "Y": 0.25
+      },
+      "Name": null,
+      "Position": {
+        "X": 5.009264,
+        "Y": 0.99266094,
+        "Z": 3.5341973
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": -0.11117997,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/beer2.png",
+      "CastsShadow": false,
+      "Size": {
+        "X": 0.1,
+        "Y": 0.2
+      },
+      "Name": null,
+      "Position": {
+        "X": 4.163224,
+        "Y": 0.99266094,
+        "Z": -1.4134955
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": -0.11117997,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/saltpepper.png",
+      "CastsShadow": false,
+      "Size": {
+        "X": 0.1,
+        "Y": 0.2
+      },
+      "Name": null,
+      "Position": {
+        "X": 2.3780582,
+        "Y": 0.9297799,
+        "Z": 0.46811423
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": -0.11117997,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/cola.png",
+      "CastsShadow": false,
+      "Size": {
+        "X": 0.1,
+        "Y": 0.25
+      },
+      "Name": null,
+      "Position": {
+        "X": 2.0645492,
+        "Y": 0.9297799,
+        "Z": -0.13682085
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": -0.11117997,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/saltpepper.png",
+      "CastsShadow": false,
+      "Size": {
+        "X": 0.1,
+        "Y": 0.2
+      },
+      "Name": null,
+      "Position": {
+        "X": 6.020897,
+        "Y": 0.9297799,
+        "Z": 3.1305375
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": -0.11117997,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/jan/saltpepper.png",
+      "CastsShadow": false,
+      "Size": {
+        "X": 0.1,
+        "Y": 0.2
+      },
+      "Name": null,
+      "Position": {
+        "X": 5.1178546,
+        "Y": 0.9297799,
+        "Z": -1.7527114
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": -0.11117997,
+        "Y": 1,
+        "Z": 1
+      }
+    }
+  ],
+  "AmbientColor": {
+    "X": 0.38235295,
+    "Y": 0.32414,
+    "Z": 0.21741639
+  }
+}

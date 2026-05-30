@@ -48,34 +48,22 @@ abstract class GameState
         string mapPath = GetMapPath(mapName);
         MapFileData mapData = Resources.GetJson(mapPath, MapFileDataCtx.Default.MapFileData);
 
-        foreach (var entData in mapData.Entities)
+        foreach (var entData in mapData.Models)
         {
-            var ent = new GameEntity(entData.ModelPath, entData.Position, entData.Name)
-            {
-                Rotation = entData.Rotation,
-                Scale = entData.Scale,
-                Culling = entData.Culling,
-                Map = mapName,
-                HasShadow = entData.HasShadow
-            };
-            PlaceEntity(ent);
+            var mdlEnt = new ModelEntity(entData, mapName);
+            PlaceEntity(mdlEnt);
         }
 
         foreach (var lightData in mapData.Lights)
         {
-            var ent = new LightEntity(lightData.Position, lightData.Name)
-            {
-                Rotation = lightData.Rotation,
-                Scale = lightData.Scale,
-                Map = mapName,
-                Enabled = lightData.Enabled,
-                Color = lightData.Color,
-                Intensity = lightData.Intensity,
-                Direction = lightData.Direction,
-                Cutoff = lightData.Cutoff,
-                SpotExponent = lightData.SpotExponent
-            };
+            var ent = new LightEntity(lightData, mapName);
             PlaceLight(ent);
+        }
+
+        foreach (var billboardData in mapData.Billboards)
+        {
+            var bill = new BillboardEntity(billboardData, mapName);
+            PlaceBillboard(bill);
         }
 
         LightingShader.SetAmbient(mapData.AmbientColor);
@@ -120,11 +108,22 @@ abstract class GameState
         Entities.Add(light);
     }
 
+    public void PlaceBillboard(BillboardEntity billboard)
+    {
+        billboard.State = this;
+        Entities.Add(billboard);
+    }
+
+    public void RemoveBillboard(BillboardEntity billboard)
+    {
+        Entities.Remove(billboard);
+    }
+
     public virtual void Update(float dt)
     {
         if (Raylib.IsKeyPressed(KeyboardKey.F1))
         {
-            GameEntity.DrawWired = !GameEntity.DrawWired;
+            ModelEntity.DrawWired = !ModelEntity.DrawWired;
         }
 
         if (Raylib.IsKeyPressed(KeyboardKey.F2))
@@ -169,7 +168,7 @@ abstract class GameState
 
         Rlgl.DisableDepthMask();
 
-        foreach (var ent in Entities.Where(e => e.HasShadow && e.Visible))
+        foreach (var ent in Entities.Where(e => (e is ModelEntity mdlEnt && mdlEnt.CastsShadow && e.Visible) || (e is BillboardEntity billEnt && billEnt.CastsShadow && e.Visible)))
         {
             float sizeX = (ent.BoundingBox.Max.X - ent.BoundingBox.Min.X) * 1.5f;
             float sizeZ = (ent.BoundingBox.Max.Z - ent.BoundingBox.Min.Z) * 1.5f;
