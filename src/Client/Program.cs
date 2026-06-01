@@ -35,6 +35,8 @@ class Program
         if (!editor)
             GameClient.Init();
 
+        Raylib.SetTargetFPS(200);
+
         renderTex = Raylib.LoadRenderTexture(Config.RenderResolution[0], Config.RenderResolution[1]);
 
         curState = !editor ? new MainMenuState() : new MapEditorState();

@@ -7,6 +7,7 @@ class JoinedLobbyPacket : LobbyPacket
 {
     public JoinedLobbyStatus Status { get; set; }
     public GameLobbyData? LobbyData { get; set; } = null;
+    public LobbySettingsData? LobbySettings { get; set; } = null;
 
     public JoinedLobbyPacket() : base(PacketType.JoinedLobby) { }
 
@@ -15,9 +16,10 @@ class JoinedLobbyPacket : LobbyPacket
         base.Serialize(writer);
 
         writer.Write((byte)Status);
-        if (Status == JoinedLobbyStatus.Success && LobbyData != null)
+        if (Status == JoinedLobbyStatus.Success && LobbyData != null && LobbySettings != null)
         {
             LobbyData.Serialize(writer);
+            LobbySettings.Serialize(writer);
         }
     }
 
@@ -29,6 +31,7 @@ class JoinedLobbyPacket : LobbyPacket
         if (Status == JoinedLobbyStatus.Success)
         {
             LobbyData = new GameLobbyData(reader);
+            LobbySettings = new LobbySettingsData(reader);
         }
     }
 }

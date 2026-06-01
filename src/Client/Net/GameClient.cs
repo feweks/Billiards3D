@@ -15,6 +15,7 @@ static class GameClient
 
     public static double Latency { get; internal set; } = 0;
     public static GameLobbyData? LobbyData { get; internal set; }
+    public static LobbySettingsData? LobbySettings { get; internal set; }
     public static JoinedLobbyStatus LobbyStatus { get; internal set; } = JoinedLobbyStatus.None;
     public static string? PlayerNick { get; internal set; } = null;
     public static NetServerFileData? Config { get; internal set; }
@@ -174,6 +175,7 @@ static class GameClient
                         Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Joined lobby {joinedPacket.LobbyCode}");
                         LobbyData = joinedPacket.LobbyData;
                         PlayerNick = joinedPacket.Sender;
+                        LobbySettings = joinedPacket.LobbySettings;
                         break;
                     }
 
@@ -204,6 +206,7 @@ static class GameClient
                         if (!LobbyData.Started)
                         {
                             LobbyData = null;
+                            LobbySettings = null;
                         }
                     }
                     else
@@ -220,6 +223,15 @@ static class GameClient
                             }
                         }
                     }
+
+                    break;
+                }
+            case PacketType.ChangeLobbySettings:
+                {
+                    var settingsPacket = (ChangeLobbySettingsPacket)packet;
+                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Changed lobby settings");
+
+                    LobbySettings = settingsPacket.Settings;
 
                     break;
                 }

@@ -30,6 +30,9 @@ class PlayState : GameState
     float updateTime = 0f;
     float playerCueForce = 0;
 
+    GameLobbyData lobbyData;
+    bool simulationStarted = false;
+
     public PlayState() : base("play_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
         Debug.Assert(GameClient.LobbyData != null, "Cannot load game: client is not connected to any lobby");
@@ -73,26 +76,52 @@ class PlayState : GameState
             Camera.Target.Z + camDistance * MathF.Cos(camPitch) * MathF.Cos(camYaw)
         );
 
-        LoadMap("jan");
+        string[] maps = ["test_room", "jan"];
+        LoadMap(maps[GameClient.LobbySettings!.MapIndex]);
+
+        lobbyData = GameClient.LobbyData;
     }
 
     public override void Update(float dt)
     {
         base.Update(dt);
 
-        if (GameClient.LobbyData == null)
+        if (GameClient.LobbyData == null || GameClient.LobbySettings == null)
             return;
-
-        poolCue.Visible = GameClient.LobbyData.State == PoolGameState.Breaking || GameClient.LobbyData.State == PoolGameState.Aiming;
-
-        poolCueBall.Data = GameClient.LobbyData.PoolCueBall!;
-        for (int i = 0; i < GameClient.LobbyData.PoolBalls.Count; i++)
-        {
-            poolBalls[i].Data = GameClient.LobbyData.PoolBalls[i];
-        }
 
         var netPlayer = GameClient.GetSelfPlayer();
         var curPlayer = GameClient.LobbyData.GetCurrentPlayer();
+
+        poolCue.Visible = GameClient.LobbyData.State == PoolGameState.Breaking || GameClient.LobbyData.State == PoolGameState.Aiming;
+
+        bool isServerTableCalm = GameClient.LobbyData.PoolCueBall.Velocity.Length() == 0 && GameClient.LobbyData.PoolBalls.All(b => b.Velocity.Length() == 0);
+        if (isServerTableCalm)
+        {
+            lobbyData = GameClient.LobbyData;
+
+            if (simulationStarted)
+            {
+                Raylib.TraceLog(TraceLogLevel.Info, $"Client-side prediction ended");
+                simulationStarted = false;
+            }
+        }
+        else
+        {
+            if (!simulationStarted)
+            {
+                Raylib.TraceLog(TraceLogLevel.Info, $"Client-side prediction started {curPlayer.AimDir}, {curPlayer.CueForce}");
+                lobbyData.BeginSimulation(curPlayer.AimDir, curPlayer.CueForce);
+                simulationStarted = true;
+            }
+
+            lobbyData.UpdateSimulation(GameClient.LobbySettings.Tickrate, true, GameClient.LobbySettings);
+        }
+
+        poolCueBall.UpdateNetworkData(lobbyData.PoolCueBall, !simulationStarted);
+        for (int i = 0; i < lobbyData.PoolBalls.Count; i++)
+        {
+            poolBalls[i].UpdateNetworkData(lobbyData.PoolBalls[i], !simulationStarted);
+        }
 
         float cueLerpAmount = 15f;
         if (curPlayer.Nickname == netPlayer.Nickname)
@@ -190,7 +219,6 @@ class PlayState : GameState
             canShoot = false;
             GameClient.SendLobbyPacket(new ShotLobbyPacket());
             Raylib.TraceLog(TraceLogLevel.Info, $"Shot with force: {playerCueForce}");
-            playerCueForce = 0;
         }
     }
 
@@ -233,10 +261,21 @@ class PlayState : GameState
         if (GameClient.LobbyData == null)
             return;
 
-        if (DebugView && GameClient.LobbyData.State == PoolGameState.BallInHand)
+        if (DebugView)
         {
-            Ray ray = Raylib.GetScreenToWorldRay(Raylib.GetMousePosition(), Camera);
-            Raylib.DrawRay(ray, Color.Orange);
+            if (GameClient.LobbyData.State == PoolGameState.BallInHand)
+            {
+                Ray ray = Raylib.GetScreenToWorldRay(Raylib.GetMousePosition(), Camera);
+                Raylib.DrawRay(ray, Color.Orange);
+            }
+
+            if (simulationStarted)
+            {
+                foreach (var ball in GameClient.LobbyData.PoolBalls.Where(b => !b.Pocketed))
+                {
+                    Raylib.DrawSphere(ball.Position, ball.Radius, Raylib.ColorAlpha(Color.Blue, 0.5f));
+                }
+            }
         }
     }
 

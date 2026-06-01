@@ -82,7 +82,7 @@ class GameServer
             return CreateLobby(host);
         }
 
-        var svLobby = new ServerLobbyData(code, host, gamemodeConfigs[PoolGamemodeType.Classic]);
+        var svLobby = new ServerLobbyData(code, host, gamemodeConfigs[PoolGamemodeType.Classic], config);
         Lobbies.TryAdd(code, svLobby);
 
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new lobby [code {code}]");
@@ -143,7 +143,8 @@ class GameServer
                     {
                         LobbyCode = joinPacket.LobbyCode,
                         Sender = joinPacket.Sender,
-                        LobbyData = null
+                        LobbyData = null,
+                        LobbySettings = null
                     };
 
                     if (lobby == null)
@@ -160,6 +161,7 @@ class GameServer
                         {
                             response.Status = JoinedLobbyStatus.Success;
                             response.LobbyData = lobby.Data;
+                            response.LobbySettings = lobby.Settings;
 
                             if (lobby.Data.Host.Nickname == null)
                             {
@@ -180,7 +182,6 @@ class GameServer
                     }
 
                     Send(client, response);
-
                     break;
                 }
             case PacketType.StartLobby:
@@ -280,6 +281,26 @@ class GameServer
                     if (lobby.Data.CanPlaceCueBall)
                     {
                         lobby.Data.State = PoolGameState.Aiming;
+                    }
+
+                    break;
+                }
+            case PacketType.ChangeLobbySettings:
+                {
+                    var settingsPacket = (ChangeLobbySettingsPacket)packet;
+
+                    if (lobby == null)
+                    {
+                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to change settings in lobby {settingsPacket.LobbyCode}: lobby does not exist");
+                        break;
+                    }
+
+                    if (settingsPacket.Settings != null)
+                    {
+                        lobby.Settings = settingsPacket.Settings;
+
+                        if (lobby.GuestConnection != null)
+                            Send(lobby.GuestConnection, settingsPacket);
                     }
 
                     break;

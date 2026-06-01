@@ -4,6 +4,7 @@ using Game.Client.Net;
 using Game.Common;
 using Game.Common.Data;
 using Game.Common.Enums;
+using Game.Common.Packets;
 using ImGuiNET;
 using Raylib_cs;
 
@@ -13,6 +14,7 @@ class MainMenuState : GameState
 {
     private string nickInp = "";
     private string codeInp = "";
+    private int curMapInp = 0;
 
     public MainMenuState() : base("main_menu_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
@@ -93,6 +95,25 @@ class MainMenuState : GameState
             if (GameClient.LobbyData.Guest.Nickname != null)
             {
                 ImGui.Text($"{GameClient.LobbyData.Guest.Nickname}");
+            }
+
+            if (GameClient.LobbySettings != null)
+            {
+                string[] maps = ["test_room", "jan"];
+
+                if (GameClient.IsHost())
+                {
+                    if (ImGui.Combo("Current Map", ref curMapInp, maps, maps.Length))
+                    {
+                        GameClient.LobbySettings.MapIndex = curMapInp;
+                        Raylib.TraceLog(TraceLogLevel.Info, $"Changed curmap to {maps[curMapInp]}");
+                        GameClient.SendLobbyPacket(new ChangeLobbySettingsPacket() { Settings = GameClient.LobbySettings });
+                    }
+                }
+                else
+                {
+                    ImGui.Text($"Selected map: {maps[GameClient.LobbySettings.MapIndex]}");
+                }
             }
 
             if (GameClient.LobbyData.GetPlayerCount() == 2 && GameClient.IsHost())

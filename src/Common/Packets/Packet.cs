@@ -29,6 +29,8 @@ class Packet
                 return new PlaceCueLobbyPacket();
             case PacketType.LeaveLobby:
                 return new LeaveLobbyPacket();
+            case PacketType.ChangeLobbySettings:
+                return new ChangeLobbySettingsPacket();
             default:
                 Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to create packet of type {type}");
                 return new Packet(PacketType.Ping);
