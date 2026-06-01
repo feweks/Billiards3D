@@ -9,5 +9,5 @@ static class GameData
     public static string ServerDataPath => Path.Combine(DataPath, "server_data");
     public static uint LobbyCodeLength => 6;
     public static uint MaxPacketSize => 16384;
-    public static Version Version => new Version(0, 4, 0);
+    public static Version Version => new Version(0, 5, 0);
 }
