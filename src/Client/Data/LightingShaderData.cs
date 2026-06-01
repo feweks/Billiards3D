@@ -52,7 +52,7 @@ class LightingShaderData
 
     public void UpdateLight(LightEntity light)
     {
-        Debug.Assert(light.Index < LIGHTS_COUNT, $"More lights than max amount ({LIGHTS_COUNT}, light with index {light.Index})");
+        Debug.Assert(light.Index < LIGHTS_COUNT, $"[{nameof(UpdateLight)}]: More lights than max amount ({LIGHTS_COUNT}, light with index {light.Index})");
 
         var lightData = lights[light.Index];
 
@@ -63,6 +63,15 @@ class LightingShaderData
         Raylib.SetShaderValue(Shader, lightData.DirectionLoc, light.Direction, ShaderUniformDataType.Vec3);
         Raylib.SetShaderValue(Shader, lightData.CutoffLoc, light.Cutoff * Raylib.DEG2RAD, ShaderUniformDataType.Float);
         Raylib.SetShaderValue(Shader, lightData.SpotExponentLoc, light.SpotExponent, ShaderUniformDataType.Float);
+    }
+
+    public void RemoveLight(LightEntity light)
+    {
+        Debug.Assert(light.Index < LIGHTS_COUNT, $"[{nameof(RemoveLight)}]: More lights than max amount ({LIGHTS_COUNT}, light with index {light.Index})");
+
+        var lightData = lights[light.Index];
+
+        Raylib.SetShaderValue(Shader, lightData.EnabledLoc, 0, ShaderUniformDataType.Int);
     }
 
     public void SetAmbient(Vector3 ambient)

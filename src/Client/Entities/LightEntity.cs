@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Client.Data;
 using Game.Client.Data.Files;
 using Raylib_cs;
 
@@ -9,9 +10,9 @@ class LightEntity : GameEntity
     private const float LIGHT_SPHERE_RADIUS = 0.1f;
 
     public static bool DrawLightSources { get; set; } = false;
-    public static int IndexCounter { get; set; } = 0;
+    public static bool[] TakenIndexes { get; } = new bool[LightingShaderData.LIGHTS_COUNT];
 
-    public int Index { get; set; } = 0;
+    public int Index { get; } = 0;
     public bool Enabled { get; set; } = true;
     public float Intensity { get; set; } = 0f;
     public Color Color = Color.White;
@@ -23,13 +24,13 @@ class LightEntity : GameEntity
 
     public LightEntity(string? map) : base(Vector3.Zero, Vector3.Zero, Vector3.One, null, map)
     {
-        Index = IndexCounter++;
+        Index = FindFreeLightIndex();
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new light with idx {Index}");
     }
 
     public LightEntity(LightEntity lightEnt) : base(lightEnt)
     {
-        Index = IndexCounter++;
+        Index = FindFreeLightIndex();
 
         Enabled = lightEnt.Enabled;
         Intensity = lightEnt.Intensity;
@@ -41,7 +42,7 @@ class LightEntity : GameEntity
 
     public LightEntity(MapLightFileData fileData, string? map) : base(fileData, map)
     {
-        Index = IndexCounter++;
+        Index = FindFreeLightIndex();
 
         Enabled = fileData.Enabled;
         Intensity = fileData.Intensity;
@@ -64,6 +65,20 @@ class LightEntity : GameEntity
     public override RayCollision CheckCollisionRay(Ray ray) => Raylib.GetRayCollisionSphere(ray, Position, LIGHT_SPHERE_RADIUS);
 
     public override LightEntity Copy() => new LightEntity(this);
+
+    private static int FindFreeLightIndex()
+    {
+        for (int i = 0; i < LightingShaderData.LIGHTS_COUNT; i++)
+        {
+            if (!TakenIndexes[i])
+            {
+                TakenIndexes[i] = true;
+                return i;
+            }
+        }
+
+        throw new IndexOutOfRangeException($"Failed to get index for light: all indexes are taken");
+    }
 
     public override void Draw()
     {

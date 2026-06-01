@@ -74,7 +74,8 @@ class BillboardEntity : GameEntity
             Raylib.BeginShaderMode(LightingShader.Shader);
 
         var src = new Rectangle(0, 0, texture.Dimensions);
-        Raylib.DrawBillboardPro(State.Camera, texture, src, Position, Vector3.UnitY, Size, new Vector2(0f, 0), Rotation.X, Tint);
+        var origin = new Vector2(0.5f, 0f) * Size;
+        Raylib.DrawBillboardPro(State.Camera, texture, src, Position, Vector3.UnitY, Size, origin, Rotation.X, Tint);
 
         if (LightingShader != null)
             Raylib.EndShaderMode();

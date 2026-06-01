@@ -108,6 +108,13 @@ abstract class GameState
         Entities.Add(light);
     }
 
+    public void RemoveLight(LightEntity light)
+    {
+        LightEntity.TakenIndexes[light.Index] = false;
+        LightingShader.RemoveLight(light);
+        Entities.Remove(light);
+    }
+
     public void PlaceBillboard(BillboardEntity billboard)
     {
         billboard.State = this;
@@ -216,6 +223,9 @@ abstract class GameState
 
     public virtual void Destroy()
     {
-        LightEntity.IndexCounter = 0;
+        for (int i = 0; i < LightingShaderData.LIGHTS_COUNT; i++)
+        {
+            LightEntity.TakenIndexes[i] = false;
+        }
     }
 }

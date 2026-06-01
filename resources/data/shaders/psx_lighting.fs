@@ -49,23 +49,16 @@ void main()
                 float distance = length(lightDir);
                 lightDir = normalize(lightDir);
                 
-                // One-sided diffuse lighting calculation
                 float NdotL = max(dot(normal, lightDir), 0.0);
-                
-                // Distance Attenuation (smooth inverse-square approximation)
                 float attenuation = lights[i].intensity / (1.0 + 0.1 * distance + 0.05 * distance * distance);
-                
-                // Check if Point Light or Spotlight
                 float dirLengthSq = dot(lights[i].direction, lights[i].direction);
                 
                 if (dirLengthSq < 0.0001)
                 {
-                    // --- POINT LIGHT MODE ---
                     totalLighting += lights[i].color * NdotL * attenuation;
                 }
                 else
                 {
-                    // --- SPOTLIGHT MODE ---
                     float spotEffect = dot(normalize(lights[i].direction), -lightDir);
                     
                     if (spotEffect > lights[i].cutoff) 
@@ -78,6 +71,5 @@ void main()
         }
     }
 
-    // Combine texture, diffuse color tint, and per-pixel lighting calculations
     finalColor = texture(texture0, fragTexCoord) * vec4(totalLighting, 1.0) * colDiffuse;
 }

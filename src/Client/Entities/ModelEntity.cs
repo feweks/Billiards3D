@@ -15,6 +15,7 @@ class ModelEntity : GameEntity
     public string? Path { get; internal set; }
 
     private Model modelData;
+    private BoundingBox modelBoundingBox;
 
     public ModelEntity(string? map) : base(Vector3.Zero, Vector3.Zero, Vector3.One, null, map)
     {
@@ -44,6 +45,9 @@ class ModelEntity : GameEntity
     {
         modelData = Resources.GetModel(path);
         Path = path;
+
+        modelData.Transform = Matrix4x4.Identity;
+        modelBoundingBox = Raylib.GetModelBoundingBox(modelData);
 
         UpdateBoundingBox();
     }
@@ -86,13 +90,9 @@ class ModelEntity : GameEntity
 
     public override BoundingBox UpdateBoundingBox()
     {
-        // hack to get bounding box without any transformations done to it
-        var prevTrans = modelData.Transform;
-        modelData.Transform = Matrix4x4.Identity;
-        var box = Raylib.GetModelBoundingBox(modelData);
-        modelData.Transform = prevTrans;
+        var box = modelBoundingBox;
 
-        var trans = prevTrans;
+        var trans = modelData.Transform;
         if (!BoundingBoxRotation)
             trans = Utils.CalculateMatrix(Position, Vector3.Zero, Scale);
 

@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Client.Data;
 using Game.Client.Data.Files;
 using Game.Client.Entities;
 using ImGuiNET;
@@ -216,6 +217,12 @@ class MapEditorState : GameState
 
             curSelectedEntity.UpdateTransform(dt);
 
+            if (Raylib.IsKeyReleased(KeyboardKey.Delete))
+            {
+                DeleteEntity(selEnt);
+                return;
+            }
+
             if (Raylib.IsMouseButtonReleased(MouseButton.Right))
             {
                 curSelectedEntity.Deselect();
@@ -247,7 +254,7 @@ class MapEditorState : GameState
             }
             else
             {
-                throw new NotImplementedException($"Map serialization not implemented for entity {ent.GetType().Name}");
+                throw new NotImplementedException($"Map serialization not implemented for entity of type {ent.GetType().Name}");
             }
         }
 
@@ -257,7 +264,14 @@ class MapEditorState : GameState
 
     private void DeleteEntity(GameEntity ent)
     {
-        RemoveEntity(ent);
+        if (ent is ModelEntity mdlEnt)
+            RemoveEntity(mdlEnt);
+        else if (ent is LightEntity lightEnt)
+            RemoveLight(lightEnt);
+        else if (ent is BillboardEntity billEnt)
+            RemoveBillboard(billEnt);
+        else
+            throw new NotImplementedException($"Entity deleting not implemented for entity of type {ent.GetType().Name}");
     }
 
     private void DeleteMap()
@@ -347,6 +361,8 @@ class MapEditorState : GameState
             }
             else if (selEnt is LightEntity lightEnt)
             {
+                ImGui.Text($"Light Index: {lightEnt.Index}/{LightingShaderData.LIGHTS_COUNT} (Free Left: {LightEntity.TakenIndexes.Count(i => !i)})");
+
                 bool lightEnabled = lightEnt.Enabled;
                 if (ImGui.Checkbox("Light Enabled", ref lightEnabled))
                     lightEnt.Enabled = lightEnabled;
@@ -425,7 +441,7 @@ class MapEditorState : GameState
                 else if (ent is BillboardEntity)
                     entName = "Billboard";
                 else
-                    throw new NotImplementedException($"Name displaying not impelmented for ent of type {ent.GetType().Name}");
+                    throw new NotImplementedException($"Name displaying not impelmented for entity of type {ent.GetType().Name}");
 
                 entName += $" #{i + 1}";
                 if (ent.Name != null)
@@ -481,7 +497,7 @@ class MapEditorState : GameState
                 }
                 else
                 {
-                    throw new NotImplementedException("NIGGA");
+                    throw new NotImplementedException($"Duplicating not implemented for entity of type {selEnt?.GetType().Name}");
                 }
 
                 curSelectedEntity.Deselect();
