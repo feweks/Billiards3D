@@ -32,6 +32,7 @@ class PlayState : GameState
 
     GameLobbyData lobbyData;
     bool simulationStarted = false;
+    float simulationTime = 0f;
 
     public PlayState() : base("play_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
@@ -102,6 +103,7 @@ class PlayState : GameState
             if (simulationStarted)
             {
                 Raylib.TraceLog(TraceLogLevel.Info, $"Client-side prediction ended");
+                simulationTime = 0f;
                 simulationStarted = false;
             }
         }
@@ -114,13 +116,23 @@ class PlayState : GameState
                 simulationStarted = true;
             }
 
-            lobbyData.UpdateSimulation(GameClient.LobbySettings.Tickrate, true, GameClient.LobbySettings);
+            simulationTime += dt;
+            while (simulationTime >= GameClient.LobbySettings.Tickrate)
+            {
+                lobbyData.UpdateSimulation(GameClient.LobbySettings.Tickrate, true, GameClient.LobbySettings);
+                simulationTime -= GameClient.LobbySettings.Tickrate;
+            }
         }
 
         poolCueBall.UpdateNetworkData(lobbyData.PoolCueBall, !simulationStarted);
         for (int i = 0; i < lobbyData.PoolBalls.Count; i++)
         {
             poolBalls[i].UpdateNetworkData(lobbyData.PoolBalls[i], !simulationStarted);
+        }
+
+        if (lobbyData.State == PoolGameState.Updating)
+        {
+            netPlayer.CueForce = 0f;
         }
 
         float cueLerpAmount = 15f;
@@ -166,7 +178,7 @@ class PlayState : GameState
         poolCue.Position = Raymath.Vector3Lerp(poolCue.Position, GetCueTargetPos(curPlayer.AimDir, curPlayerCueForce), dt * cueLerpAmount);
         poolCue.Rotation.Y = Raymath.LerpAngle(poolCue.Rotation.Y, GetCueTargetRotY(curPlayer.AimDir), dt * cueLerpAmount);
 
-        if (GameClient.LobbyData.State != PoolGameState.Finished)
+        if (GameClient.LobbyData.State != PoolGameState.Finished && GameClient.LobbyData.State != PoolGameState.Updating && curPlayer.Nickname == netPlayer.Nickname)
         {
             updateTime += dt;
             if (updateTime > 0.03f)
@@ -219,6 +231,7 @@ class PlayState : GameState
             canShoot = false;
             GameClient.SendLobbyPacket(new ShotLobbyPacket());
             Raylib.TraceLog(TraceLogLevel.Info, $"Shot with force: {playerCueForce}");
+            playerCueForce = 0f;
         }
     }
 
@@ -273,7 +286,7 @@ class PlayState : GameState
             {
                 foreach (var ball in GameClient.LobbyData.PoolBalls.Where(b => !b.Pocketed))
                 {
-                    Raylib.DrawSphere(ball.Position, ball.Radius, Raylib.ColorAlpha(Color.Blue, 0.5f));
+                    Raylib.DrawSphere(ball.Position, GameClient.LobbySettings!.PoolBallRadius, Raylib.ColorAlpha(Color.Blue, 0.5f));
                 }
             }
         }

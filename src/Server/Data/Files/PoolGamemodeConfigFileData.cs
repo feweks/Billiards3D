@@ -12,6 +12,8 @@ class PoolGamemodeConfigFileData
     public List<Vector3> PoolTablePockets { get; set; } = new List<Vector3>();
     public int PoolBallsCount { get; set; } = 0;
     public float PoolBallFriction { get; set; } = 0.98f;
+    public float PoolBallMass { get; set; } = 0.17f;
+    public float PoolBallRadius { get; set; } = 0.035f;
     public PoolBallConfigFileData PoolCueBall { get; set; } = new PoolBallConfigFileData() { Position = Vector3.Zero, Type = PoolBallType.Cue };
     public List<PoolBallConfigFileData> PoolBalls { get; set; } = [];
 

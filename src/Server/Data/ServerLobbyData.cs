@@ -191,7 +191,7 @@ class ServerLobbyData
 
         float halfWidth = GamemodeConfig.PoolTableWidth / 2;
         float halfLength = GamemodeConfig.PoolTableLength / 2;
-        float radius = GamemodeConfig.PoolCueBall.Radius;
+        float radius = Settings.PoolBallRadius;
         var minPos = new Vector3(-halfWidth + radius, 1f, -halfLength + radius);
         var maxPos = new Vector3(halfWidth - radius, 1.01f, halfLength - radius);
 
@@ -200,7 +200,7 @@ class ServerLobbyData
         Data.CanPlaceCueBall = true;
         foreach (var ball in Data.PoolBalls.Where(b => !b.Pocketed))
         {
-            if (Data.CheckBallsCollision(Data.PoolCueBall, ball))
+            if (Data.CheckBallsCollision(Data.PoolCueBall, ball, Settings.PoolBallRadius))
             {
                 Data.CanPlaceCueBall = false;
                 break;
@@ -209,7 +209,7 @@ class ServerLobbyData
 
         foreach (var pocket in GamemodeConfig.PoolTablePockets)
         {
-            if (Data.CheckPocketBallCollision(Data.PoolCueBall, pocket, GamemodeConfig.PoolTablePocketRadius))
+            if (Data.CheckPocketBallCollision(Data.PoolCueBall, Settings.PoolBallRadius, pocket, GamemodeConfig.PoolTablePocketRadius))
             {
                 Data.CanPlaceCueBall = false;
                 break;
@@ -234,15 +234,14 @@ class ServerLobbyData
     public void EndTurn(PoolGameState nextState, bool changePlayer)
     {
         Data.State = nextState;
+        Data.Host.CueForce = 0;
+        Data.Guest.CueForce = 0;
 
         pocketedBallsTurn.Clear();
         cueHitBallsTurn.Clear();
         cueBallPocketedTurn = false;
         railTouchedTurn = false;
         canHitBlackTurn = false;
-
-        Data.Host.CueForce = 0;
-        Data.Guest.CueForce = 0;
 
         if (changePlayer)
             ChangePlayer();

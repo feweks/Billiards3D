@@ -247,10 +247,14 @@ class GameServer
                         break;
 
                     var sendingPlayer = lobby.Data.GetPlayerByNick(updatePlayerPacket.Sender);
-                    sendingPlayer.AimDir = updatePlayerPacket.PlayerData.AimDir;
-                    sendingPlayer.CamPos = updatePlayerPacket.PlayerData.CamPos;
-                    sendingPlayer.CueForce = updatePlayerPacket.PlayerData.CueForce;
-                    sendingPlayer.PlacePos = updatePlayerPacket.PlayerData.PlacePos;
+
+                    if (sendingPlayer.Nickname == lobby.Data.CurPlayer && lobby.Data.State != PoolGameState.Updating)
+                    {
+                        sendingPlayer.AimDir = updatePlayerPacket.PlayerData.AimDir;
+                        sendingPlayer.CamPos = updatePlayerPacket.PlayerData.CamPos;
+                        sendingPlayer.CueForce = updatePlayerPacket.PlayerData.CueForce;
+                        sendingPlayer.PlacePos = updatePlayerPacket.PlayerData.PlacePos;
+                    }
 
                     break;
                 }

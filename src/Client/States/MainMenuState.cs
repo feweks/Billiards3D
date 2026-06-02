@@ -105,7 +105,7 @@ class MainMenuState : GameState
                 {
                     if (ImGui.Combo("Current Map", ref curMapInp, maps, maps.Length))
                     {
-                        GameClient.LobbySettings.MapIndex = curMapInp;
+                        GameClient.LobbySettings.MapIndex = (ushort)curMapInp;
                         Raylib.TraceLog(TraceLogLevel.Info, $"Changed curmap to {maps[curMapInp]}");
                         GameClient.SendLobbyPacket(new ChangeLobbySettingsPacket() { Settings = GameClient.LobbySettings });
                     }

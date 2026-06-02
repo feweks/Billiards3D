@@ -37,9 +37,6 @@ class GameLobbyData : ISerializableData
             Position = gamemode.PoolCueBall.Position,
             Velocity = Vector3.Zero,
             Type = PoolBallType.Cue,
-            Mass = gamemode.PoolCueBall.Mass,
-            Friction = gamemode.PoolBallFriction,
-            Radius = gamemode.PoolCueBall.Radius
         };
 
         for (ushort i = 0; i < gamemode.PoolBallsCount; i++)
@@ -51,9 +48,6 @@ class GameLobbyData : ISerializableData
                 Position = gamemode.PoolBalls[i].Position,
                 Type = gamemode.PoolBalls[i].Type,
                 Velocity = Vector3.Zero,
-                Mass = gamemode.PoolBalls[i].Mass,
-                Friction = gamemode.PoolBallFriction,
-                Radius = gamemode.PoolBalls[i].Radius
             };
 
             PoolBalls.Add(ball);
@@ -107,26 +101,26 @@ class GameLobbyData : ISerializableData
 
     public void UpdateSimulation(float dt, bool simulateCollisions, LobbySettingsData settings)
     {
-        SimulateBall(dt, PoolCueBall, settings.PoolTableWidth, settings.PoolTableLength);
+        SimulateBall(dt, PoolCueBall, settings);
 
         foreach (var ball in PoolBalls)
         {
-            SimulateBall(dt, ball, settings.PoolTableWidth, settings.PoolTableLength);
+            SimulateBall(dt, ball, settings);
         }
 
         if (simulateCollisions)
         {
-            SimulateCollisions();
+            SimulateCollisions(settings);
             SimulatePockets(settings);
         }
     }
 
-    private void SimulateBall(float dt, PoolBallData ball, float tableWidth, float tableLength)
+    private void SimulateBall(float dt, PoolBallData ball, LobbySettingsData settings)
     {
         ball.Position += ball.Velocity * dt;
 
-        ball.Velocity *= MathF.Pow(ball.Friction, dt * 60);
-        float radius = ball.Radius;
+        ball.Velocity *= MathF.Pow(settings.PoolBallFriction, dt * 60);
+        float radius = settings.PoolBallRadius;
 
         if (MathF.Abs(ball.Velocity.X) < 0.01f)
             ball.Velocity.X = 0;
@@ -136,8 +130,8 @@ class GameLobbyData : ISerializableData
         var minPos = new Vector3(ball.Position.X - radius, 0, ball.Position.Z - radius);
         var maxPos = new Vector3(ball.Position.X + radius, 0, ball.Position.Z + radius);
 
-        float halfWidth = tableWidth / 2;
-        float halfLength = tableLength / 2;
+        float halfWidth = settings.PoolTableWidth / 2;
+        float halfLength = settings.PoolTableLength / 2;
         bool railTouched = false;
 
         if (minPos.X < -halfWidth)
@@ -174,7 +168,7 @@ class GameLobbyData : ISerializableData
         ball.Rotation += new Vector3(rotationSpeed, 0, rotationSpeed) * dt;
     }
 
-    private void SimulateCollisions()
+    private void SimulateCollisions(LobbySettingsData settings)
     {
         for (int i = 0; i < PoolBalls.Count; i++)
         {
@@ -183,13 +177,13 @@ class GameLobbyData : ISerializableData
             {
                 var ballB = PoolBalls[j];
 
-                if (!ballA.Pocketed && !ballB.Pocketed && CheckBallsCollision(ballA, ballB))
-                    HandleCollision(ballA, ballB);
+                if (!ballA.Pocketed && !ballB.Pocketed && CheckBallsCollision(ballA, ballB, settings.PoolBallRadius))
+                    HandleCollision(ballA, ballB, settings.PoolBallMass);
             }
 
-            if (CheckBallsCollision(ballA, PoolCueBall))
+            if (CheckBallsCollision(ballA, PoolCueBall, settings.PoolBallRadius))
             {
-                HandleCollision(ballA, PoolCueBall);
+                HandleCollision(ballA, PoolCueBall, settings.PoolBallMass);
             }
         }
     }
@@ -200,7 +194,7 @@ class GameLobbyData : ISerializableData
         {
             foreach (var ball in PoolBalls.Where(b => !b.Pocketed))
             {
-                if (CheckPocketBallCollision(ball, pocketPos, settings.PoolPocketRadius))
+                if (CheckPocketBallCollision(ball, settings.PoolBallRadius, pocketPos, settings.PoolPocketRadius))
                 {
                     ball.Pocketed = true;
                     ball.PocketPos = pocketPos;
@@ -208,7 +202,7 @@ class GameLobbyData : ISerializableData
                 }
             }
 
-            if (CheckPocketBallCollision(PoolCueBall, pocketPos, settings.PoolPocketRadius))
+            if (CheckPocketBallCollision(PoolCueBall, settings.PoolBallRadius, pocketPos, settings.PoolPocketRadius))
             {
                 PoolCueBall.Velocity = Vector3.Zero;
                 OnBallPocketed?.Invoke(PoolCueBall);
@@ -217,22 +211,19 @@ class GameLobbyData : ISerializableData
         }
     }
 
-    public bool CheckBallsCollision(PoolBallData ballA, PoolBallData ballB)
+    public bool CheckBallsCollision(PoolBallData ballA, PoolBallData ballB, float ballRadius)
     {
-        float radiusA = ballA.Radius;
-        float radiusB = ballB.Radius;
-
-        bool coll = Raylib.CheckCollisionSpheres(ballA.Position, radiusA, ballB.Position, radiusB);
+        bool coll = Raylib.CheckCollisionSpheres(ballA.Position, ballRadius, ballB.Position, ballRadius);
         return coll;
     }
 
-    public bool CheckPocketBallCollision(PoolBallData ball, Vector3 pocketPos, float pocketRadius)
+    public bool CheckPocketBallCollision(PoolBallData ball, float ballRadius, Vector3 pocketPos, float pocketRadius)
     {
-        bool coll = Raylib.CheckCollisionSpheres(ball.Position, ball.Radius, pocketPos, pocketRadius);
+        bool coll = Raylib.CheckCollisionSpheres(ball.Position, ballRadius, pocketPos, pocketRadius);
         return coll;
     }
 
-    private void HandleCollision(PoolBallData ballA, PoolBallData ballB)
+    private void HandleCollision(PoolBallData ballA, PoolBallData ballB, float ballMass)
     {
         Vector3 delta = ballB.Position - ballA.Position;
         delta.Y = 0;
@@ -248,14 +239,13 @@ class GameLobbyData : ISerializableData
             return;
 
         float rest = 0.98f;
-        float massA = ballA.Mass;
 
         float j = -(1 + rest) * velAlongNormal;
-        j /= 1 / massA + 1 / massA;
+        j /= 1 / ballMass + 1 / ballMass;
 
         Vector3 impulse = normal * j;
 
-        float m = 1 / massA;
+        float m = 1 / ballMass;
         ballA.Velocity -= impulse * m;
         ballB.Velocity += impulse * m;
 
@@ -274,7 +264,7 @@ class GameLobbyData : ISerializableData
 
         PoolCueBall.Serialize(writer);
 
-        writer.Write(PoolBalls.Count);
+        writer.Write((ushort)PoolBalls.Count);
         for (int i = 0; i < PoolBalls.Count; i++)
         {
             PoolBalls[i].Serialize(writer);
@@ -296,7 +286,7 @@ class GameLobbyData : ISerializableData
         PoolCueBall ??= new PoolBallData();
         PoolCueBall.Deserialize(reader);
 
-        int ballsCount = reader.ReadInt32();
+        ushort ballsCount = reader.ReadUInt16();
         PoolBalls ??= new List<PoolBallData>();
         if (PoolBalls.Count == 0)
         {
