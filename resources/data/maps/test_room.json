@@ -1,25 +1,24 @@
 {
-  "Billboards": [],
   "Lights": [
     {
       "Enabled": true,
-      "Intensity": 2,
-      "Cutoff": 4,
-      "SpotExponent": 3,
       "Color": {
         "R": 255,
         "G": 255,
         "B": 255,
         "A": 255
       },
+      "Intensity": 2,
       "Direction": {
         "X": 0,
         "Y": -1,
         "Z": 0
       },
+      "Cutoff": 4,
+      "SpotExponent": 3,
       "Name": null,
       "Position": {
-        "X": 0,
+        "X": 0.052567597,
         "Y": 2.032502,
         "Z": -0.013392178
       },
@@ -36,24 +35,24 @@
     },
     {
       "Enabled": true,
-      "Intensity": 0.5,
-      "Cutoff": 0,
-      "SpotExponent": 0,
       "Color": {
         "R": 255,
         "G": 255,
         "B": 255,
         "A": 255
       },
+      "Intensity": 0.5,
       "Direction": {
         "X": 0,
         "Y": 0,
         "Z": 0
       },
+      "Cutoff": 0,
+      "SpotExponent": 0,
       "Name": null,
       "Position": {
         "X": 0.020949487,
-        "Y": 1.75,
+        "Y": 1.8057606,
         "Z": 1.8631425
       },
       "Rotation": {
@@ -69,20 +68,20 @@
     },
     {
       "Enabled": true,
-      "Intensity": 0.5,
-      "Cutoff": 0,
-      "SpotExponent": 0,
       "Color": {
         "R": 255,
         "G": 255,
         "B": 255,
         "A": 255
       },
+      "Intensity": 0.5,
       "Direction": {
         "X": 0,
         "Y": 0,
         "Z": 0
       },
+      "Cutoff": 0,
+      "SpotExponent": 0,
       "Name": null,
       "Position": {
         "X": 0,
@@ -267,6 +266,182 @@
       "Scale": {
         "X": 1.4,
         "Y": 1.4,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/testroom/pot.obj",
+      "Culling": false,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 1.9326855,
+        "Y": 0.0010392,
+        "Z": -2.8914456
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/testroom/pot.obj",
+      "Culling": false,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": -1.933,
+        "Y": 0.0010392,
+        "Z": -2.8914456
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/testroom/counter.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 2.4862647,
+        "Y": 1.1672063,
+        "Z": 3.3440943
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1.25,
+        "Y": 1.1,
+        "Z": 1.25
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/testroom/laptop.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "Name": null,
+      "Position": {
+        "X": 1.9584112,
+        "Y": 1.1811496,
+        "Z": 2.8792324
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 145,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/testroom/stool.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 1.2879858,
+        "Y": 0.5526549,
+        "Z": 2.6805682
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/testroom/stool.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "Name": null,
+      "Position": {
+        "X": 1.8604014,
+        "Y": 0.5526549,
+        "Z": 2.1020267
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    }
+  ],
+  "Billboards": [
+    {
+      "Path": "resources/gfx/models/map/testroom/plant.png",
+      "CastsShadow": false,
+      "Size": {
+        "X": 0.9,
+        "Y": 1.25
+      },
+      "Name": null,
+      "Position": {
+        "X": 1.918062,
+        "Y": 0.43758294,
+        "Z": -2.8585865
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/testroom/plant.png",
+      "CastsShadow": false,
+      "Size": {
+        "X": 0.9,
+        "Y": 1.25
+      },
+      "Name": null,
+      "Position": {
+        "X": -1.918,
+        "Y": 0.43758294,
+        "Z": -2.8585865
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
         "Z": 1
       }
     }
