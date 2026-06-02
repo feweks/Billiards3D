@@ -6,6 +6,7 @@ using Game.Common.Enums;
 using Game.Common.Data;
 using Game.Common.Packets;
 using Raylib_cs;
+using Game.Client.Data;
 
 namespace Game.Client.States;
 
@@ -33,6 +34,8 @@ class PlayState : GameState
     GameLobbyData lobbyData;
     bool simulationStarted = false;
     float simulationTime = 0f;
+
+    ChatData chatData;
 
     public PlayState() : base("play_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
@@ -77,6 +80,8 @@ class PlayState : GameState
             Camera.Target.Z + camDistance * MathF.Cos(camPitch) * MathF.Cos(camYaw)
         );
 
+        chatData = new ChatData();
+
         string[] maps = ["test_room", "jan"];
         LoadMap(maps[GameClient.LobbySettings!.MapIndex]);
 
@@ -89,6 +94,8 @@ class PlayState : GameState
 
         if (GameClient.LobbyData == null || GameClient.LobbySettings == null)
             return;
+
+        chatData.Update(dt);
 
         var netPlayer = GameClient.GetSelfPlayer();
         var curPlayer = GameClient.LobbyData.GetCurrentPlayer();
@@ -338,5 +345,12 @@ class PlayState : GameState
 
             Raylib.DrawText(winnerTxt, Program.Instance!.Config.RenderResolution[0] / 2 - winnerTxtSize / 2, 3, 24, Color.White);
         }
+
+        DrawChatUI();
+    }
+
+    private void DrawChatUI()
+    {
+        Raylib.DrawText(chatData.Input, 5, 240, 24, Color.White);
     }
 }

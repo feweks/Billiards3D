@@ -31,4 +31,71 @@ static class Utils
 
         return Raymath.MatrixMultiply(Raymath.MatrixMultiply(matScale, matRot), matTrans);
     }
+
+    public static string GetKeyCode(KeyboardKey key, bool shift)
+    {
+        int keyNum = (int)key;
+
+        if (keyNum >= (int)KeyboardKey.A && keyNum <= (int)KeyboardKey.Z)
+        {
+            string result = key.ToString();
+            if (!shift)
+                result = result.ToLower();
+
+            return result;
+        }
+
+        if (keyNum >= (int)KeyboardKey.Zero && keyNum <= (int)KeyboardKey.Nine && !shift)
+        {
+            return (keyNum - (int)KeyboardKey.Zero).ToString();
+        }
+
+        switch (key)
+        {
+            case KeyboardKey.Apostrophe:
+                return !shift ? "'" : $"{'"'}";
+            case KeyboardKey.Comma:
+                return !shift ? "," : "<";
+            case KeyboardKey.Minus:
+                return !shift ? "-" : "_";
+            case KeyboardKey.Period:
+                return !shift ? "." : ">";
+            case KeyboardKey.Slash:
+                return !shift ? "/" : "?";
+            case KeyboardKey.Backslash:
+                return !shift ? @"\" : "|";
+            case KeyboardKey.Equal:
+                return !shift ? "=" : "+";
+            case KeyboardKey.Semicolon:
+                return !shift ? ";" : ":";
+            case KeyboardKey.LeftBracket:
+                return !shift ? "[" : "{";
+            case KeyboardKey.RightBracket:
+                return !shift ? "]" : "}";
+            case KeyboardKey.Zero: // Keys 0 - 9 cant be now pressed without shift
+                return ")";
+            case KeyboardKey.One:
+                return "!";
+            case KeyboardKey.Two:
+                return "@";
+            case KeyboardKey.Three:
+                return "#";
+            case KeyboardKey.Four:
+                return "$";
+            case KeyboardKey.Five:
+                return "%";
+            case KeyboardKey.Six:
+                return "^";
+            case KeyboardKey.Seven:
+                return "&";
+            case KeyboardKey.Eight:
+                return "*";
+            case KeyboardKey.Nine:
+                return "(";
+            case KeyboardKey.Space:
+                return " ";
+        }
+
+        return string.Empty;
+    }
 }

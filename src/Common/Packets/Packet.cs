@@ -31,6 +31,8 @@ class Packet
                 return new LeaveLobbyPacket();
             case PacketType.ChangeLobbySettings:
                 return new ChangeLobbySettingsPacket();
+            case PacketType.ChatMessageLobby:
+                return new ChatMessageLobbyPacket();
             default:
                 Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to create packet of type {type}");
                 return new Packet(PacketType.Ping);
