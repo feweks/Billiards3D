@@ -309,6 +309,26 @@ class GameServer
 
                     break;
                 }
+            case PacketType.ChatMessageLobby:
+                {
+                    var chatPacket = (ChatMessageLobbyPacket)packet;
+
+                    if (lobby == null)
+                    {
+                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process chat message from lobby {chatPacket.LobbyCode}: lobby does not exist");
+                        break;
+                    }
+
+                    if (lobby.HostConnection != null)
+                        Send(lobby.HostConnection, chatPacket);
+
+                    if (lobby.GuestConnection != null)
+                        Send(lobby.GuestConnection, chatPacket);
+
+                    Raylib.TraceLog(TraceLogLevel.Info, chatPacket.Content);
+
+                    break;
+                }
             default:
                 Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process packet {packet.Type}: no packet processing logic exists");
                 break;

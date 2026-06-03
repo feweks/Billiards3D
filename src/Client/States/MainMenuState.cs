@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Client.Data;
 using Game.Client.Entities;
 using Game.Client.Net;
 using Game.Common;
@@ -24,7 +25,7 @@ class MainMenuState : GameState
     {
         base.Update(dt);
 
-        if (GameClient.LobbyData != null && GameClient.LobbyData.Started)
+        if (GameClient.Lobby.Data != null && GameClient.Lobby.Data.Started)
         {
             Thread.Sleep(100);
             ChangeState(new PlayState());
@@ -53,7 +54,7 @@ class MainMenuState : GameState
 
         ImGui.Begin("MainMenu");
 
-        if (GameClient.LobbyStatus != JoinedLobbyStatus.Success)
+        if (GameClient.Lobby.Status != JoinedLobbyStatus.Success)
         {
             ImGui.InputText("Nickname", ref nickInp, 32);
             ImGui.InputText("Code", ref codeInp, GameData.LobbyCodeLength);
@@ -68,36 +69,36 @@ class MainMenuState : GameState
                 GameClient.JoinLobby(codeInp, nickInp);
             }
 
-            if (GameClient.LobbyStatus == JoinedLobbyStatus.NickCollision)
+            if (GameClient.Lobby.Status == JoinedLobbyStatus.NickCollision)
             {
                 ImGui.TextColored(Utils.ColorToVec4(Color.Red), "Failed to join lobby: player with that name is already in");
             }
-            else if (GameClient.LobbyStatus == JoinedLobbyStatus.Missing)
+            else if (GameClient.Lobby.Status == JoinedLobbyStatus.Missing)
             {
                 ImGui.TextColored(Utils.ColorToVec4(Color.Red), "Failed to join lobby: lobby with that code does not exist");
             }
-            else if (GameClient.LobbyStatus == JoinedLobbyStatus.Full)
+            else if (GameClient.Lobby.Status == JoinedLobbyStatus.Full)
             {
                 ImGui.TextColored(Utils.ColorToVec4(Color.Red), "Failed to join lobby: lobby is full");
             }
         }
-        else if (GameClient.LobbyStatus == JoinedLobbyStatus.Success && GameClient.LobbyData != null)
+        else if (GameClient.Lobby.Status == JoinedLobbyStatus.Success && GameClient.Lobby.Data != null)
         {
-            ImGui.Text($"Lobby {GameClient.LobbyData.Code} ({GameClient.LobbyData.GetPlayerCount()}/2)");
+            ImGui.Text($"Lobby {GameClient.Lobby.Data.Code} ({GameClient.Lobby.Data.GetPlayerCount()}/2)");
             ImGui.SameLine();
             if (ImGui.Button("Copy"))
             {
-                Raylib.SetClipboardText(GameClient.LobbyData.Code);
+                Raylib.SetClipboardText(GameClient.Lobby.Data.Code);
             }
 
-            ImGui.TextColored(Utils.ColorToVec4(Color.Green), $"{GameClient.LobbyData.Host.Nickname}");
+            ImGui.TextColored(Utils.ColorToVec4(Color.Green), $"{GameClient.Lobby.Data.Host.Nickname}");
 
-            if (GameClient.LobbyData.Guest.Nickname != null)
+            if (GameClient.Lobby.Data.Guest.Nickname != null)
             {
-                ImGui.Text($"{GameClient.LobbyData.Guest.Nickname}");
+                ImGui.Text($"{GameClient.Lobby.Data.Guest.Nickname}");
             }
 
-            if (GameClient.LobbySettings != null)
+            if (GameClient.Lobby.Settings != null)
             {
                 string[] maps = ["test_room", "jan"];
 
@@ -105,18 +106,18 @@ class MainMenuState : GameState
                 {
                     if (ImGui.Combo("Current Map", ref curMapInp, maps, maps.Length))
                     {
-                        GameClient.LobbySettings.MapIndex = (ushort)curMapInp;
+                        GameClient.Lobby.Settings.MapIndex = (ushort)curMapInp;
                         Raylib.TraceLog(TraceLogLevel.Info, $"Changed curmap to {maps[curMapInp]}");
-                        GameClient.SendLobbyPacket(new ChangeLobbySettingsPacket() { Settings = GameClient.LobbySettings });
+                        GameClient.SendLobbyPacket(new ChangeLobbySettingsPacket() { Settings = GameClient.Lobby.Settings });
                     }
                 }
                 else
                 {
-                    ImGui.Text($"Selected map: {maps[GameClient.LobbySettings.MapIndex]}");
+                    ImGui.Text($"Selected map: {maps[GameClient.Lobby.Settings.MapIndex]}");
                 }
             }
 
-            if (GameClient.LobbyData.GetPlayerCount() == 2 && GameClient.IsHost())
+            if (GameClient.Lobby.Data.GetPlayerCount() == 2 && GameClient.IsHost())
             {
                 if (ImGui.Button("Start"))
                 {

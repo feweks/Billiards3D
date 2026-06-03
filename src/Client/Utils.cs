@@ -98,4 +98,22 @@ static class Utils
 
         return string.Empty;
     }
+
+    public static void DrawTextOutlined(Font fnt, string text, Vector2 pos, float size, Color textCol, Color outlineCol, float spacing = 1) =>
+        DrawTextOutlinedEx(fnt, text, pos, Vector2.Zero, size, 0, textCol, outlineCol, spacing);
+
+    public static void DrawTextOutlinedEx(Font fnt, string text, Vector2 pos, Vector2 origin, float size, float rot, Color textCol, Color outlineCol, float spacing = 1)
+    {
+        Vector2[] offsets = [
+            new Vector2(-1, 0),
+            new Vector2(1, 0),
+            new Vector2(0, -1),
+            new Vector2(0, 1)
+        ];
+
+        for (int i = 0; i < offsets.Length; i++)
+            Raylib.DrawTextPro(fnt, text, pos + offsets[i], origin, rot, size, spacing, outlineCol);
+
+        Raylib.DrawTextPro(fnt, text, pos, origin, rot, size, spacing, textCol);
+    }
 }

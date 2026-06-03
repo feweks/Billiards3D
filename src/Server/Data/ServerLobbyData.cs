@@ -22,6 +22,8 @@ class ServerLobbyData
     private bool railTouchedTurn = false;
     private bool canHitBlackTurn = false;
 
+    private float elapsedTime = 0f;
+
     public ServerLobbyData(string code, Socket host, PoolGamemodeConfigFileData gamemodeCfg, GameServerConfigFileData serverCfg)
     {
         Data = new GameLobbyData(code, gamemodeCfg);
@@ -81,6 +83,8 @@ class ServerLobbyData
     {
         if (!Data.Started)
             return;
+
+        elapsedTime += dt;
 
         Data.UpdateSimulation(dt, Data.State != PoolGameState.BallInHand, Settings);
 

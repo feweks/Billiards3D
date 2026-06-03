@@ -181,7 +181,7 @@ class GameLobbyData : ISerializableData
                     HandleCollision(ballA, ballB, settings.PoolBallMass);
             }
 
-            if (CheckBallsCollision(ballA, PoolCueBall, settings.PoolBallRadius))
+            if (!ballA.Pocketed && CheckBallsCollision(ballA, PoolCueBall, settings.PoolBallRadius))
             {
                 HandleCollision(ballA, PoolCueBall, settings.PoolBallMass);
             }

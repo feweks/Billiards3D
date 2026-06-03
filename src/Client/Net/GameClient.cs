@@ -14,10 +14,7 @@ static class GameClient
     private const float MAX_LATENCY_TIMER = 1f;
 
     public static double Latency { get; internal set; } = 0;
-    public static GameLobbyData? LobbyData { get; internal set; }
-    public static LobbySettingsData? LobbySettings { get; internal set; }
-    public static JoinedLobbyStatus LobbyStatus { get; internal set; } = JoinedLobbyStatus.None;
-    public static string? PlayerNick { get; internal set; } = null;
+    public static ClientLobby Lobby { get; internal set; } = new ClientLobby();
     public static NetServerFileData? Config { get; internal set; }
 
     private static TcpClient? client;
@@ -86,8 +83,6 @@ static class GameClient
         }
 
         SendLobbyPacket(new StartLobbyPacket());
-
-        LobbyStatus = JoinedLobbyStatus.None;
     }
 
     public static void LeaveLobby() => SendLobbyPacket(new LeaveLobbyPacket());
@@ -115,14 +110,14 @@ static class GameClient
             return;
         }
 
-        if (LobbyData == null || PlayerNick == null)
+        if (!Lobby.IsConnected() || Lobby.PlayerNick == null)
         {
             Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send lobby packet {packet.Type}: client is not connected to any lobby");
             return;
         }
 
-        packet.LobbyCode = LobbyData.Code;
-        packet.Sender = PlayerNick;
+        packet.LobbyCode = Lobby.Data!.Code;
+        packet.Sender = Lobby.PlayerNick;
 
         SendPacket(packet);
     }
@@ -155,28 +150,29 @@ static class GameClient
                 }
             case PacketType.JoinLobby:
                 {
-                    if (LobbyData == null)
+                    if (!Lobby.IsConnected())
                         break;
 
                     var joinPacket = (JoinLobbyPacket)packet;
                     Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Player joined lobby: {joinPacket.Sender}");
 
-                    LobbyData.Guest.Nickname = joinPacket.Sender;
+                    Lobby.Data!.Guest.Nickname = joinPacket.Sender;
 
                     break;
                 }
             case PacketType.JoinedLobby:
                 {
                     var joinedPacket = (JoinedLobbyPacket)packet;
-                    LobbyStatus = joinedPacket.Status;
 
                     if (joinedPacket.Status == JoinedLobbyStatus.Success)
                     {
                         Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Joined lobby {joinedPacket.LobbyCode}");
-                        LobbyData = joinedPacket.LobbyData;
-                        PlayerNick = joinedPacket.Sender;
-                        LobbySettings = joinedPacket.LobbySettings;
+                        Lobby.Join(joinedPacket.LobbyData!, joinedPacket.LobbySettings!, joinedPacket.Sender);
                         break;
+                    }
+                    else
+                    {
+                        Lobby.Status = joinedPacket.Status;
                     }
 
                     Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Failed to join lobby {joinedPacket.LobbyCode}: {joinedPacket.Status}");
@@ -186,36 +182,35 @@ static class GameClient
             case PacketType.UpdateLobby:
                 {
                     var updatePacket = (UpdateLobbyPacket)packet;
-                    LobbyData = updatePacket.LobbyData;
+                    Lobby.Data = updatePacket.LobbyData;
 
                     break;
                 }
             case PacketType.LeaveLobby:
                 {
                     var leavePacket = (LeaveLobbyPacket)packet;
-                    if (LobbyData == null)
+                    if (!Lobby.IsConnected())
                         break;
 
                     Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Player {leavePacket.Sender} left the lobby");
 
-                    if (leavePacket.Sender == PlayerNick)
+                    if (leavePacket.Sender == Lobby.PlayerNick)
                     {
-                        LobbyStatus = JoinedLobbyStatus.None;
-                        PlayerNick = null;
+                        Lobby.Status = JoinedLobbyStatus.None;
+                        Lobby.PlayerNick = null;
 
-                        if (!LobbyData.Started)
+                        if (!Lobby.Data!.Started)
                         {
-                            LobbyData = null;
-                            LobbySettings = null;
+                            Lobby.Reset();
                         }
                     }
                     else
                     {
-                        if (!LobbyData.Started)
+                        if (!Lobby.Data!.Started)
                         {
                             if (IsHost())
                             {
-                                LobbyData.Guest = new PlayerLobbyData(null);
+                                Lobby.Data.Guest = new PlayerLobbyData(null);
                             }
                             else
                             {
@@ -231,7 +226,18 @@ static class GameClient
                     var settingsPacket = (ChangeLobbySettingsPacket)packet;
                     Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Changed lobby settings");
 
-                    LobbySettings = settingsPacket.Settings;
+                    Lobby.Settings = settingsPacket.Settings;
+
+                    break;
+                }
+            case PacketType.ChatMessageLobby:
+                {
+                    var chatPacket = (ChatMessageLobbyPacket)packet;
+                    if (!Lobby.IsConnected())
+                        break;
+
+                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] player {chatPacket.Sender} said {chatPacket.Content}");
+                    Lobby.ChatHistory.Add(new ClientChatMessage(chatPacket));
 
                     break;
                 }
@@ -287,9 +293,9 @@ static class GameClient
         }
     }
 
-    public static PlayerLobbyData GetSelfPlayer() => LobbyData!.Host.Nickname == PlayerNick ? LobbyData.Host : LobbyData.Guest;
+    public static PlayerLobbyData GetSelfPlayer() => Lobby.Data!.Host.Nickname == Lobby.PlayerNick ? Lobby.Data.Host : Lobby.Data.Guest;
 
-    public static bool IsHost() => LobbyData != null && LobbyData.Host.Nickname == PlayerNick;
+    public static bool IsHost() => Lobby.Data != null && Lobby.Data.Host.Nickname == Lobby.PlayerNick;
 
     public static bool CheckConnection() => client != null && client.Connected;
 
@@ -298,7 +304,7 @@ static class GameClient
         running = false;
         if (CheckConnection())
         {
-            if (LobbyData != null && PlayerNick != null)
+            if (Lobby.Data != null && Lobby.PlayerNick != null)
             {
                 LeaveLobby();
                 Raylib.TraceLog(TraceLogLevel.Info, $"leave lobby on shutdown");

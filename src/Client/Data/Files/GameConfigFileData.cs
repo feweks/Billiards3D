@@ -9,6 +9,9 @@ class GameConfigFileData
     public string WindowTitle { get; set; } = "Game";
     public ConfigFlags[] Flags { get; set; } = [];
 
+    public int RenderWidth => RenderResolution[0];
+    public int RenderHeight => RenderResolution[1];
+
     public void ApplyFlags()
     {
         foreach (var flag in Flags)

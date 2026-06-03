@@ -39,9 +39,9 @@ class PlayState : GameState
 
     public PlayState() : base("play_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
-        Debug.Assert(GameClient.LobbyData != null, "Cannot load game: client is not connected to any lobby");
+        Debug.Assert(GameClient.Lobby.Data != null, "Cannot load game: client is not connected to any lobby");
 
-        var startingPlayer = GameClient.LobbyData.GetCurrentPlayer();
+        var startingPlayer = GameClient.Lobby.Data.GetCurrentPlayer();
 
         poolTable = new ModelEntity("resources/gfx/models/pool_table.obj", Vector3.Zero, null)
         {
@@ -49,17 +49,17 @@ class PlayState : GameState
         };
         PlaceEntity(poolTable);
 
-        poolCueBall = new PoolBallEntity(GameClient.LobbyData.PoolCueBall!, null)
+        poolCueBall = new PoolBallEntity(GameClient.Lobby.Data.PoolCueBall!, null)
         {
             CastsShadow = true
         };
         PlaceEntity(poolCueBall);
 
-        int ballsCount = GameClient.LobbyData.PoolBalls.Count;
+        int ballsCount = GameClient.Lobby.Data.PoolBalls.Count;
         poolBalls = new PoolBallEntity[ballsCount];
         for (int i = 0; i < ballsCount; i++)
         {
-            poolBalls[i] = new PoolBallEntity(GameClient.LobbyData.PoolBalls[i], null)
+            poolBalls[i] = new PoolBallEntity(GameClient.Lobby.Data.PoolBalls[i], null)
             {
                 CastsShadow = true
             };
@@ -83,29 +83,29 @@ class PlayState : GameState
         chatData = new ChatData();
 
         string[] maps = ["test_room", "jan"];
-        LoadMap(maps[GameClient.LobbySettings!.MapIndex]);
+        LoadMap(maps[GameClient.Lobby.Settings!.MapIndex]);
 
-        lobbyData = GameClient.LobbyData;
+        lobbyData = GameClient.Lobby.Data;
     }
 
     public override void Update(float dt)
     {
         base.Update(dt);
 
-        if (GameClient.LobbyData == null || GameClient.LobbySettings == null)
+        if (GameClient.Lobby.Data == null || GameClient.Lobby.Settings == null)
             return;
 
         chatData.Update(dt);
 
         var netPlayer = GameClient.GetSelfPlayer();
-        var curPlayer = GameClient.LobbyData.GetCurrentPlayer();
+        var curPlayer = GameClient.Lobby.Data.GetCurrentPlayer();
 
-        poolCue.Visible = GameClient.LobbyData.State == PoolGameState.Breaking || GameClient.LobbyData.State == PoolGameState.Aiming;
+        poolCue.Visible = GameClient.Lobby.Data.State == PoolGameState.Breaking || GameClient.Lobby.Data.State == PoolGameState.Aiming;
 
-        bool isServerTableCalm = GameClient.LobbyData.PoolCueBall.Velocity.Length() == 0 && GameClient.LobbyData.PoolBalls.All(b => b.Velocity.Length() == 0);
+        bool isServerTableCalm = GameClient.Lobby.Data.PoolCueBall.Velocity.Length() == 0 && GameClient.Lobby.Data.PoolBalls.All(b => b.Velocity.Length() == 0);
         if (isServerTableCalm)
         {
-            lobbyData = GameClient.LobbyData;
+            lobbyData = GameClient.Lobby.Data;
 
             if (simulationStarted)
             {
@@ -124,10 +124,10 @@ class PlayState : GameState
             }
 
             simulationTime += dt;
-            while (simulationTime >= GameClient.LobbySettings.Tickrate)
+            while (simulationTime >= GameClient.Lobby.Settings.Tickrate)
             {
-                lobbyData.UpdateSimulation(GameClient.LobbySettings.Tickrate, true, GameClient.LobbySettings);
-                simulationTime -= GameClient.LobbySettings.Tickrate;
+                lobbyData.UpdateSimulation(GameClient.Lobby.Settings.Tickrate, true, GameClient.Lobby.Settings);
+                simulationTime -= GameClient.Lobby.Settings.Tickrate;
             }
         }
 
@@ -154,13 +154,13 @@ class PlayState : GameState
                 UpdateCue(dt, netPlayer);
             }
 
-            if (GameClient.LobbyData.State == PoolGameState.BallInHand)
+            if (GameClient.Lobby.Data.State == PoolGameState.BallInHand)
             {
                 UpdateCueBall(dt, netPlayer);
             }
         }
 
-        if (GameClient.LobbyData.State == PoolGameState.BallInHand)
+        if (GameClient.Lobby.Data.State == PoolGameState.BallInHand)
         {
             camPos = new Vector3(0.01f, 1.8f, 0);
             Camera.Target = Raymath.Vector3Lerp(Camera.Target, Vector3.UnitY, dt * 10f);
@@ -169,7 +169,7 @@ class PlayState : GameState
             float pulseTime = 4f;
 
             float alpha = 0.25f + 0.75f * ((MathF.Sin(t * pulseTime) * 0.5f) + 0.5f);
-            poolCueBall.Tint = GameClient.LobbyData!.CanPlaceCueBall ? Raylib.ColorAlpha(Color.White, alpha) : Raylib.ColorAlpha(Color.Red, alpha);
+            poolCueBall.Tint = GameClient.Lobby.Data.CanPlaceCueBall ? Raylib.ColorAlpha(Color.White, alpha) : Raylib.ColorAlpha(Color.Red, alpha);
         }
         else
         {
@@ -185,10 +185,10 @@ class PlayState : GameState
         poolCue.Position = Raymath.Vector3Lerp(poolCue.Position, GetCueTargetPos(curPlayer.AimDir, curPlayerCueForce), dt * cueLerpAmount);
         poolCue.Rotation.Y = Raymath.LerpAngle(poolCue.Rotation.Y, GetCueTargetRotY(curPlayer.AimDir), dt * cueLerpAmount);
 
-        if (GameClient.LobbyData.State != PoolGameState.Finished && GameClient.LobbyData.State != PoolGameState.Updating && curPlayer.Nickname == netPlayer.Nickname)
+        if (GameClient.Lobby.Data.State != PoolGameState.Finished && GameClient.Lobby.Data.State != PoolGameState.Updating && curPlayer.Nickname == netPlayer.Nickname)
         {
             updateTime += dt;
-            if (updateTime > 0.03f)
+            if (updateTime > 0.01f)
             {
                 GameClient.SendLobbyPacket(new UpdatePlayerLobbyPacket() { PlayerData = netPlayer });
 
@@ -278,12 +278,12 @@ class PlayState : GameState
     {
         base.Draw();
 
-        if (GameClient.LobbyData == null)
+        if (GameClient.Lobby.Data == null)
             return;
 
         if (DebugView)
         {
-            if (GameClient.LobbyData.State == PoolGameState.BallInHand)
+            if (GameClient.Lobby.Data.State == PoolGameState.BallInHand)
             {
                 Ray ray = Raylib.GetScreenToWorldRay(Raylib.GetMousePosition(), Camera);
                 Raylib.DrawRay(ray, Color.Orange);
@@ -291,9 +291,9 @@ class PlayState : GameState
 
             if (simulationStarted)
             {
-                foreach (var ball in GameClient.LobbyData.PoolBalls.Where(b => !b.Pocketed))
+                foreach (var ball in GameClient.Lobby.Data.PoolBalls.Where(b => !b.Pocketed))
                 {
-                    Raylib.DrawSphere(ball.Position, GameClient.LobbySettings!.PoolBallRadius, Raylib.ColorAlpha(Color.Blue, 0.5f));
+                    Raylib.DrawSphere(ball.Position, GameClient.Lobby.Settings!.PoolBallRadius, Raylib.ColorAlpha(Color.Blue, 0.5f));
                 }
             }
         }
@@ -303,26 +303,26 @@ class PlayState : GameState
     {
         base.DrawUI();
 
-        if (GameClient.LobbyData == null)
+        if (GameClient.Lobby.Data == null)
             return;
 
-        if (GameClient.LobbyData.State == PoolGameState.Breaking)
+        if (GameClient.Lobby.Data.State == PoolGameState.Breaking)
         {
-            Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} is breaking", 5, 3, 24, Color.White);
+            Raylib.DrawText($"{GameClient.Lobby.Data.CurPlayer} is breaking", 5, 3, 24, Color.White);
         }
 
-        if (GameClient.LobbyData.State == PoolGameState.Aiming)
+        if (GameClient.Lobby.Data.State == PoolGameState.Aiming)
         {
-            Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} is aiming", 5, 3, 24, Color.White);
+            Raylib.DrawText($"{GameClient.Lobby.Data.CurPlayer} is aiming", 5, 3, 24, Color.White);
         }
 
-        if (GameClient.LobbyData.State == PoolGameState.BallInHand)
+        if (GameClient.Lobby.Data.State == PoolGameState.BallInHand)
         {
-            Raylib.DrawText($"{GameClient.LobbyData.CurPlayer} has cue ball in hand", 5, 3, 24, Color.White);
+            Raylib.DrawText($"{GameClient.Lobby.Data.CurPlayer} has cue ball in hand", 5, 3, 24, Color.White);
         }
 
         var ply = GameClient.GetSelfPlayer();
-        if (poolCue.Visible && ply.Nickname == GameClient.LobbyData!.CurPlayer)
+        if (poolCue.Visible && ply.Nickname == GameClient.Lobby.Data.CurPlayer)
         {
             string forceTxt = $"Cue Force: {playerCueForce:0.00}";
             int forceTxtSize = Raylib.MeasureText(forceTxt, 24);
@@ -338,19 +338,14 @@ class PlayState : GameState
             Raylib.DrawText(ballTypeTxt, Program.Instance!.Config.RenderResolution[0] - ballTypeTxtSize, 3, 24, Color.White);
         }
 
-        if (GameClient.LobbyData.State == PoolGameState.Finished)
+        if (GameClient.Lobby.Data.State == PoolGameState.Finished)
         {
-            string winnerTxt = $"{GameClient.LobbyData.GetPlayerByNick(GameClient.LobbyData.CurPlayer).Nickname} won";
+            string winnerTxt = $"{GameClient.Lobby.Data.GetPlayerByNick(GameClient.Lobby.Data.CurPlayer).Nickname} won";
             int winnerTxtSize = Raylib.MeasureText(winnerTxt, 24);
 
             Raylib.DrawText(winnerTxt, Program.Instance!.Config.RenderResolution[0] / 2 - winnerTxtSize / 2, 3, 24, Color.White);
         }
 
-        DrawChatUI();
-    }
-
-    private void DrawChatUI()
-    {
-        Raylib.DrawText(chatData.Input, 5, 240, 24, Color.White);
+        chatData.Draw();
     }
 }
