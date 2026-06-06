@@ -7,7 +7,7 @@ class UpdateLobbyPacket : LobbyPacket
 {
     public GameLobbyData? LobbyData { get; set; }
 
-    public UpdateLobbyPacket() : base(PacketType.UpdateLobby) { }
+    public UpdateLobbyPacket() : base(PacketType.UpdateLobby, PacketSendMode.Unreliable) { }
 
     public override void Serialize(BinaryWriter writer)
     {

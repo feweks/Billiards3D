@@ -17,9 +17,11 @@ class GameServer
 
     private GameServerConfigFileData config;
     private Dictionary<PoolGamemodeType, PoolGamemodeConfigFileData> gamemodeConfigs;
-    private Socket listener;
-    private List<Socket> clients;
-    private Thread? connThread;
+    private Socket tcpListener;
+    private Socket udpListener;
+    private ConcurrentDictionary<Guid, ServerClientData> clients;
+    private Thread? reliableConnectionsThread;
+    private Thread? unreliableConnectionsThread;
     private Thread? lobbiesThread;
     private bool running = false;
 
@@ -27,23 +29,34 @@ class GameServer
     {
         this.config = config;
         this.gamemodeConfigs = gamemodeConfigs;
-        listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        listener.Bind(new IPEndPoint(IPAddress.Any, config.Port));
-        clients = new List<Socket>();
+
+        tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        tcpListener.Bind(new IPEndPoint(IPAddress.Any, config.TcpPort));
+
+        udpListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        udpListener.Bind(new IPEndPoint(IPAddress.Any, config.UdpPort));
+
         running = true;
 
+        clients = new ConcurrentDictionary<Guid, ServerClientData>();
         Lobbies = new ConcurrentDictionary<string, ServerLobbyData>();
     }
 
     public void Start()
     {
-        listener.Listen();
+        tcpListener.Listen();
 
-        connThread = new Thread(new ThreadStart(UpdateConnections))
+        reliableConnectionsThread = new Thread(new ThreadStart(UpdateReliableConnections))
         {
             IsBackground = false
         };
-        connThread.Start();
+        reliableConnectionsThread.Start();
+
+        unreliableConnectionsThread = new Thread(new ThreadStart(UpdateUnreliableConnections))
+        {
+            IsBackground = false
+        };
+        unreliableConnectionsThread.Start();
 
         lobbiesThread = new Thread(new ThreadStart(UpdateLobbies))
         {
@@ -52,7 +65,7 @@ class GameServer
         lobbiesThread.Start();
     }
 
-    private string CreateLobby(Socket host)
+    private string CreateLobby(ServerClientData host)
     {
         var builder = new StringBuilder();
 
@@ -92,11 +105,32 @@ class GameServer
     private void AcceptClient(Socket client)
     {
         client.Blocking = false;
-        clients.Add(client);
-        Raylib.TraceLog(TraceLogLevel.Info, "Client connected to server");
+        Guid clientGuid = Guid.NewGuid();
+        var clientData = new ServerClientData(client, clientGuid);
+
+        if (!clients.TryAdd(clientGuid, clientData))
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to add client {client.RemoteEndPoint} to clients list");
+            return;
+        }
+
+        client.Send(clientGuid.ToByteArray());
+
+        Raylib.TraceLog(TraceLogLevel.Info, $"Client connected to server from {client.RemoteEndPoint} [User GUID: {clientGuid}]");
     }
 
-    private void ProcessPacket(Socket client, Packet packet)
+    private void DisconnectClient(ServerClientData clientData)
+    {
+        if (!clients.TryRemove(clientData.Guid, out var _))
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to remove client {clientData.Guid} from client pool");
+            return;
+        }
+
+        clientData.TcpConnection.Close();
+    }
+
+    private void ProcessPacket(ServerClientData client, Packet packet)
     {
         if (packet is LobbyPacket lobbyPacket)
         {
@@ -112,6 +146,8 @@ class GameServer
                     Send(client, packet);
                     break;
                 }
+            case PacketType.InitializeUnreliableConnection:
+                break;
             default:
                 {
                     Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process packet {packet}: no packet logic of that type");
@@ -120,7 +156,7 @@ class GameServer
         }
     }
 
-    private void ProcessLobbyPacket(Socket client, LobbyPacket packet, ServerLobbyData? lobby)
+    private void ProcessLobbyPacket(ServerClientData client, LobbyPacket packet, ServerLobbyData? lobby)
     {
         switch (packet.Type)
         {
@@ -165,14 +201,14 @@ class GameServer
 
                             if (lobby.Data.Host.Nickname == null)
                             {
-                                lobby.HostConnection = client;
+                                lobby.HostClient = client;
                                 lobby.Data.Host.Nickname = joinPacket.Sender;
                             }
                             else if (lobby.Data.Guest.Nickname == null)
                             {
-                                lobby.GuestConnection = client;
+                                lobby.GuestClient = client;
                                 lobby.Data.Guest.Nickname = joinPacket.Sender;
-                                Send(lobby.HostConnection!, joinPacket);
+                                Send(lobby.HostClient!, joinPacket);
                             }
                             else
                             {
@@ -212,12 +248,12 @@ class GameServer
                     if (packet.Sender == lobby.Data.Host.Nickname)
                     {
                         winningPlayer = lobby.Data.Guest.Nickname!;
-                        lobby.HostConnection = null;
+                        lobby.HostClient = null;
                     }
                     else if (packet.Sender == lobby.Data.Guest.Nickname)
                     {
                         winningPlayer = lobby.Data.Host.Nickname!;
-                        lobby.GuestConnection = null;
+                        lobby.GuestClient = null;
 
                         if (!lobby.Data.Started)
                         {
@@ -303,8 +339,8 @@ class GameServer
                     {
                         lobby.Settings = settingsPacket.Settings;
 
-                        if (lobby.GuestConnection != null)
-                            Send(lobby.GuestConnection, settingsPacket);
+                        if (lobby.GuestClient != null)
+                            Send(lobby.GuestClient, settingsPacket);
                     }
 
                     break;
@@ -319,11 +355,11 @@ class GameServer
                         break;
                     }
 
-                    if (lobby.HostConnection != null)
-                        Send(lobby.HostConnection, chatPacket);
+                    if (lobby.HostClient != null)
+                        Send(lobby.HostClient, chatPacket);
 
-                    if (lobby.GuestConnection != null)
-                        Send(lobby.GuestConnection, chatPacket);
+                    if (lobby.GuestClient != null)
+                        Send(lobby.GuestClient, chatPacket);
 
                     Raylib.TraceLog(TraceLogLevel.Info, chatPacket.Content);
 
@@ -335,16 +371,8 @@ class GameServer
         }
     }
 
-    private void ProcessClient(Socket client, int bytesCount, byte[] buf)
+    private void ProcessClient(ServerClientData client, int bytesCount, byte[] buf)
     {
-        if (bytesCount == 0)
-        {
-            Raylib.TraceLog(TraceLogLevel.Info, $"Client disconnected from server");
-            clients.Remove(client);
-            client.Close();
-            return;
-        }
-
         var stream = new MemoryStream(buf, 0, bytesCount);
         var reader = new BinaryReader(stream);
         var packetType = (PacketType)reader.ReadByte();
@@ -353,34 +381,58 @@ class GameServer
         ProcessPacket(client, packet);
     }
 
-    public void Send(Socket client, Packet packet)
+    public void Send(ServerClientData client, Packet packet)
     {
-        if (!client.Connected || !clients.Contains(client))
+        if (packet.SendMode == PacketSendMode.Reliable)
+        {
+            if (!client.TcpConnection.Connected)
+            {
+                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send reliable packet of type {packet.Type}: client is not connected");
+                return;
+            }
+        }
+        else if (packet.SendMode == PacketSendMode.Unreliable)
+        {
+            if (client.UdpEndPoint == null)
+            {
+                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send unreliable packet of type {packet.Type}: client is not connected");
+                return;
+            }
+        }
+
+        if (!clients.ContainsKey(client.Guid))
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send packet of type {packet.Type}: client is not initialized");
             return;
+        }
 
         var memStream = new MemoryStream();
         var binStream = new BinaryWriter(memStream);
         packet.Serialize(binStream);
+        byte[] buf = memStream.ToArray();
 
-        client.Send(memStream.ToArray());
+        if (packet.SendMode == PacketSendMode.Reliable)
+            client.TcpConnection.Send(buf);
+        else if (packet.SendMode == PacketSendMode.Unreliable)
+            udpListener.SendTo(buf, client.UdpEndPoint!);
     }
 
-    private void UpdateConnections()
+    private void UpdateReliableConnections()
     {
         while (running)
         {
-            var readList = new List<Socket>() { listener };
-            readList.AddRange(clients);
+            var readList = new List<Socket>() { tcpListener };
+            readList.AddRange(clients.Values.Select(c => c.TcpConnection));
 
             Socket.Select(readList, null, null, 100);
 
             foreach (var socket in readList)
             {
-                if (socket == listener)
+                if (socket == tcpListener)
                 {
                     try
                     {
-                        AcceptClient(listener.Accept());
+                        AcceptClient(tcpListener.Accept());
                     }
                     catch (Exception error)
                     {
@@ -393,19 +445,77 @@ class GameServer
                     {
                         byte[] buf = new byte[GameData.MaxPacketSize];
                         int recvBytes = socket.Receive(buf);
-                        ProcessClient(socket, recvBytes, buf);
+
+                        if (recvBytes == 0)
+                        {
+                            var errClientData = clients.Values.First(c => c.TcpConnection == socket);
+                            Raylib.TraceLog(TraceLogLevel.Info, $"Client {errClientData.Guid} disconnected from server");
+                            DisconnectClient(errClientData);
+                            continue;
+                        }
+
+                        var clientGuid = new Guid(buf.AsSpan(0, 16));
+                        if (!clients.TryGetValue(clientGuid, out ServerClientData? clientData))
+                        {
+                            Raylib.TraceLog(TraceLogLevel.Warning, $"Incoming data from not connected client [guid: {clientGuid}]");
+                            continue;
+                        }
+
+                        ProcessClient(clientData, recvBytes - 16, buf.Skip(16).ToArray());
                     }
                     catch (SocketException error)
                     {
                         Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to receive msg from client: {error.Message} [ERROR CODE {error.SocketErrorCode}]");
 
+                        var clientData = clients.Values.First(c => c.TcpConnection == socket);
                         if (error.SocketErrorCode == SocketError.ConnectionReset)
                         {
-                            clients.Remove(socket);
+                            if (!clients.TryRemove(clientData.Guid, out var _))
+                            {
+                                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to disconnect client {clientData.Guid}");
+                                return;
+                            }
                             socket.Close();
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void UpdateUnreliableConnections()
+    {
+        EndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
+        while (running)
+        {
+            try
+            {
+                byte[] buf = new byte[GameData.MaxPacketSize];
+                int bytesRecv = udpListener.ReceiveFrom(buf, ref remoteEP);
+                if (bytesRecv == 0)
+                {
+                    Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to update unreliable connection {remoteEP}: received 0 bytes");
+                    continue;
+                }
+
+                var clientGuid = new Guid(buf.AsSpan(0, 16));
+                if (!clients.TryGetValue(clientGuid, out ServerClientData? clientData))
+                {
+                    Raylib.TraceLog(TraceLogLevel.Info, $"Failed to receive from client {clientGuid}: client is not initialized");
+                    continue;
+                }
+
+                if (clientData.UdpEndPoint == null)
+                {
+                    clientData.UdpEndPoint = (IPEndPoint)remoteEP;
+                    Raylib.TraceLog(TraceLogLevel.Info, $"Initialized unreliable client {clientGuid} with endpoint {remoteEP}");
+                }
+
+                ProcessClient(clientData, bytesRecv, buf.Skip(16).ToArray());
+            }
+            catch (Exception error)
+            {
+                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to update unreliable connections: {error.Message}");
             }
         }
     }
@@ -421,7 +531,7 @@ class GameServer
             {
                 lobby.Update(delta, this);
 
-                if (lobby.HostConnection == null && lobby.GuestConnection == null)
+                if (lobby.HostClient == null && lobby.GuestClient == null)
                 {
                     if (!Lobbies.Remove(lobby.Data.Code, out ServerLobbyData? _))
                         Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to remove lobby {lobby.Data.Code}");

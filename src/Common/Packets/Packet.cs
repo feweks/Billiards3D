@@ -33,21 +33,27 @@ class Packet
                 return new ChangeLobbySettingsPacket();
             case PacketType.ChatMessageLobby:
                 return new ChatMessageLobbyPacket();
+            case PacketType.InitializeUnreliableConnection:
+                return new InitializeUnreliableConnectionPacket();
             default:
                 Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to create packet of type {type}");
                 return new Packet(PacketType.Ping);
         }
     }
 
+    public Guid SenderGuid { get; set; }
     public PacketType Type { get; }
+    public PacketSendMode SendMode { get; }
 
-    public Packet(PacketType type)
+    public Packet(PacketType type, PacketSendMode sendMode = PacketSendMode.Reliable)
     {
         Type = type;
+        SendMode = sendMode;
     }
 
     public virtual void Serialize(BinaryWriter writer)
     {
+        writer.Write(SenderGuid.ToByteArray());
         writer.Write((byte)Type);
     }
 

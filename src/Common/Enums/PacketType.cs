@@ -13,5 +13,6 @@ enum PacketType : byte
     PlaceCueLobby,
     LeaveLobby,
     ChangeLobbySettings,
-    ChatMessageLobby
+    ChatMessageLobby,
+    InitializeUnreliableConnection
 }

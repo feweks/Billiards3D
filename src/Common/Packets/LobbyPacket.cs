@@ -7,7 +7,7 @@ class LobbyPacket : Packet
     public string Sender { get; set; } = string.Empty;
     public string LobbyCode { get; set; } = string.Empty;
 
-    public LobbyPacket(PacketType type) : base(type) { }
+    public LobbyPacket(PacketType type, PacketSendMode sendMode = PacketSendMode.Reliable) : base(type, sendMode) { }
 
     public override void Serialize(BinaryWriter writer)
     {

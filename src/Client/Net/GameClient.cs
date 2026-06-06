@@ -6,6 +6,7 @@ using Game.Common.Enums;
 using Game.Common.Data;
 using Game.Common.Packets;
 using Raylib_cs;
+using System.Text;
 
 namespace Game.Client.Net;
 
@@ -16,10 +17,13 @@ static class GameClient
     public static double Latency { get; internal set; } = 0;
     public static ClientLobby Lobby { get; internal set; } = new ClientLobby();
     public static NetServerFileData? Config { get; internal set; }
+    public static Guid ClientGuid { get; internal set; } = Guid.Empty;
 
-    private static TcpClient? client;
-    private static NetworkStream? stream;
-    private static Thread? receiveThread;
+    private static TcpClient? tcpClient;
+    private static UdpClient? udpClient;
+    private static NetworkStream? tcpStream;
+    private static Thread? tcpRecieveThread;
+    private static Thread? udpRecieveThread;
     private static bool running = false;
     private static Stopwatch latencyStopwatch = new Stopwatch();
     private static float latencyTimer = 0f;
@@ -34,15 +38,25 @@ static class GameClient
             ip = parsedAddr;
         }
 
-        client = new TcpClient();
-        client.Connect(new IPEndPoint(ip, Config.Port));
-        stream = client.GetStream();
+        tcpClient = new TcpClient();
+        tcpClient.Connect(new IPEndPoint(ip, Config.TcpPort));
+        tcpStream = tcpClient.GetStream();
 
-        receiveThread = new Thread(new ThreadStart(UpdateConnection))
+        udpClient = new UdpClient();
+        udpClient.Connect(new IPEndPoint(ip, Config.UdpPort));
+
+        tcpRecieveThread = new Thread(new ThreadStart(UpdateReliableConnection))
         {
             IsBackground = false,
         };
-        receiveThread.Start();
+        tcpRecieveThread.Start();
+
+        udpRecieveThread = new Thread(new ThreadStart(UpdateUnreliableConnection))
+        {
+            IsBackground = false,
+        };
+        udpRecieveThread.Start();
+
         running = true;
 
         Raylib.TraceLog(TraceLogLevel.Info, "[NET CLIENT] Connected to server");
@@ -95,11 +109,23 @@ static class GameClient
             return;
         }
 
+        if (ClientGuid == Guid.Empty)
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send packet {packet.Type}: client is not registered on the server");
+            return;
+        }
+
+        packet.SenderGuid = ClientGuid;
+
         var packetStream = new MemoryStream();
         var packetWriter = new BinaryWriter(packetStream);
         packet.Serialize(packetWriter);
+        byte[] buf = packetStream.ToArray();
 
-        stream!.Write(packetStream.ToArray());
+        if (packet.SendMode == PacketSendMode.Reliable)
+            tcpStream!.Write(buf);
+        else if (packet.SendMode == PacketSendMode.Unreliable)
+            udpClient!.Send(buf);
     }
 
     public static void SendLobbyPacket(LobbyPacket packet)
@@ -261,20 +287,52 @@ static class GameClient
         ProcessPacket(packet);
     }
 
-    private static void UpdateConnection()
+    private static void UpdateReliableConnection()
     {
         while (running)
         {
             try
             {
                 byte[] buf = new byte[GameData.MaxPacketSize];
-                int bytesRecieved = stream!.Read(buf, 0, buf.Length);
-                ProcessData(buf, bytesRecieved);
+                int bytesRecv = tcpStream!.Read(buf, 0, buf.Length);
+                if (bytesRecv == 16 && ClientGuid == Guid.Empty)
+                {
+                    ClientGuid = new Guid(buf.AsSpan(0, bytesRecv));
+                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Client guid is {ClientGuid}");
+                    SendPacket(new InitializeUnreliableConnectionPacket());
+                    continue;
+                }
+
+                ProcessData(buf.Skip(16).ToArray(), bytesRecv - 16);
             }
             catch (Exception error)
             {
                 Shutdown();
                 Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Error recv from server: {error.Message}");
+            }
+        }
+    }
+
+    private static void UpdateUnreliableConnection()
+    {
+        IPEndPoint serverEP = new IPEndPoint(IPAddress.Any, 0);
+
+        while (running)
+        {
+            try
+            {
+                byte[] buf = udpClient!.Receive(ref serverEP);
+                int bytesRecv = buf.Length;
+
+                if (bytesRecv <= 0)
+                    continue;
+
+                ProcessData(buf.Skip(16).ToArray(), bytesRecv - 16);
+            }
+            catch (Exception error)
+            {
+                Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Error recv from unreliable server: {error.Message}");
+                return;
             }
         }
     }
@@ -297,7 +355,7 @@ static class GameClient
 
     public static bool IsHost() => Lobby.Data != null && Lobby.Data.Host.Nickname == Lobby.PlayerNick;
 
-    public static bool CheckConnection() => client != null && client.Connected;
+    public static bool CheckConnection() => tcpClient != null && tcpClient.Connected;
 
     public static void Shutdown()
     {
@@ -310,7 +368,8 @@ static class GameClient
                 Raylib.TraceLog(TraceLogLevel.Info, $"leave lobby on shutdown");
             }
 
-            client!.Close();
+            tcpClient!.Close();
+            udpClient!.Close();
         }
     }
 }

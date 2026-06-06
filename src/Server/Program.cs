@@ -26,7 +26,7 @@ class Program
         LoadGamemodeConfig(PoolGamemodeType.Classic);
 
         server = new GameServer(serverConfig, gamemodeConfigs);
-        Raylib.TraceLog(TraceLogLevel.Info, $"Server started on port {serverConfig.Port}");
+        Raylib.TraceLog(TraceLogLevel.Info, $"Server started [TCP: {serverConfig.TcpPort}, UDP: {serverConfig.UdpPort}]");
 
         var elapsedTime = DateTime.Now.Millisecond - startTime.Millisecond;
         Raylib.TraceLog(TraceLogLevel.Info, $"Server loaded in {Math.Abs(Math.Round(elapsedTime * 0.001, 4))}s");

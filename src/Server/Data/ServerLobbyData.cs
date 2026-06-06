@@ -13,8 +13,8 @@ class ServerLobbyData
     public GameLobbyData Data { get; }
     public LobbySettingsData Settings { get; set; }
     public PoolGamemodeConfigFileData GamemodeConfig { get; }
-    public Socket? HostConnection { get; set; }
-    public Socket? GuestConnection { get; set; }
+    public ServerClientData? HostClient { get; set; }
+    public ServerClientData? GuestClient { get; set; }
 
     private List<PoolBallData> cueHitBallsTurn;
     private List<PoolBallData> pocketedBallsTurn;
@@ -24,11 +24,11 @@ class ServerLobbyData
 
     private float elapsedTime = 0f;
 
-    public ServerLobbyData(string code, Socket host, PoolGamemodeConfigFileData gamemodeCfg, GameServerConfigFileData serverCfg)
+    public ServerLobbyData(string code, ServerClientData host, PoolGamemodeConfigFileData gamemodeCfg, GameServerConfigFileData serverCfg)
     {
         Data = new GameLobbyData(code, gamemodeCfg);
         GamemodeConfig = gamemodeCfg;
-        HostConnection = host;
+        HostClient = host;
 
         Settings = new LobbySettingsData(gamemodeCfg, 1f / serverCfg.Tickrate);
 
@@ -253,10 +253,10 @@ class ServerLobbyData
 
     public void Broadcast(GameServer server, Packet packet)
     {
-        if (HostConnection != null && HostConnection.Connected)
-            server.Send(HostConnection, packet);
+        if (HostClient != null && HostClient.TcpConnection.Connected)
+            server.Send(HostClient, packet);
 
-        if (GuestConnection != null && GuestConnection.Connected)
-            server.Send(GuestConnection, packet);
+        if (GuestClient != null && GuestClient.TcpConnection.Connected)
+            server.Send(GuestClient, packet);
     }
 }

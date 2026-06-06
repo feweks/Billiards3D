@@ -204,7 +204,8 @@ abstract class GameState
             info += $"Render Res: {cfg.RenderResolution[0]}x{cfg.RenderResolution[1]}\n";
             info += $"Window Res: {Raylib.GetScreenWidth()}x{Raylib.GetScreenHeight()}\n";
             info += $"Fullscreen: {Raylib.IsWindowFullscreen()}\n";
-            info += $"Server: {GameClient.Config?.Ip}:{GameClient.Config?.Port}\n";
+            info += $"TcpServer: {GameClient.Config?.Ip}:{GameClient.Config?.TcpPort}\n";
+            info += $"UdpServer: {GameClient.Config?.Ip}:{GameClient.Config?.UdpPort}\n";
             info += $"Connected: {GameClient.CheckConnection()}\n";
             info += $"Ping: {GameClient.Latency}ms";
             ImGui.Text(info);
