@@ -547,5 +547,6 @@ class GameServer
     public void Shutdown()
     {
         running = false;
+        udpListener.Close();
     }
 }
