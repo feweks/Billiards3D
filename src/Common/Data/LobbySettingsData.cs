@@ -10,6 +10,7 @@ class LobbySettingsData : ISerializableData
     public float PoolTableWidth { get; set; }
     public float PoolTableLength { get; set; }
     public ushort MapIndex { get; set; }
+    public bool EnableHelperLines { get; set; }
     public PoolGamemodeType Gamemode { get; set; }
     public float Tickrate { get; set; }
     public List<Vector3> PoolPockets { get; set; } = [];
@@ -23,6 +24,7 @@ class LobbySettingsData : ISerializableData
         PoolTableWidth = gamemodeCfg.PoolTableWidth;
         PoolTableLength = gamemodeCfg.PoolTableLength;
         MapIndex = 0;
+        EnableHelperLines = false;
         Gamemode = PoolGamemodeType.Classic;
         Tickrate = tickrate;
         PoolPockets = gamemodeCfg.PoolTablePockets;
@@ -39,6 +41,7 @@ class LobbySettingsData : ISerializableData
         writer.Write(PoolTableWidth);
         writer.Write(PoolTableLength);
         writer.Write(MapIndex);
+        writer.Write(EnableHelperLines);
         writer.Write((byte)Gamemode);
         writer.Write(Tickrate);
         writer.Write((ushort)PoolPockets.Count);
@@ -59,6 +62,7 @@ class LobbySettingsData : ISerializableData
         PoolTableWidth = reader.ReadSingle();
         PoolTableLength = reader.ReadSingle();
         MapIndex = reader.ReadUInt16();
+        EnableHelperLines = reader.ReadBoolean();
         Gamemode = (PoolGamemodeType)reader.ReadByte();
         Tickrate = reader.ReadSingle();
         ushort pocketsCount = reader.ReadUInt16();

@@ -21,19 +21,21 @@ class PlayState : GameState
     GameEntity poolCue;
     PoolBallEntity poolCueBall;
     PoolBallEntity[] poolBalls;
+    Model helperCueBall;
 
     bool canShoot = false;
     float camYaw = 0f;
     float camPitch = 20 * Raylib.DEG2RAD;
     float camDistance = 1f;
-    Vector3 camPos;
-
+    Vector3 camPos = new Vector3(0, 1.5f, 0);
     float updateTime = 0f;
     float playerCueForce = 0;
 
     GameLobbyData lobbyData;
     bool simulationStarted = false;
     float simulationTime = 0f;
+
+    float pulseAlpha = 0f;
 
     ChatData chatData;
 
@@ -65,6 +67,8 @@ class PlayState : GameState
             };
             PlaceEntity(poolBalls[i]);
         }
+
+        helperCueBall = Resources.GetModel("resources/gfx/models/balls/pool_ball_cue.obj");
 
         poolCue = new ModelEntity("resources/gfx/models/pool_cue.obj", GetCueTargetPos(startingPlayer.AimDir, startingPlayer.CueForce), null)
         {
@@ -165,11 +169,7 @@ class PlayState : GameState
             camPos = new Vector3(0.01f, 1.8f, 0);
             Camera.Target = Raymath.Vector3Lerp(Camera.Target, Vector3.UnitY, dt * 10f);
 
-            float t = (float)Raylib.GetTime();
-            float pulseTime = 4f;
-
-            float alpha = 0.25f + 0.75f * ((MathF.Sin(t * pulseTime) * 0.5f) + 0.5f);
-            poolCueBall.Tint = GameClient.Lobby.Data.CanPlaceCueBall ? Raylib.ColorAlpha(Color.White, alpha) : Raylib.ColorAlpha(Color.Red, alpha);
+            poolCueBall.Tint = GameClient.Lobby.Data.CanPlaceCueBall ? Raylib.ColorAlpha(Color.White, pulseAlpha) : Raylib.ColorAlpha(Color.Red, pulseAlpha);
         }
         else
         {
@@ -184,6 +184,11 @@ class PlayState : GameState
         float curPlayerCueForce = curPlayer.Nickname == netPlayer.Nickname ? playerCueForce : curPlayer.CueForce;
         poolCue.Position = Raymath.Vector3Lerp(poolCue.Position, GetCueTargetPos(curPlayer.AimDir, curPlayerCueForce), dt * cueLerpAmount);
         poolCue.Rotation.Y = Raymath.LerpAngle(poolCue.Rotation.Y, GetCueTargetRotY(curPlayer.AimDir), dt * cueLerpAmount);
+
+        float t = (float)Raylib.GetTime();
+        float pulseTime = 4f;
+
+        pulseAlpha = 0.25f + 0.75f * ((MathF.Sin(t * pulseTime) * 0.5f) + 0.5f);
 
         if (GameClient.Lobby.Data.State != PoolGameState.Finished && GameClient.Lobby.Data.State != PoolGameState.Updating && curPlayer.Nickname == netPlayer.Nickname)
         {
@@ -278,8 +283,89 @@ class PlayState : GameState
     {
         base.Draw();
 
-        if (GameClient.Lobby.Data == null)
+        if (GameClient.Lobby.Data == null || GameClient.Lobby.Settings == null)
             return;
+
+        var curPlayer = GameClient.Lobby.Data.GetCurrentPlayer();
+
+        bool canShowLines = GameClient.Lobby.Data.State == PoolGameState.Breaking || GameClient.Lobby.Data.State == PoolGameState.Aiming;
+        if (GameClient.Lobby.Settings.EnableHelperLines && canShowLines)
+        {
+            float ballRadius = GameClient.Lobby.Settings.PoolBallRadius;
+            float tableWidth = GameClient.Lobby.Settings.PoolTableWidth;
+            float tableLength = GameClient.Lobby.Settings.PoolTableLength;
+
+            var ray = new Ray(poolCueBall.Position, curPlayer.AimDir);
+            var collision = new RayCollision()
+            {
+                Hit = false,
+                Distance = float.MaxValue
+            };
+            PoolBallData? hitBall = null;
+
+            foreach (var ball in poolBalls.Where(b => !b.NetData.Pocketed))
+            {
+                var ballColl = Utils.SphereRayCast(ray.Position, ray.Direction, ballRadius, ball.Position, ballRadius);
+                if (ballColl.Hit && ballColl.Distance > 0.001f && ballColl.Distance < collision.Distance)
+                {
+                    collision = ballColl;
+                    hitBall = ball.NetData;
+                }
+            }
+
+            var minLinePos = new Vector3(-tableWidth / 2, 1f, -tableLength / 2);
+            var maxLinePos = new Vector3(tableWidth / 2, 2f, tableLength / 2);
+
+            Color helperCol = Raylib.ColorAlpha(Color.White, pulseAlpha);
+
+            Vector3 lineStart = ray.Position;
+            Vector3 lineEnd;
+
+            if (collision.Hit && hitBall != null)
+            {
+                Vector3 targetBallPos = hitBall.Position;
+
+                Vector3 v = targetBallPos - lineStart;
+                float t = Vector3.Dot(v, curPlayer.AimDir);
+                Vector3 closestPointOnLine = lineStart + curPlayer.AimDir * t;
+
+                float d2 = Vector3.DistanceSquared(targetBallPos, closestPointOnLine);
+                float rSum = ballRadius * 2f;
+                float backDist = MathF.Sqrt((rSum * rSum) - d2);
+
+                Vector3 predictedCueBallPos = closestPointOnLine - (curPlayer.AimDir * backDist);
+
+                lineEnd = predictedCueBallPos;
+                Raylib.DrawModel(helperCueBall, predictedCueBallPos, 1, helperCol);
+
+                Vector3 normalDir = Vector3.Normalize(targetBallPos - predictedCueBallPos);
+                normalDir.Y = 0;
+
+                Vector3 ballBDir = normalDir;
+
+                var tan = new Vector3(-ballBDir.Z, 0, ballBDir.X);
+                float sideSel = MathF.Sign(Vector3.Dot(curPlayer.AimDir, tan));
+                Vector3 ballADir = tan * sideSel;
+
+                float helperLineLen = ballRadius * 4f;
+                Vector3 hitBallTarget = targetBallPos + ballBDir * helperLineLen;
+                Vector3 cueBallTarget = predictedCueBallPos + ballADir * helperLineLen;
+
+                Raylib.DrawLine3D(targetBallPos, Vector3.Clamp(hitBallTarget, minLinePos, maxLinePos), helperCol);
+                Raylib.DrawLine3D(predictedCueBallPos, Vector3.Clamp(cueBallTarget, minLinePos, maxLinePos), helperCol);
+            }
+            else
+            {
+                float tMaxX = curPlayer.AimDir.X > 0 ? (maxLinePos.X - lineStart.X) / curPlayer.AimDir.X : (minLinePos.X - lineStart.X) / curPlayer.AimDir.X;
+                float tMaxZ = curPlayer.AimDir.Z > 0 ? (maxLinePos.Z - lineStart.Z) / curPlayer.AimDir.Z : (minLinePos.Z - lineStart.Z) / curPlayer.AimDir.Z;
+                float distanceToWall = Math.Min(tMaxX, tMaxZ);
+
+                lineEnd = lineStart + curPlayer.AimDir * distanceToWall;
+                lineEnd.Y = lineStart.Y;
+            }
+
+            Raylib.DrawLine3D(lineStart, lineEnd, helperCol);
+        }
 
         if (DebugView)
         {
@@ -293,7 +379,7 @@ class PlayState : GameState
             {
                 foreach (var ball in GameClient.Lobby.Data.PoolBalls.Where(b => !b.Pocketed))
                 {
-                    Raylib.DrawSphere(ball.Position, GameClient.Lobby.Settings!.PoolBallRadius, Raylib.ColorAlpha(Color.Blue, 0.5f));
+                    Raylib.DrawSphere(ball.Position, GameClient.Lobby.Settings.PoolBallRadius, Raylib.ColorAlpha(Color.Blue, 0.5f));
                 }
             }
         }

@@ -99,6 +99,14 @@ static class Utils
         return string.Empty;
     }
 
+    public static RayCollision SphereRayCast(Vector3 rayStart, Vector3 rayDir, float castRadius, Vector3 targetCenter, float targetRadius)
+    {
+        var ray = new Ray(rayStart, rayDir);
+        float combinedRadius = targetRadius + castRadius;
+
+        return Raylib.GetRayCollisionSphere(ray, targetCenter, combinedRadius);
+    }
+
     public static void DrawTextOutlined(Font fnt, string text, Vector2 pos, float size, Color textCol, Color outlineCol, float spacing = 1) =>
         DrawTextOutlinedEx(fnt, text, pos, Vector2.Zero, size, 0, textCol, outlineCol, spacing);
 

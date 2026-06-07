@@ -6,21 +6,21 @@ namespace Game.Client.Entities;
 
 class PoolBallEntity : ModelEntity
 {
-    private PoolBallData netData;
+    public PoolBallData NetData { get; internal set; }
     private bool useLerp;
 
     public PoolBallEntity(PoolBallData data, string? map) : base(map)
     {
-        netData = data;
+        NetData = data;
         BoundingBoxRotation = false;
         LoadModelData($"resources/gfx/models/balls/pool_ball_{data.Identifier}.obj");
         Position = data.Position;
-        Raylib.TraceLog(TraceLogLevel.Info, $"{netData.Identifier}, {netData.Position}");
+        Raylib.TraceLog(TraceLogLevel.Info, $"{NetData.Identifier}, {NetData.Position}");
     }
 
     public void UpdateNetworkData(PoolBallData ballData, bool lerp)
     {
-        netData = ballData;
+        NetData = ballData;
         useLerp = lerp;
     }
 
@@ -28,21 +28,21 @@ class PoolBallEntity : ModelEntity
     {
         base.Update(dt);
 
-        Visible = !netData.Pocketed;
+        Visible = !NetData.Pocketed;
 
         if (useLerp)
         {
             float lerpAmount = dt * 45f;
-            Position = Raymath.Vector3Lerp(Position, netData.Position, lerpAmount);
-            Rotation.X = Raymath.LerpAngle(Rotation.X, netData.Rotation.X, lerpAmount);
-            Rotation.Y = Raymath.LerpAngle(Rotation.Y, netData.Rotation.Y, lerpAmount);
-            Rotation.Z = Raymath.LerpAngle(Rotation.Z, netData.Rotation.Z, lerpAmount);
+            Position = Raymath.Vector3Lerp(Position, NetData.Position, lerpAmount);
+            Rotation.X = Raymath.LerpAngle(Rotation.X, NetData.Rotation.X, lerpAmount);
+            Rotation.Y = Raymath.LerpAngle(Rotation.Y, NetData.Rotation.Y, lerpAmount);
+            Rotation.Z = Raymath.LerpAngle(Rotation.Z, NetData.Rotation.Z, lerpAmount);
         }
         else
         {
 
-            Position = netData.Position;
-            Rotation = netData.Rotation;
+            Position = NetData.Position;
+            Rotation = NetData.Rotation;
         }
     }
 

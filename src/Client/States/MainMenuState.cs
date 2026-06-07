@@ -104,16 +104,31 @@ class MainMenuState : GameState
 
                 if (GameClient.IsHost())
                 {
+                    bool changedSetting = false;
+
                     if (ImGui.Combo("Current Map", ref curMapInp, maps, maps.Length))
                     {
                         GameClient.Lobby.Settings.MapIndex = (ushort)curMapInp;
-                        Raylib.TraceLog(TraceLogLevel.Info, $"Changed curmap to {maps[curMapInp]}");
+                        changedSetting = true;
+                    }
+
+                    bool enableHelperLines = GameClient.Lobby.Settings.EnableHelperLines;
+                    if (ImGui.Checkbox("Enable Helper Lines", ref enableHelperLines))
+                    {
+                        GameClient.Lobby.Settings.EnableHelperLines = enableHelperLines;
+                        changedSetting = true;
+                    }
+
+                    if (changedSetting)
+                    {
                         GameClient.SendLobbyPacket(new ChangeLobbySettingsPacket() { Settings = GameClient.Lobby.Settings });
+                        Raylib.TraceLog(TraceLogLevel.Info, $"Updated lobby settings");
                     }
                 }
                 else
                 {
                     ImGui.Text($"Selected map: {maps[GameClient.Lobby.Settings.MapIndex]}");
+                    ImGui.Text($"Helper Lines: {GameClient.Lobby.Settings.EnableHelperLines}");
                 }
             }
 
