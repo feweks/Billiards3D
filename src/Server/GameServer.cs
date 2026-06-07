@@ -361,8 +361,6 @@ class GameServer
                     if (lobby.GuestClient != null)
                         Send(lobby.GuestClient, chatPacket);
 
-                    Raylib.TraceLog(TraceLogLevel.Info, chatPacket.Content);
-
                     break;
                 }
             default:

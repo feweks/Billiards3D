@@ -1,7 +1,6 @@
 using System.Numerics;
 using Game.Client.Net;
 using Game.Common.Packets;
-using IconFonts;
 using Raylib_cs;
 
 namespace Game.Client.Data;
@@ -13,16 +12,20 @@ class ChatData
     private const int CHAT_TEXT_SIZE = 22;
     private const float INPUT_ALPHA_MIN = 0.6f;
     private const float INPUT_ALPHA_MAX = 1f;
+    private const int MAX_CHAT_MESSAGES = 5;
+    private const int MAX_CHAT_INPUT_LEN = 50;
 
     public string Input { get; set; } = string.Empty;
     public bool IsFocused { get; set; } = false;
 
     private Font fnt;
 
+    private int lastMessageIndex = -1;
     private float inputAlpha = 0.5f;
     private float cursorAlpha = 1f;
     private float backspaceHeldTime = 0f;
     private bool firstBackspace = true;
+    private float lastMessageAlpha = 1f;
 
     public ChatData()
     {
@@ -48,7 +51,7 @@ class ChatData
             KeyboardKey key = (KeyboardKey)Raylib.GetKeyPressed();
             if (key != KeyboardKey.Null)
             {
-                if (key != KeyboardKey.Backspace)
+                if (key != KeyboardKey.Backspace && Input.Length < MAX_CHAT_INPUT_LEN)
                     Input += Utils.GetKeyCode(key, Raylib.IsKeyDown(KeyboardKey.LeftShift));
             }
 
@@ -94,6 +97,15 @@ class ChatData
             if (inputAlpha > INPUT_ALPHA_MIN)
                 inputAlpha -= dt;
         }
+
+        if (GameClient.Lobby.ChatHistory.Count > MAX_CHAT_MESSAGES && lastMessageIndex != GameClient.Lobby.ChatHistory.Count - MAX_CHAT_MESSAGES)
+        {
+            lastMessageIndex = GameClient.Lobby.ChatHistory.Count - MAX_CHAT_MESSAGES;
+            lastMessageAlpha = 1f;
+        }
+
+        if (lastMessageAlpha > 0f)
+            lastMessageAlpha -= dt;
     }
 
     private void TrimInput() => Input = Input.Length == 0 ? Input : Input.Substring(0, Input.Length - 1);
@@ -136,9 +148,16 @@ class ChatData
             Vector2 contentSize = Raylib.MeasureTextEx(fnt, msgContent, CHAT_TEXT_SIZE, 1);
             Vector2 msgSize = new Vector2(nickPrefixSize.X + nickSize.X + nickSuffixSize.X + contentSize.X, contentSize.Y);
 
-            Color msgCol = Color.White;
-            Color nickCol = Color.Orange;
-            Color msgOutlineCol = Color.Black;
+            float textAlpha = 1f;
+
+            if (i == lastMessageIndex)
+                textAlpha = lastMessageAlpha;
+            else if (i < lastMessageIndex)
+                textAlpha = 0f;
+
+            Color msgCol = Raylib.ColorAlpha(Color.White, textAlpha);
+            Color nickCol = Raylib.ColorAlpha(Color.Orange, textAlpha);
+            Color msgOutlineCol = Raylib.ColorAlpha(Color.Black, textAlpha);
 
             var msgPos = new Vector2(chatX, chatBottomY - bottomMsgSize.Y - msgYOffset);
             Utils.DrawTextOutlined(fnt, nickPrefix, msgPos, CHAT_TEXT_SIZE, msgCol, msgOutlineCol);
