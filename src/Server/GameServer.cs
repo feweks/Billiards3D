@@ -14,12 +14,12 @@ namespace Game.Server;
 class GameServer
 {
     public ConcurrentDictionary<string, ServerLobbyData> Lobbies { get; }
+    public ConcurrentDictionary<Guid, ServerClientData> Clients { get; }
 
     private GameServerConfigFileData config;
     private Dictionary<PoolGamemodeType, PoolGamemodeConfigFileData> gamemodeConfigs;
     private Socket tcpListener;
     private Socket udpListener;
-    private ConcurrentDictionary<Guid, ServerClientData> clients;
     private Thread? reliableConnectionsThread;
     private Thread? unreliableConnectionsThread;
     private Thread? lobbiesThread;
@@ -38,7 +38,7 @@ class GameServer
 
         running = true;
 
-        clients = new ConcurrentDictionary<Guid, ServerClientData>();
+        Clients = new ConcurrentDictionary<Guid, ServerClientData>();
         Lobbies = new ConcurrentDictionary<string, ServerLobbyData>();
     }
 
@@ -108,7 +108,7 @@ class GameServer
         Guid clientGuid = Guid.NewGuid();
         var clientData = new ServerClientData(client, clientGuid);
 
-        if (!clients.TryAdd(clientGuid, clientData))
+        if (!Clients.TryAdd(clientGuid, clientData))
         {
             Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to add client {client.RemoteEndPoint} to clients list");
             return;
@@ -121,7 +121,7 @@ class GameServer
 
     private void DisconnectClient(ServerClientData clientData)
     {
-        if (!clients.TryRemove(clientData.Guid, out var _))
+        if (!Clients.TryRemove(clientData.Guid, out var _))
         {
             Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to remove client {clientData.Guid} from client pool");
             return;
@@ -398,7 +398,7 @@ class GameServer
             }
         }
 
-        if (!clients.ContainsKey(client.Guid))
+        if (!Clients.ContainsKey(client.Guid))
         {
             Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send packet of type {packet.Type}: client is not initialized");
             return;
@@ -420,7 +420,7 @@ class GameServer
         while (running)
         {
             var readList = new List<Socket>() { tcpListener };
-            readList.AddRange(clients.Values.Select(c => c.TcpConnection));
+            readList.AddRange(Clients.Values.Select(c => c.TcpConnection));
 
             Socket.Select(readList, null, null, 100);
 
@@ -446,14 +446,14 @@ class GameServer
 
                         if (recvBytes == 0)
                         {
-                            var errClientData = clients.Values.First(c => c.TcpConnection == socket);
+                            var errClientData = Clients.Values.First(c => c.TcpConnection == socket);
                             Raylib.TraceLog(TraceLogLevel.Info, $"Client {errClientData.Guid} disconnected from server");
                             DisconnectClient(errClientData);
                             continue;
                         }
 
                         var clientGuid = new Guid(buf.AsSpan(0, 16));
-                        if (!clients.TryGetValue(clientGuid, out ServerClientData? clientData))
+                        if (!Clients.TryGetValue(clientGuid, out ServerClientData? clientData))
                         {
                             Raylib.TraceLog(TraceLogLevel.Warning, $"Incoming data from not connected client [guid: {clientGuid}]");
                             continue;
@@ -465,15 +465,10 @@ class GameServer
                     {
                         Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to receive msg from client: {error.Message} [ERROR CODE {error.SocketErrorCode}]");
 
-                        var clientData = clients.Values.First(c => c.TcpConnection == socket);
+                        var clientData = Clients.Values.First(c => c.TcpConnection == socket);
                         if (error.SocketErrorCode == SocketError.ConnectionReset)
                         {
-                            if (!clients.TryRemove(clientData.Guid, out var _))
-                            {
-                                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to disconnect client {clientData.Guid}");
-                                return;
-                            }
-                            socket.Close();
+                            DisconnectClient(clientData);
                         }
                     }
                 }
@@ -497,7 +492,7 @@ class GameServer
                 }
 
                 var clientGuid = new Guid(buf.AsSpan(0, 16));
-                if (!clients.TryGetValue(clientGuid, out ServerClientData? clientData))
+                if (!Clients.TryGetValue(clientGuid, out ServerClientData? clientData))
                 {
                     Raylib.TraceLog(TraceLogLevel.Info, $"Failed to receive from client {clientGuid}: client is not initialized");
                     continue;

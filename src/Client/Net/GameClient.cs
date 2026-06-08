@@ -303,6 +303,12 @@ static class GameClient
                     continue;
                 }
 
+                if (bytesRecv < 16)
+                {
+                    Raylib.TraceLog(TraceLogLevel.Warning, $"Recieved data from reliable connection is not in correct format");
+                    Shutdown();
+                }
+
                 ProcessData(buf.Skip(16).ToArray(), bytesRecv - 16);
             }
             catch (Exception error)
@@ -326,6 +332,12 @@ static class GameClient
 
                 if (bytesRecv <= 0)
                     continue;
+
+                if (bytesRecv < 16)
+                {
+                    Raylib.TraceLog(TraceLogLevel.Warning, $"Recieved data from unreliable connection is not in correct format");
+                    Shutdown();
+                }
 
                 ProcessData(buf.Skip(16).ToArray(), bytesRecv - 16);
             }

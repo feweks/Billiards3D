@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using Game.Common.Data;
@@ -126,25 +127,64 @@ class Program
         switch (cmd[0])
         {
             case "help":
-                string helpTxt = $"\n1. help: shows all commands\n2. exit, close, stop: closes and exits the server";
-                return new Tuple<string, TraceLogLevel>(helpTxt, TraceLogLevel.Info);
+                var res = new StringBuilder();
+                res.AppendLine("1.");
+                res.AppendLine("2.");
+                res.AppendLine("3.");
+
+                return new Tuple<string, TraceLogLevel>(res.ToString(), TraceLogLevel.Info);
             case "exit":
             case "close":
             case "stop":
                 Shutdown();
                 return new Tuple<string, TraceLogLevel>("Closing", TraceLogLevel.Info);
             case "ls":
-                string lsTxt = "Lobbies:\n";
-                var lastLobby = server.Lobbies.Last();
-                foreach (var lobby in server.Lobbies)
+                if (cmd.Length < 2)
+                    return new Tuple<string, TraceLogLevel>("Not enough arguments (expected lb/cl)", TraceLogLevel.Warning);
+
+                string mode = cmd[1];
+
+                if (mode == "lb")
                 {
-                    lsTxt += $"#{lobby.Key}: {lobby.Value.Data.GetPlayerCount()}/2";
+                    if (server.Lobbies.IsEmpty)
+                        return new Tuple<string, TraceLogLevel>("No lobbies are currently created", TraceLogLevel.Warning);
 
-                    if (lastLobby.Key != lobby.Key)
-                        lsTxt += "\n";
+                    var lsTxt = new StringBuilder("Lobbies:\n");
+                    var lastLobby = server.Lobbies.Last();
+                    foreach (var lobby in server.Lobbies)
+                    {
+                        string lbTxt = $"#{lobby.Key}: {lobby.Value.Data.GetPlayerCount()}/2";
+                        if (lobby.Key == lastLobby.Key)
+                            lsTxt.Append(lbTxt);
+                        else
+                            lsTxt.AppendLine(lbTxt);
+                    }
+
+                    return new Tuple<string, TraceLogLevel>(lsTxt.ToString(), TraceLogLevel.Info);
                 }
+                else if (mode == "cl")
+                {
+                    if (server.Clients.IsEmpty)
+                        return new Tuple<string, TraceLogLevel>("No clients are currently connected", TraceLogLevel.Warning);
 
-                return new Tuple<string, TraceLogLevel>(lsTxt, TraceLogLevel.Info);
+                    var lsTxt = new StringBuilder();
+                    var lastClient = server.Clients.Last();
+                    foreach (var client in server.Clients)
+                    {
+                        string clTxt = $"{client.Key}: {client.Value.UdpEndPoint}";
+
+                        if (client.Key == lastClient.Key)
+                            lsTxt.Append(clTxt);
+                        else
+                            lsTxt.AppendLine(clTxt);
+                    }
+
+                    return new Tuple<string, TraceLogLevel>(lsTxt.ToString(), TraceLogLevel.Info);
+                }
+                else
+                {
+                    return new Tuple<string, TraceLogLevel>($"Unknown mode {mode}", TraceLogLevel.Warning);
+                }
             default:
                 return new Tuple<string, TraceLogLevel>($"Unknown command {cmd[0]}", TraceLogLevel.Warning);
         }
