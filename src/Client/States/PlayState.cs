@@ -86,8 +86,7 @@ class PlayState : GameState
 
         chatData = new ChatData();
 
-        string[] maps = ["test_room", "jan"];
-        LoadMap(maps[GameClient.Lobby.Settings!.MapIndex]);
+        LoadMap(Utils.GetPlayableMaps()[GameClient.Lobby.Settings!.MapIndex]);
 
         lobbyData = GameClient.Lobby.Data;
     }

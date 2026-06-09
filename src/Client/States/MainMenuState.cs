@@ -46,6 +46,13 @@ class MainMenuState : GameState
         string txt = $"billiards v{GameData.Version}";
         int txtY = (int)(Program.Instance!.Config.RenderResolution[1] - Raylib.MeasureTextEx(Raylib.GetFontDefault(), txt, 24, 1).Y);
         Raylib.DrawText(txt, 3, txtY, 24, Color.White);
+
+        bool connected = GameClient.ClientGuid != Guid.Empty && GameClient.CheckConnection();
+        string connectionText = connected ? $"Connected to server (GUID: {GameClient.ClientGuid})" : "Not connected";
+        Color connCol = connected ? Color.Green : Color.Red;
+        Vector2 connSize = Raylib.MeasureTextEx(Raylib.GetFontDefault(), connectionText, 18, 1);
+
+        Raylib.DrawText(connectionText, (int)(Program.Instance!.Config.RenderWidth - connSize.X - 5), 5, 18, connCol);
     }
 
     public override void DrawImGui()
@@ -100,7 +107,7 @@ class MainMenuState : GameState
 
             if (GameClient.Lobby.Settings != null)
             {
-                string[] maps = ["test_room", "jan"];
+                var maps = Utils.GetPlayableMaps();
 
                 if (GameClient.IsHost())
                 {

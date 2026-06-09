@@ -1,10 +1,21 @@
+using Game.Client.Data;
+using Game.Client.States;
 using Raylib_cs;
+using System.Collections.ObjectModel;
 using System.Numerics;
 
 namespace Game.Client;
 
 static class Utils
 {
+    private static List<string>? playableMaps;
+    private static Vector2[] outlinedTextOffsets = [
+        new Vector2(-1, 0),
+        new Vector2(1, 0),
+        new Vector2(0, -1),
+        new Vector2(0, 1)
+    ];
+
     public static Vector2 GetScreenScaleFactor()
     {
         float x = Program.Instance!.Config.RenderResolution[0] / (float)Raylib.GetScreenWidth();
@@ -112,16 +123,30 @@ static class Utils
 
     public static void DrawTextOutlinedEx(Font fnt, string text, Vector2 pos, Vector2 origin, float size, float rot, Color textCol, Color outlineCol, float spacing = 1)
     {
-        Vector2[] offsets = [
-            new Vector2(-1, 0),
-            new Vector2(1, 0),
-            new Vector2(0, -1),
-            new Vector2(0, 1)
-        ];
-
-        for (int i = 0; i < offsets.Length; i++)
-            Raylib.DrawTextPro(fnt, text, pos + offsets[i], origin, rot, size, spacing, outlineCol);
+        for (int i = 0; i < outlinedTextOffsets.Length; i++)
+            Raylib.DrawTextPro(fnt, text, pos + outlinedTextOffsets[i], origin, rot, size, spacing, outlineCol);
 
         Raylib.DrawTextPro(fnt, text, pos, origin, rot, size, spacing, textCol);
+    }
+
+    public static string[] GetPlayableMaps()
+    {
+        playableMaps ??= InitPlayableMaps();
+
+        return playableMaps.ToArray();
+    }
+
+    private static List<string> InitPlayableMaps()
+    {
+        var maps = new List<string>();
+
+        string[] lines = Resources.GetFile("resources/data/playable_maps.txt").Split('\n');
+
+        foreach (string mapName in lines)
+        {
+            maps.Add(mapName);
+        }
+
+        return maps;
     }
 }
