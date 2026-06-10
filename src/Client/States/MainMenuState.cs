@@ -60,6 +60,8 @@ class MainMenuState : GameState
         base.DrawImGui();
 
         ImGui.Begin("MainMenu");
+        ImGui.Text(Translation.Get("test_test"));
+        ImGui.Text(Translation.Get("test_format", "working"));
 
         if (GameClient.Lobby.Status != JoinedLobbyStatus.Success)
         {

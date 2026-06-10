@@ -31,6 +31,9 @@ class Program
         Raylib.SetExitKey(KeyboardKey.Null);
 
         Resources.Init();
+        Translation.Init();
+        Translation.Load("pl"); // TODO: Load translation based on settings
+
         rlImGui.Setup(true);
         if (!editor)
             GameClient.Init();

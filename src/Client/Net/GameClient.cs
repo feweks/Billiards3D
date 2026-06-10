@@ -281,6 +281,7 @@ static class GameClient
 
         var memStream = new MemoryStream(buf, 0, bytesCount);
         var binReader = new BinaryReader(memStream);
+        binReader.ReadBytes(16); // skip first guid
         var packetType = (PacketType)binReader.ReadByte();
         var packet = Packet.Create(packetType);
         packet.Deserialize(binReader);
@@ -309,7 +310,7 @@ static class GameClient
                     Shutdown();
                 }
 
-                ProcessData(buf.Skip(16).ToArray(), bytesRecv - 16);
+                ProcessData(buf, bytesRecv);
             }
             catch (Exception error)
             {
@@ -339,7 +340,7 @@ static class GameClient
                     Shutdown();
                 }
 
-                ProcessData(buf.Skip(16).ToArray(), bytesRecv - 16);
+                ProcessData(buf, bytesRecv);
             }
             catch (Exception error)
             {

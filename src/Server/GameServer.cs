@@ -373,6 +373,7 @@ class GameServer
     {
         var stream = new MemoryStream(buf, 0, bytesCount);
         var reader = new BinaryReader(stream);
+        reader.ReadBytes(16); // skip user guid;
         var packetType = (PacketType)reader.ReadByte();
         var packet = Packet.Create(packetType);
         packet.Deserialize(reader);
@@ -459,7 +460,7 @@ class GameServer
                             continue;
                         }
 
-                        ProcessClient(clientData, recvBytes - 16, buf.Skip(16).ToArray());
+                        ProcessClient(clientData, recvBytes, buf);
                     }
                     catch (SocketException error)
                     {
@@ -504,7 +505,7 @@ class GameServer
                     Raylib.TraceLog(TraceLogLevel.Info, $"Initialized unreliable client {clientGuid} with endpoint {remoteEP}");
                 }
 
-                ProcessClient(clientData, bytesRecv, buf.Skip(16).ToArray());
+                ProcessClient(clientData, bytesRecv, buf);
             }
             catch (Exception error)
             {
