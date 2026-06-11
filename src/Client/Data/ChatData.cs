@@ -1,6 +1,7 @@
 using System.Numerics;
 using Game.Client.Net;
 using Game.Common.Packets;
+using Game.Client.Managers;
 using Raylib_cs;
 
 namespace Game.Client.Data;
@@ -29,7 +30,7 @@ class ChatData
 
     public ChatData()
     {
-        fnt = Resources.GetFont("resources/gfx/fonts/pixellari.ttf");
+        fnt = ResourcesManager.GetFont("resources/gfx/fonts/pixellari.ttf");
     }
 
     public void Update(float dt)

@@ -1,6 +1,7 @@
 using System.Numerics;
 using Game.Client.Data;
 using Game.Client.Data.Files;
+using Game.Client.Managers;
 using Game.Client.States;
 using Raylib_cs;
 
@@ -40,7 +41,7 @@ class BillboardEntity : GameEntity
     public void LoadTexture(string? path)
     {
         Path = path;
-        texture = Resources.GetTexture(path);
+        texture = ResourcesManager.GetTexture(path);
 
         UpdateBoundingBox();
     }

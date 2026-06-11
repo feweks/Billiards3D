@@ -2,6 +2,7 @@ using System.Numerics;
 using Game.Client.Data;
 using Game.Client.Data.Files;
 using Game.Client.Entities;
+using Game.Client.Managers;
 using Game.Client.Net;
 using ImGuiNET;
 using Raylib_cs;
@@ -46,7 +47,7 @@ abstract class GameState
         }
 
         string mapPath = GetMapPath(mapName);
-        MapFileData mapData = Resources.GetJson(mapPath, MapFileDataCtx.Default.MapFileData);
+        MapFileData mapData = ResourcesManager.GetJson(mapPath, MapFileDataCtx.Default.MapFileData);
 
         foreach (var entData in mapData.Models)
         {

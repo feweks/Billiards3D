@@ -1,16 +1,15 @@
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using Raylib_cs;
 
-namespace Game.Client;
+namespace Game.Client.Managers;
 
-static class Resources
+static class ResourcesManager
 {
-    private static Dictionary<string, Texture2D> textures = [];
-    private static Dictionary<string, Model> models = [];
-    private static Dictionary<string, Font> fonts = [];
+    private static readonly Dictionary<string, Texture2D> textures = [];
+    private static readonly Dictionary<string, Model> models = [];
+    private static readonly Dictionary<string, Font> fonts = [];
 
     private static Texture2D errorTex;
     private static Model errorMdl;
@@ -20,7 +19,7 @@ static class Resources
 
     public static void Init()
     {
-        const int ERROR_IMG_SIZE = 100;
+        const int ERROR_IMG_SIZE = 128;
         Image errorImg = Raylib.GenImageChecked(ERROR_IMG_SIZE, ERROR_IMG_SIZE, ERROR_IMG_SIZE / 2, ERROR_IMG_SIZE / 2, Color.Magenta, Color.Black);
         errorTex = Raylib.LoadTextureFromImage(errorImg);
         Raylib.UnloadImage(errorImg);

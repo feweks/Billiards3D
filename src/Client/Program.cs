@@ -4,6 +4,7 @@ using Game.Client.Net;
 using Game.Client.States;
 using Raylib_cs;
 using rlImGui_cs;
+using Game.Client.Managers;
 
 namespace Game.Client;
 
@@ -23,14 +24,14 @@ class Program
         DebugMode = args.Contains("-debug");
         bool editor = args.Contains("-editor");
 
-        Config = Resources.GetJson("resources/data/game_config.json", GameConfigFileDataCtx.Default.GameConfigFileData);
+        Config = ResourcesManager.GetJson("resources/data/game_config.json", GameConfigFileDataCtx.Default.GameConfigFileData);
         Config.ApplyFlags();
 
         Raylib.InitWindow(1280, 720, Config.WindowTitle); // TODO: Load window size based on settings
         Raylib.InitAudioDevice();
         Raylib.SetExitKey(KeyboardKey.Null);
 
-        Resources.Init();
+        ResourcesManager.Init();
         Translation.Init();
         Translation.Load("pl"); // TODO: Load translation based on settings
 
@@ -44,7 +45,7 @@ class Program
 
         curState = !editor ? new MainMenuState() : new MapEditorState();
 
-        postShader = Resources.GetShader(null, "resources/data/shaders/psx_post.fs");
+        postShader = ResourcesManager.GetShader(null, "resources/data/shaders/psx_post.fs");
         Instance ??= this;
     }
 
@@ -112,7 +113,7 @@ class Program
     public void Shutdown()
     {
         GameClient.Shutdown();
-        Resources.Shutdown();
+        ResourcesManager.Shutdown();
         Raylib.CloseWindow();
     }
 }

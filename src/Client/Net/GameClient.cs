@@ -7,6 +7,7 @@ using Game.Common.Data;
 using Game.Common.Packets;
 using Raylib_cs;
 using System.Text;
+using Game.Client.Managers;
 
 namespace Game.Client.Net;
 
@@ -30,7 +31,7 @@ static class GameClient
 
     public static void Init()
     {
-        Config = Resources.GetJson("resources/data/net_config.json", NetServerFileDataCtx.Default.NetServerFileData);
+        Config = ResourcesManager.GetJson("resources/data/net_config.json", NetServerFileDataCtx.Default.NetServerFileData);
 
         IPAddress ip = IPAddress.Parse("127.0.0.1");
         if (IPAddress.TryParse(Config.Ip, out IPAddress? parsedAddr))

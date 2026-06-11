@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using Raylib_cs;
 
-namespace Game.Client;
+namespace Game.Client.Managers;
 
 using TranslationData = Dictionary<string, string>;
 
@@ -12,7 +12,7 @@ static class Translation
 
     public static void Init()
     {
-        string translationsFileData = Resources.GetFile("resources/data/translations.txt");
+        string translationsFileData = ResourcesManager.GetFile("resources/data/translations.txt");
         availableLanguages = translationsFileData.Split(';').ToList();
     }
 
@@ -26,7 +26,7 @@ static class Translation
             return;
         }
 
-        string fileData = Resources.GetFile($"resources/data/translations/{language}.str");
+        string fileData = ResourcesManager.GetFile($"resources/data/translations/{language}.str");
         translationData = new TranslationData();
 
         foreach (string line in fileData.Split('\n'))

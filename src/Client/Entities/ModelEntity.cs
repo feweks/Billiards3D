@@ -1,6 +1,7 @@
 using System.Numerics;
 using Game.Client.Data;
 using Game.Client.Data.Files;
+using Game.Client.Managers;
 using Raylib_cs;
 
 namespace Game.Client.Entities;
@@ -43,7 +44,7 @@ class ModelEntity : GameEntity
 
     public void LoadModelData(string? path)
     {
-        modelData = Resources.GetModel(path);
+        modelData = ResourcesManager.GetModel(path);
         Path = path;
 
         modelData.Transform = Matrix4x4.Identity;

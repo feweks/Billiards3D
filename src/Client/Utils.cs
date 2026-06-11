@@ -1,4 +1,5 @@
 using Game.Client.Data;
+using Game.Client.Managers;
 using Game.Client.States;
 using Raylib_cs;
 using System.Collections.ObjectModel;
@@ -140,7 +141,7 @@ static class Utils
     {
         var maps = new List<string>();
 
-        string[] lines = Resources.GetFile("resources/data/playable_maps.txt").Split('\n');
+        string[] lines = ResourcesManager.GetFile("resources/data/playable_maps.txt").Split('\n');
 
         foreach (string mapName in lines)
         {

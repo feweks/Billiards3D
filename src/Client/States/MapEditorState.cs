@@ -2,6 +2,7 @@ using System.Numerics;
 using Game.Client.Data;
 using Game.Client.Data.Files;
 using Game.Client.Entities;
+using Game.Client.Managers;
 using ImGuiNET;
 using Raylib_cs;
 
@@ -258,7 +259,7 @@ class MapEditorState : GameState
             }
         }
 
-        Resources.SaveJson(path, mapData, MapFileDataCtx.Default.MapFileData);
+        ResourcesManager.SaveJson(path, mapData, MapFileDataCtx.Default.MapFileData);
         Raylib.TraceLog(TraceLogLevel.Info, $"Saved map {name} at {path}");
     }
 
@@ -519,7 +520,7 @@ class MapEditorState : GameState
         else
             ImGui.Text($"Currently loaded map: {CurLoadedMap}");
 
-        string[] availableMaps = Resources.GetDirectoryFiles(MAPS_DIRECTORY).Select(m => m.Replace(MAPS_DIRECTORY, string.Empty).Replace(Path.DirectorySeparatorChar.ToString(), string.Empty).Replace(".json", string.Empty)).ToArray();
+        string[] availableMaps = ResourcesManager.GetDirectoryFiles(MAPS_DIRECTORY).Select(m => m.Replace(MAPS_DIRECTORY, string.Empty).Replace(Path.DirectorySeparatorChar.ToString(), string.Empty).Replace(".json", string.Empty)).ToArray();
         ImGui.Combo("Select Map", ref curSelectedMapInp, availableMaps, availableMaps.Length);
         ImGui.SameLine();
         if (ImGui.Button("Load"))

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
 using Game.Client.Entities;
+using Game.Client.Managers;
 using Raylib_cs;
 
 namespace Game.Client.Data;
@@ -29,7 +30,7 @@ class LightingShaderData
 
     public LightingShaderData()
     {
-        Shader = Resources.GetShader("resources/data/shaders/psx_lighting.vs", "resources/data/shaders/psx_lighting.fs");
+        Shader = ResourcesManager.GetShader("resources/data/shaders/psx_lighting.vs", "resources/data/shaders/psx_lighting.fs");
 
         ambientColorLoc = Raylib.GetShaderLocation(Shader, "ambientColor");
         lightingEnabledLoc = Raylib.GetShaderLocation(Shader, "useLighting");

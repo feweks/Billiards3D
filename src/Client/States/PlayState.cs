@@ -7,6 +7,7 @@ using Game.Common.Data;
 using Game.Common.Packets;
 using Raylib_cs;
 using Game.Client.Data;
+using Game.Client.Managers;
 
 namespace Game.Client.States;
 
@@ -68,7 +69,7 @@ class PlayState : GameState
             PlaceEntity(poolBalls[i]);
         }
 
-        helperCueBall = Resources.GetModel("resources/gfx/models/balls/pool_ball_cue.obj");
+        helperCueBall = ResourcesManager.GetModel("resources/gfx/models/balls/pool_ball_cue.obj");
 
         poolCue = new ModelEntity("resources/gfx/models/pool_cue.obj", GetCueTargetPos(startingPlayer.AimDir, startingPlayer.CueForce), null)
         {
