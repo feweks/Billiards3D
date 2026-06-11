@@ -1,6 +1,7 @@
 using System.Numerics;
 using Game.Client.Data;
 using Game.Client.Data.Files;
+using Game.Client.Data.UI;
 using Game.Client.Entities;
 using Game.Client.Managers;
 using Game.Client.Net;
@@ -22,6 +23,7 @@ abstract class GameState
     public string? CurLoadedMap { get; internal set; }
     public LightingShaderData LightingShader { get; }
     public List<GameEntity> Entities { get; }
+    public UserInterface UI { get; }
 
     private ShadowData shadowData;
 
@@ -36,6 +38,8 @@ abstract class GameState
         LightingShader.Toggle(true);
 
         Entities = new List<GameEntity>();
+
+        UI = new UserInterface(this);
     }
 
     public void LoadMap(string mapName)
@@ -159,6 +163,8 @@ abstract class GameState
             Raylib.ToggleFullscreen();
         }
 
+        UI.Update(dt);
+
         foreach (var ent in Entities)
             ent.Update(dt);
     }
@@ -192,7 +198,10 @@ abstract class GameState
         Rlgl.EnableDepthMask();
     }
 
-    public virtual void DrawUI() { }
+    public virtual void DrawUI()
+    {
+        UI.Draw();
+    }
 
     public virtual void DrawImGui()
     {

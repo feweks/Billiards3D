@@ -328,6 +328,8 @@ class MapEditorState : GameState
             LightEntity.DrawLightSources = drawLightsOriginOpt;
         }
 
+        ImGui.Text($"Camera Data:\nPosition: {Camera.Position}\nTarget: {Camera.Target}");
+
         ImGui.End();
     }
 

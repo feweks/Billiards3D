@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Client.Data.UI.Widgets;
 using Game.Client.Managers;
 using Game.Client.Net;
 using Game.Common.Data;
@@ -15,13 +16,38 @@ class MainMenuState : GameState
     private string codeInp = "";
     private int curMapInp = 0;
 
+    private Vector3 cameraBasePos = new Vector3(0.4f, 1.25f, 3.8f);
+    private Vector3 cameraBaseTarget = new Vector3(-1.43f, 1.19f, 2.96f);
+    float elapsedSwayTime = 0f;
+    float swaySpeed = 0.5f;
+    float horizontalSwayAmount = 0.15f;
+    float verticalSwayAmount = 0.07f;
+
     public MainMenuState() : base("main_menu_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
+        var testBttnSize = new Vector2(250, 75);
+        var testBttnPos = new Vector2(Program.Instance!.Config.RenderWidth / 2, Program.Instance!.Config.RenderHeight / 2) - testBttnSize / 2;
+        UI.Widgets.Add(new ButtonUIWidget("PLAY", testBttnPos, testBttnSize));
+
+        Camera.Position = cameraBasePos;
+        Camera.Target = cameraBaseTarget;
+
+        LoadMap("mn_jan");
     }
 
     public override void Update(float dt)
     {
         base.Update(dt);
+
+        elapsedSwayTime += dt * swaySpeed;
+        float camOffsetX = (MathF.Sin(elapsedSwayTime * 0.8f) * 0.7f + MathF.Sin(elapsedSwayTime * 1.5f) * 0.3f) * horizontalSwayAmount;
+        float camOffsetY = (MathF.Sin(elapsedSwayTime * 1.1f) * 0.6f + MathF.Sin(elapsedSwayTime * 2.3f) * 0.4f) * verticalSwayAmount;
+
+        Camera.Target = new Vector3(
+            cameraBaseTarget.X + camOffsetX,
+            cameraBaseTarget.Y + camOffsetY,
+            cameraBaseTarget.Z
+        );
 
         if (GameClient.Lobby.Data != null && GameClient.Lobby.Data.Started)
         {
@@ -33,8 +59,6 @@ class MainMenuState : GameState
     public override void Draw()
     {
         base.Draw();
-
-        Raylib.DrawGrid(5, 3);
     }
 
     public override void DrawUI()

@@ -21,6 +21,7 @@ class Program
 
     public Program(string[] args)
     {
+        Instance ??= this;
         DebugMode = args.Contains("-debug");
         bool editor = args.Contains("-editor");
 
@@ -46,7 +47,6 @@ class Program
         curState = !editor ? new MainMenuState() : new MapEditorState();
 
         postShader = ResourcesManager.GetShader(null, "resources/data/shaders/psx_post.fs");
-        Instance ??= this;
     }
 
     private void Update(float dt)
