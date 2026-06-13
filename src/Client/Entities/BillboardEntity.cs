@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Client.Data;
 using Game.Client.Data.Files;
 using Game.Client.Managers;
 using Game.Client.States;
@@ -43,6 +44,11 @@ class BillboardEntity : GameEntity
         texture = ResourcesManager.GetTexture(path);
 
         UpdateBoundingBox();
+    }
+
+    public override void SetLightingShader(LightingShaderData shader)
+    {
+        base.SetLightingShader(shader);
     }
 
     public override BoundingBox UpdateBoundingBox()

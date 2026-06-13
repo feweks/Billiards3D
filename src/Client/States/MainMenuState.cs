@@ -12,16 +12,28 @@ namespace Game.Client.States;
 
 class MainMenuState : GameState
 {
-    private string nickInp = "";
-    private string codeInp = "";
-    private int curMapInp = 0;
+    string nickInp = "";
+    string codeInp = "";
+    int curMapInp = 0;
 
-    private Vector3 cameraBasePos = new Vector3(0.4f, 1.25f, 3.8f);
-    private Vector3 cameraBaseTarget = new Vector3(-1.43f, 1.19f, 2.96f);
-    float elapsedSwayTime = 0f;
+    Vector3 cameraBasePos = new Vector3(0.615f, 1.513f, 2.916f);
+    Vector3 cameraBaseTarget = new Vector3(-1.22f, 1.483f, 2.185f);
+    float elapsedSwayTime = 0.01f;
     float swaySpeed = 0.5f;
     float horizontalSwayAmount = 0.15f;
     float verticalSwayAmount = 0.07f;
+
+    Font titleFnt;
+    float titleY = 75;
+    int titleFntSize = 102;
+    Color[] titleColors;
+    float titleSwayTime = 2.88f;
+    float titleElapsedSwayTime = 0f;
+    float titleRotTarget = 5;
+    float titleRot = -5;
+    float bpm = 168;
+
+    private Music music;
 
     public MainMenuState() : base("main_menu_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
@@ -32,12 +44,28 @@ class MainMenuState : GameState
         Camera.Position = cameraBasePos;
         Camera.Target = cameraBaseTarget;
 
+        titleFnt = ResourcesManager.GetFont("resources/gfx/fonts/whacky_joe.ttf");
+
+        //titleColors = [new Color(255, 201, 75), new Color(244, 156, 20), new Color(252, 176, 56)];
+        titleColors = [Color.White, Color.White];
+
+        music = Raylib.LoadMusicStream("resources/music/main_menu.ogg");
+        music.Looping = true;
+
+        Raylib.SetMasterVolume(0.05f);
+
         LoadMap("mnu_jan");
+        titleSwayTime = 60000f / bpm * 4f / 1000f;
+        Raylib.TraceLog(TraceLogLevel.Info, $"Title sway time: {titleSwayTime}");
+
+        Raylib.PlayMusicStream(music);
     }
 
     public override void Update(float dt)
     {
         base.Update(dt);
+
+        Raylib.UpdateMusicStream(music);
 
         elapsedSwayTime += dt * swaySpeed;
         float camOffsetX = (MathF.Sin(elapsedSwayTime * 0.8f) * 0.7f + MathF.Sin(elapsedSwayTime * 1.5f) * 0.3f) * horizontalSwayAmount;
@@ -48,6 +76,16 @@ class MainMenuState : GameState
             cameraBaseTarget.Y + camOffsetY,
             cameraBaseTarget.Z
         );
+
+        titleElapsedSwayTime += dt;
+        if (titleElapsedSwayTime >= titleSwayTime)
+        {
+            titleElapsedSwayTime = 0.01f;
+            titleRotTarget *= -1f;
+        }
+
+        float t = titleElapsedSwayTime / titleSwayTime;
+        titleRot = Raymath.LerpAngle(-titleRotTarget, titleRotTarget, Utils.EaseValue(EasingType.EaseInCirc, t));
 
         if (GameClient.Lobby.Data != null && GameClient.Lobby.Data.Started)
         {
@@ -68,6 +106,20 @@ class MainMenuState : GameState
         string txt = $"billiards v{GameData.Version}";
         int txtY = (int)(Program.Instance!.Config.RenderResolution[1] - Raylib.MeasureTextEx(Raylib.GetFontDefault(), txt, 24, 1).Y);
         Raylib.DrawText(txt, 3, txtY, 24, Color.White);
+
+        string[] titleText = TranslationManager.Get("mainmenu.title").Split(';');
+        float titleYOffset = titleY;
+        for (int i = 0; i < titleText.Length; i++)
+        {
+            string titlePart = titleText[i];
+            Color titleCol = titleColors[i];
+
+            Vector2 titleTextSize = Raylib.MeasureTextEx(titleFnt, titlePart, titleFntSize, 1);
+
+            Utils.DrawTextOutlinedEx(titleFnt, titlePart, new Vector2(Program.Instance!.Config.RenderWidth / 2, titleYOffset), titleTextSize * 0.5f, titleFntSize, titleRot, titleCol, Color.Black);
+
+            titleYOffset += titleFntSize * 0.8f;
+        }
 
         bool connected = GameClient.ClientGuid != Guid.Empty && GameClient.CheckConnection();
         string connectionText = connected ? $"Connected to server (GUID: {GameClient.ClientGuid})" : "Not connected";

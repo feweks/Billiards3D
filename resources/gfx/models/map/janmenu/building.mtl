@@ -1,7 +1,17 @@
 # Blender 5.1.2 MTL File: 'jan_menu.blend'
 # www.blender.org
 
-newmtl Material.002
+newmtl Material
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl cbblestep
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
@@ -9,9 +19,9 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd poster.png
+map_Kd cobble_step.png
 
-newmtl Material.003
+newmtl cobble
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
@@ -19,67 +29,17 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd sign_parking.png
+map_Kd cobble.png
 
-newmtl Material.004
+newmtl fence
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
-d 1.000000
-illum 2
-map_Kd sign_parking.png
-
-newmtl Material.005
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
 illum 2
 map_Kd fence.png
-
-newmtl Material.006
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd fence.png
-
-newmtl Material.007
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd sign.png
-
-newmtl concrete
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd concrete.png
-
-newmtl door
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd door.png
+map_d fence.png
 
 newmtl wall
 Ns 250.000000
@@ -91,7 +51,7 @@ d 1.000000
 illum 2
 map_Kd wall.png
 
-newmtl window1
+newmtl wall_deco
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
@@ -99,9 +59,9 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd window1.png
+map_Kd wall_deco.png
 
-newmtl window2
+newmtl walldark
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
@@ -109,7 +69,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd window2.png
+map_Kd wall_dark.png
 
 newmtl wood
 Ns 250.000000

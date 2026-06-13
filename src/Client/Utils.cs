@@ -7,6 +7,41 @@ using System.Numerics;
 
 namespace Game.Client;
 
+enum EasingType : ushort
+{
+    EaseInSine = 0,
+    EaseOutSine,
+    EaseInOutSine,
+    EaseInQuad,
+    EaseOutQuad,
+    EaseInOutQuad,
+    EaseInCubic,
+    EaseOutCubic,
+    EaseInOutCubic,
+    EaseInQuart,
+    EaseOutQuart,
+    EaseInOutQuart,
+    EaseInQuint,
+    EaseOutQuint,
+    EaseInOutQuint,
+    EaseInExpo,
+    EaseOutExpo,
+    EaseInOutExpo,
+    EaseInCirc,
+    EaseOutCirc,
+    EaseInOutCirc,
+    EaseInBack,
+    EaseOutBack,
+    EaseInOutBack,
+    EaseInElastic,
+    EaseOutElastic,
+    EaseInOutElastic,
+    EaseInBounce,
+    EaseOutBounce,
+    EaseInOutBounce
+}
+
+
 static class Utils
 {
     private static List<string>? playableMaps;
@@ -149,5 +184,146 @@ static class Utils
         Raylib.TraceLog(TraceLogLevel.Info, $"Initialized playable maps [maps count: {maps.Count}]");
 
         return maps;
+    }
+
+    public static float EaseValue(EasingType type, float t)
+    {
+        switch (type)
+        {
+            case EasingType.EaseInSine:
+                return 1 - MathF.Cos(t * MathF.PI / 2);
+            case EasingType.EaseOutSine:
+                return MathF.Sin(t * MathF.PI / 2);
+            case EasingType.EaseInOutSine:
+                return -(MathF.Cos(MathF.PI * t) - 1) / 2;
+            case EasingType.EaseInQuad:
+                return t * t;
+            case EasingType.EaseOutQuad:
+                return 1 - (1 - t) * (1 - t);
+            case EasingType.EaseInOutQuad:
+                return t < 0.5 ? 2 * t * t : 1 - MathF.Pow(-2 * t + 2, 2) / 2;
+            case EasingType.EaseInCubic:
+                return t * t * t;
+            case EasingType.EaseOutCubic:
+                return 1 - MathF.Pow(1 - t, 3);
+            case EasingType.EaseInOutCubic:
+                return t < 0.5 ? 4 * t * t * t : 1 - MathF.Pow(-2 * t + 2, 3) / 2;
+            case EasingType.EaseInQuart:
+                return t * t * t * t;
+            case EasingType.EaseOutQuart:
+                return 1 - MathF.Pow(1 - t, 4);
+            case EasingType.EaseInOutQuart:
+                return t < 0.5 ? 8 * t * t * t * t : 1 - MathF.Pow(-2 * t + 2, 4) / 2;
+            case EasingType.EaseInQuint:
+                return t * t * t * t * t;
+            case EasingType.EaseOutQuint:
+                return 1 - MathF.Pow(1 - t, 5);
+            case EasingType.EaseInOutQuint:
+                return t < 0.5 ? 16 * t * t * t * t * t : 1 - MathF.Pow(-2 * t + 2, 5) / 2;
+            case EasingType.EaseInExpo:
+                return t == 0 ? 0 : MathF.Pow(2, 10 * t - 10);
+            case EasingType.EaseOutExpo:
+                return t == 1 ? 1 : 1 - MathF.Pow(2, -10 * t);
+            case EasingType.EaseInOutExpo:
+                return t == 0
+                        ? 0
+                        : t == 1
+                        ? 1
+                        : t < 0.5 ? MathF.Pow(2, 20 * t - 10) / 2
+                        : (2 - MathF.Pow(2, -20 * t + 10)) / 2;
+            case EasingType.EaseInCirc:
+                return 1 - MathF.Sqrt(1 - MathF.Pow(t, 2));
+            case EasingType.EaseOutCirc:
+                return MathF.Sqrt(1 - MathF.Pow(t - 1, 2));
+            case EasingType.EaseInOutCirc:
+                return t < 0.5
+                        ? (1 - MathF.Sqrt(1 - MathF.Pow(2 * t, 2))) / 2
+                        : (MathF.Sqrt(1 - MathF.Pow(-2 * t + 2, 2)) + 1) / 2;
+            case EasingType.EaseInBack:
+                {
+                    const float c1 = 1.70158f;
+                    const float c3 = c1 + 1;
+
+                    return c3 * t * t * t - c1 * t * t;
+                }
+            case EasingType.EaseOutBack:
+                {
+                    const float c1 = 1.70158f;
+                    const float c3 = c1 + 1;
+
+                    return 1 + c3 * MathF.Pow(t - 1, 3) + c1 * MathF.Pow(t - 1, 2);
+                }
+            case EasingType.EaseInOutBack:
+                {
+                    const float c1 = 1.70158f;
+                    const float c2 = c1 * 1.525f;
+
+                    return t < 0.5
+                            ? MathF.Pow(2 * t, 2) * ((c2 + 1) * 2 * t - c2) / 2
+                            : (MathF.Pow(2 * t - 2, 2) * ((c2 + 1) * (t * 2 - 2) + c2) + 2) / 2;
+                }
+            case EasingType.EaseInElastic:
+                {
+                    const float c4 = 2 * MathF.PI / 3;
+
+                    return t == 0
+                        ? 0
+                        : t == 1
+                        ? 1
+                        : -MathF.Pow(2, 10 * t - 10) * MathF.Sin((t * 10 - 10.75f) * c4);
+                }
+            case EasingType.EaseOutElastic:
+                {
+                    const float c4 = 2 * MathF.PI / 3;
+
+                    return t == 0
+                            ? 0
+                            : t == 1
+                            ? 1
+                            : MathF.Pow(2, -10 * t) * MathF.Sin((t * 10 - 0.75f) * c4) + 1;
+                }
+            case EasingType.EaseInOutElastic:
+                {
+                    const float c5 = 2 * MathF.PI / 4.5f;
+
+                    return t == 0
+                      ? 0
+                      : t == 1
+                      ? 1
+                      : t < 0.5
+                      ? -(MathF.Pow(2, 20 * t - 10) * MathF.Sin((20 * t - 11.125f) * c5)) / 2
+                      : MathF.Pow(2, -20 * t + 10) * MathF.Sin((20 * t - 11.125f) * c5) / 2 + 1;
+                }
+            case EasingType.EaseInBounce:
+                return 1 - EaseValue(EasingType.EaseOutBounce, 1 - t);
+            case EasingType.EaseOutBounce:
+                {
+                    const float n1 = 7.5625f;
+                    const float d1 = 2.75f;
+
+                    if (t < 1 / d1)
+                    {
+                        return n1 * t * t;
+                    }
+                    else if (t < 2 / d1)
+                    {
+                        return n1 * (t -= 1.5f / d1) * t + 0.75f;
+                    }
+                    else if (t < 2.5 / d1)
+                    {
+                        return n1 * (t -= 2.25f / d1) * t + 0.9375f;
+                    }
+                    else
+                    {
+                        return n1 * (t -= 2.625f / d1) * t + 0.984375f;
+                    }
+                }
+            case EasingType.EaseInOutBounce:
+                return t < 0.5
+                        ? (1 - EaseValue(EasingType.EaseInBounce, 1 - 2 * t)) / 2
+                        : (1 + EaseValue(EasingType.EaseOutBounce, 2 * t - 1)) / 2;
+            default:
+                return t;
+        }
     }
 }

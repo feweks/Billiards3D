@@ -14,6 +14,7 @@ class ModelEntity : GameEntity
     public bool CastsShadow { get; set; } = false;
     public bool BoundingBoxRotation { get; set; } = true;
     public string? Path { get; internal set; }
+    public bool ApplyLighting { get; set; } = true;
 
     private Model modelData;
     private BoundingBox modelBoundingBox;
@@ -39,6 +40,7 @@ class ModelEntity : GameEntity
     {
         Culling = fileData.Culling;
         CastsShadow = fileData.CastsShadow;
+        ApplyLighting = fileData.ApplyLighting;
         LoadModelData(fileData.Path);
     }
 
@@ -55,6 +57,9 @@ class ModelEntity : GameEntity
 
     public override void SetLightingShader(LightingShaderData shader)
     {
+        if (!ApplyLighting)
+            return;
+
         base.SetLightingShader(shader);
 
         if (!Raylib.IsModelValid(modelData))
@@ -140,6 +145,14 @@ class ModelEntity : GameEntity
         {
             modelData.Transform = Utils.CalculateMatrix(Position, Rotation, Scale);
         }
+    }
+
+    public Model GetModelData()
+    {
+        if (!Raylib.IsModelValid(modelData))
+            return ResourcesManager.GetErrorModel();
+
+        return modelData;
     }
 
     public override void Draw()

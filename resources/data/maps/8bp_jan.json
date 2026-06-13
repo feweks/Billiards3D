@@ -51,9 +51,9 @@
       "SpotExponent": 0,
       "Name": null,
       "Position": {
-        "X": 5.226671,
+        "X": 5.2010894,
         "Y": 2.256465,
-        "Z": -1.7480819
+        "Z": -2.3313303
       },
       "Rotation": {
         "X": 0,
@@ -84,9 +84,9 @@
       "SpotExponent": 0,
       "Name": null,
       "Position": {
-        "X": -1.784716,
-        "Y": 1.900019,
-        "Z": -0.20240754
+        "X": -1.9731797,
+        "Y": 2.3206751,
+        "Z": 0.094075754
       },
       "Rotation": {
         "X": 0,
@@ -206,19 +206,19 @@
         "B": 75,
         "A": 255
       },
-      "Intensity": 0.75,
+      "Intensity": 0.24,
       "Direction": {
         "X": 0,
         "Y": 0,
         "Z": 0
       },
       "Cutoff": 0,
-      "SpotExponent": 0,
+      "SpotExponent": 2,
       "Name": null,
       "Position": {
-        "X": 2.598237,
+        "X": 2.5832367,
         "Y": 2.3952057,
-        "Z": 2.1471648
+        "Z": 2.0619884
       },
       "Rotation": {
         "X": 0,
@@ -239,18 +239,18 @@
         "B": 75,
         "A": 255
       },
-      "Intensity": 0.75,
+      "Intensity": 0.4,
       "Direction": {
         "X": 0,
         "Y": 0,
         "Z": 0
       },
       "Cutoff": 0,
-      "SpotExponent": 0,
+      "SpotExponent": 55,
       "Name": null,
       "Position": {
-        "X": 2.598237,
-        "Y": 2.3952057,
+        "X": 2.614851,
+        "Y": 2.231568,
         "Z": 0.07622794
       },
       "Rotation": {
@@ -311,13 +311,13 @@
         "Y": 0,
         "Z": 1
       },
-      "Cutoff": 0,
+      "Cutoff": 35,
       "SpotExponent": 0,
       "Name": null,
       "Position": {
-        "X": 0.22412443,
+        "X": -0.022800755,
         "Y": 1.5555756,
-        "Z": 3.4699728
+        "Z": 3.4084604
       },
       "Rotation": {
         "X": 0,
@@ -340,50 +340,17 @@
       },
       "Intensity": 0.5,
       "Direction": {
-        "X": 1,
-        "Y": 0,
-        "Z": 0
-      },
-      "Cutoff": 0,
-      "SpotExponent": 0,
-      "Name": null,
-      "Position": {
-        "X": -3.8502488,
-        "Y": 1.8048104,
-        "Z": -0.17211054
-      },
-      "Rotation": {
-        "X": 0,
-        "Y": 0,
-        "Z": 0
-      },
-      "Scale": {
-        "X": 1,
-        "Y": 1,
-        "Z": 1
-      }
-    },
-    {
-      "Enabled": true,
-      "Color": {
-        "R": 173,
-        "G": 160,
-        "B": 75,
-        "A": 255
-      },
-      "Intensity": 0.5,
-      "Direction": {
         "X": 0,
         "Y": 0,
         "Z": 0
       },
       "Cutoff": 0,
-      "SpotExponent": 0,
+      "SpotExponent": 4,
       "Name": null,
       "Position": {
         "X": -0.8454528,
-        "Y": 1.5191448,
-        "Z": -2.269991
+        "Y": 2.4497914,
+        "Z": -1.9372122
       },
       "Rotation": {
         "X": 0,
@@ -1534,7 +1501,7 @@
     },
     {
       "Path": "resources/gfx/models/map/jan/walls.obj",
-      "Culling": false,
+      "Culling": true,
       "CastsShadow": false,
       "Name": null,
       "Position": {
@@ -1746,8 +1713,8 @@
     }
   ],
   "AmbientColor": {
-    "X": 0.23039216,
-    "Y": 0.19491653,
-    "Z": 0.12987792
+    "X": 0.21078432,
+    "Y": 0.18088064,
+    "Z": 0.12605728
   }
 }

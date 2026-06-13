@@ -361,6 +361,23 @@ class MapEditorState : GameState
                 bool entHasShadow = mdlEnt.CastsShadow;
                 if (ImGui.Checkbox("Entity Cast Shadow", ref entHasShadow))
                     mdlEnt.CastsShadow = entHasShadow;
+
+                bool entHasLighting = mdlEnt.ApplyLighting;
+                if (ImGui.Checkbox("Entity Apply Lighting", ref entHasLighting))
+                {
+                    mdlEnt.ApplyLighting = entHasLighting;
+                    if (!mdlEnt.ApplyLighting)
+                    {
+                        var mdlData = mdlEnt.GetModelData();
+                        var mdlShader = ResourcesManager.GetErrorShader();
+                        for (int i = 0; i < mdlData.MaterialCount; i++)
+                            Raylib.SetMaterialShader(ref mdlData, i, ref mdlShader);
+                    }
+                    else
+                    {
+                        mdlEnt.SetLightingShader(LightingShader);
+                    }
+                }
             }
             else if (selEnt is LightEntity lightEnt)
             {

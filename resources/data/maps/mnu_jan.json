@@ -4,23 +4,23 @@
       "Enabled": true,
       "Color": {
         "R": 255,
-        "G": 255,
-        "B": 255,
+        "G": 191,
+        "B": 76,
         "A": 255
       },
-      "Intensity": 0.5,
+      "Intensity": 65,
       "Direction": {
         "X": 0,
-        "Y": 0,
+        "Y": -1,
         "Z": 0
       },
       "Cutoff": 0,
-      "SpotExponent": 0,
-      "Name": null,
+      "SpotExponent": -0.4,
+      "Name": "sun",
       "Position": {
-        "X": -1.6378067,
-        "Y": 1.1910505,
-        "Z": 2.7582545
+        "X": 60,
+        "Y": 15,
+        "Z": 0
       },
       "Rotation": {
         "X": 0,
@@ -29,7 +29,40 @@
       },
       "Scale": {
         "X": 1,
-        "Y": 0.74692845,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Enabled": true,
+      "Color": {
+        "R": 51,
+        "G": 102,
+        "B": 153,
+        "A": 255
+      },
+      "Intensity": 20,
+      "Direction": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Cutoff": 0,
+      "SpotExponent": 0,
+      "Name": "sky",
+      "Position": {
+        "X": -20,
+        "Y": 15,
+        "Z": 25
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": -2.4078245,
+        "Y": 1,
         "Z": 1
       }
     },
@@ -41,7 +74,7 @@
         "B": 255,
         "A": 255
       },
-      "Intensity": 0.5,
+      "Intensity": 0.25,
       "Direction": {
         "X": 0,
         "Y": 0,
@@ -51,9 +84,9 @@
       "SpotExponent": 0,
       "Name": null,
       "Position": {
-        "X": -1.6263878,
-        "Y": 1.1910505,
-        "Z": 1.0898159
+        "X": -2.644128,
+        "Y": 1.3194778,
+        "Z": 0.9368032
       },
       "Rotation": {
         "X": 0,
@@ -62,7 +95,7 @@
       },
       "Scale": {
         "X": 1,
-        "Y": 0.74692845,
+        "Y": 1,
         "Z": 1
       }
     },
@@ -74,7 +107,7 @@
         "B": 255,
         "A": 255
       },
-      "Intensity": 0.5,
+      "Intensity": 0.25,
       "Direction": {
         "X": 0,
         "Y": 0,
@@ -84,9 +117,9 @@
       "SpotExponent": 0,
       "Name": null,
       "Position": {
-        "X": -1.6263878,
-        "Y": 1.1910505,
-        "Z": -2.3265061
+        "X": -2.644128,
+        "Y": 1.3194778,
+        "Z": 1.888494
       },
       "Rotation": {
         "X": 0,
@@ -95,21 +128,132 @@
       },
       "Scale": {
         "X": 1,
-        "Y": 0.74692845,
+        "Y": 1,
         "Z": 1
       }
     }
   ],
   "Models": [
     {
+      "Path": "resources/gfx/models/map/janmenu/ground.obj",
+      "Culling": false,
+      "CastsShadow": false,
+      "ApplyLighting": true,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/janmenu/trees.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "ApplyLighting": true,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
       "Path": "resources/gfx/models/map/janmenu/building.obj",
       "Culling": true,
       "CastsShadow": false,
+      "ApplyLighting": true,
       "Name": null,
       "Position": {
         "X": 0,
         "Y": 0,
         "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/janmenu/bg_buildings.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "ApplyLighting": true,
+      "Name": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/janmenu/sky.obj",
+      "Culling": true,
+      "CastsShadow": false,
+      "ApplyLighting": false,
+      "Name": "skybox",
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Rotation": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Scale": {
+        "X": 1,
+        "Y": 1,
+        "Z": 1
+      }
+    },
+    {
+      "Path": "resources/gfx/models/map/janmenu/sign.obj",
+      "Culling": true,
+      "CastsShadow": true,
+      "ApplyLighting": true,
+      "Name": null,
+      "Position": {
+        "X": -3.1188698,
+        "Y": 0.9605937,
+        "Z": 4.641052
       },
       "Rotation": {
         "X": 0,
@@ -123,107 +267,10 @@
       }
     }
   ],
-  "Billboards": [
-    {
-      "Path": "resources/gfx/models/map/janmenu/skybox.png",
-      "CastsShadow": false,
-      "Size": {
-        "X": 45,
-        "Y": 15
-      },
-      "Name": null,
-      "Position": {
-        "X": -12.411401,
-        "Y": -2.7768443,
-        "Z": -3.203601
-      },
-      "Rotation": {
-        "X": 0,
-        "Y": 0,
-        "Z": 0
-      },
-      "Scale": {
-        "X": 1,
-        "Y": 1,
-        "Z": 1
-      }
-    },
-    {
-      "Path": "resources/gfx/models/map/janmenu/tree1.png",
-      "CastsShadow": false,
-      "Size": {
-        "X": 3.5,
-        "Y": 3.75
-      },
-      "Name": null,
-      "Position": {
-        "X": -1.4638802,
-        "Y": -0.2517278,
-        "Z": -7.4982743
-      },
-      "Rotation": {
-        "X": 0,
-        "Y": 0,
-        "Z": 0
-      },
-      "Scale": {
-        "X": 1,
-        "Y": 1,
-        "Z": 1
-      }
-    },
-    {
-      "Path": "resources/gfx/models/map/janmenu/tree1.png",
-      "CastsShadow": false,
-      "Size": {
-        "X": 3.5,
-        "Y": 3.75
-      },
-      "Name": null,
-      "Position": {
-        "X": -3.1516483,
-        "Y": -0.2517278,
-        "Z": -7.2775674
-      },
-      "Rotation": {
-        "X": 0,
-        "Y": 0,
-        "Z": 0
-      },
-      "Scale": {
-        "X": 1,
-        "Y": 1,
-        "Z": 1
-      }
-    },
-    {
-      "Path": "resources/gfx/models/map/janmenu/tree1.png",
-      "CastsShadow": false,
-      "Size": {
-        "X": 3.5,
-        "Y": 3.75
-      },
-      "Name": null,
-      "Position": {
-        "X": -3.0802517,
-        "Y": -0.2517278,
-        "Z": -5.4356256
-      },
-      "Rotation": {
-        "X": 0,
-        "Y": 0,
-        "Z": 0
-      },
-      "Scale": {
-        "X": 1,
-        "Y": 1,
-        "Z": 1
-      }
-    }
-  ],
+  "Billboards": [],
   "AmbientColor": {
-    "X": 0.36862746,
-    "Y": 0.2627451,
-    "Z": 0.2627451
+    "X": 0.4,
+    "Y": 0.29803923,
+    "Z": 0.3529412
   }
 }

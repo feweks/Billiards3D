@@ -73,6 +73,7 @@ class ButtonUIWidget : UIWidget
         Vector2 textSize = Raylib.MeasureTextEx(fnt, text, fontSize, 1);
         Vector2 fontPos = Position + (Size / 2) - (textSize / 2);
 
-        Raylib.DrawTextPro(fnt, text, fontPos, Vector2.Zero, Rotation, fontSize, 1, textTint);
+        //Raylib.DrawTextPro(fnt, text, fontPos, Vector2.Zero, Rotation, fontSize, 1, textTint);
+        Utils.DrawTextOutlinedEx(fnt, text, fontPos, Vector2.Zero, fontSize, Rotation, textTint, Color.Black);
     }
 }

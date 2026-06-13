@@ -14,6 +14,7 @@ static class ResourcesManager
     private static Texture2D errorTex;
     private static Model errorMdl;
     private static Font errorFnt;
+    private static Shader errorShd;
     private static string? errorFragShader;
     private static string? errorVertShader;
 
@@ -33,7 +34,17 @@ static class ResourcesManager
 
         errorFragShader = GetFile("resources/data/shaders/default.fs");
         errorVertShader = GetFile("resources/data/shaders/default.vs");
+
+        errorShd = Raylib.LoadShader(errorVertShader, errorFragShader);
     }
+
+    public static Model GetErrorModel() => errorMdl;
+
+    public static Texture2D GetErrorTex() => errorTex;
+
+    public static Font GetErrorFont() => errorFnt;
+
+    public static Shader GetErrorShader() => errorShd;
 
     public static Texture2D GetTexture(string? path)
     {
