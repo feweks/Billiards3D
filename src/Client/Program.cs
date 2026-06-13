@@ -33,8 +33,8 @@ class Program
         Raylib.SetExitKey(KeyboardKey.Null);
 
         ResourcesManager.Init();
-        Translation.Init();
-        Translation.Load("pl"); // TODO: Load translation based on settings
+        TranslationManager.Init();
+        TranslationManager.Load("pl"); // TODO: Load translation based on settings
 
         rlImGui.Setup(true);
         if (!editor)

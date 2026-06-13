@@ -87,7 +87,8 @@ class PlayState : GameState
 
         chatData = new ChatData();
 
-        LoadMap(Utils.GetPlayableMaps()[GameClient.Lobby.Settings!.MapIndex]);
+        string mapName = Utils.GetPlayableMaps()[GameClient.Lobby.Settings!.MapIndex];
+        LoadMap(mapName);
 
         lobbyData = GameClient.Lobby.Data;
     }

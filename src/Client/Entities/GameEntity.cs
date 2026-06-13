@@ -91,4 +91,6 @@ abstract class GameEntity
     {
         return new BoundingBox();
     }
+
+    public virtual void Destroy() { }
 }

@@ -123,6 +123,7 @@ abstract class GameState
     public void PlaceBillboard(BillboardEntity billboard)
     {
         billboard.State = this;
+        billboard.SetLightingShader(LightingShader);
         Entities.Add(billboard);
     }
 
@@ -234,9 +235,9 @@ abstract class GameState
 
     public virtual void Destroy()
     {
-        for (int i = 0; i < LightingShaderData.LIGHTS_COUNT; i++)
+        foreach (var ent in Entities)
         {
-            LightEntity.TakenIndexes[i] = false;
+            ent.Destroy();
         }
     }
 }

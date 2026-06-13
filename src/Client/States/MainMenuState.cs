@@ -32,7 +32,7 @@ class MainMenuState : GameState
         Camera.Position = cameraBasePos;
         Camera.Target = cameraBaseTarget;
 
-        LoadMap("mn_jan");
+        LoadMap("mnu_jan");
     }
 
     public override void Update(float dt)
@@ -82,8 +82,6 @@ class MainMenuState : GameState
         base.DrawImGui();
 
         ImGui.Begin("MainMenu");
-        ImGui.Text(Translation.Get("test_test"));
-        ImGui.Text(Translation.Get("test_format", "working"));
 
         if (GameClient.Lobby.Status != JoinedLobbyStatus.Success)
         {

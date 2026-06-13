@@ -5,7 +5,7 @@ namespace Game.Client.Managers;
 
 using TranslationData = Dictionary<string, string>;
 
-static class Translation
+static class TranslationManager
 {
     private static List<string> availableLanguages = null!;
     private static TranslationData? translationData;

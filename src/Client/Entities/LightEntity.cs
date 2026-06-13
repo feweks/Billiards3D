@@ -91,4 +91,9 @@ class LightEntity : GameEntity
         var scaledDir = Raymath.Vector3Normalize(Direction) * DIR_VEC_LEN;
         Raylib.DrawLine3D(Position, Position + scaledDir, Color.Red);
     }
+
+    public override void Destroy()
+    {
+        TakenIndexes[Index] = false;
+    }
 }

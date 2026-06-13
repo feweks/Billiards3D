@@ -28,11 +28,9 @@ out vec4 finalColor;
 
 void main()
 {
-    vec4 texColor = texture(texture0, fragTexCoord);
+    vec4 texColor = texture(texture0, fragTexCoord) * colDiffuse;
     if (texColor.a < 0.1)
-    {
         discard;
-    }
 
     vec3 totalLighting = vec3(1.0);
 

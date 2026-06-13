@@ -140,13 +140,13 @@ static class Utils
     private static List<string> InitPlayableMaps()
     {
         var maps = new List<string>();
-
-        string[] lines = ResourcesManager.GetFile("resources/data/playable_maps.txt").Split('\n');
+        string[] lines = ResourcesManager.GetFile("resources/data/playable_maps.txt").Split(';');
 
         foreach (string mapName in lines)
         {
             maps.Add(mapName);
         }
+        Raylib.TraceLog(TraceLogLevel.Info, $"Initialized playable maps [maps count: {maps.Count}]");
 
         return maps;
     }

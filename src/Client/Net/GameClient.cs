@@ -39,12 +39,23 @@ static class GameClient
             ip = parsedAddr;
         }
 
-        tcpClient = new TcpClient();
-        tcpClient.Connect(new IPEndPoint(ip, Config.TcpPort));
-        tcpStream = tcpClient.GetStream();
+        try
+        {
+            tcpClient = new TcpClient();
+            tcpClient.Connect(new IPEndPoint(ip, Config.TcpPort));
+            tcpStream = tcpClient.GetStream();
 
-        udpClient = new UdpClient();
-        udpClient.Connect(new IPEndPoint(ip, Config.UdpPort));
+            udpClient = new UdpClient();
+            udpClient.Connect(new IPEndPoint(ip, Config.UdpPort));
+        }
+        catch (SocketException error)
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT]: Failed to connect to server [error code {error.ErrorCode} ({error.Message})]");
+            Reset();
+            return;
+        }
+
+        running = true;
 
         tcpRecieveThread = new Thread(new ThreadStart(UpdateReliableConnection))
         {
@@ -57,8 +68,6 @@ static class GameClient
             IsBackground = false,
         };
         udpRecieveThread.Start();
-
-        running = true;
 
         Raylib.TraceLog(TraceLogLevel.Info, "[NET CLIENT] Connected to server");
     }
@@ -382,8 +391,26 @@ static class GameClient
                 Raylib.TraceLog(TraceLogLevel.Info, $"leave lobby on shutdown");
             }
 
-            tcpClient!.Close();
-            udpClient!.Close();
+            tcpClient?.Close();
+            udpClient?.Close();
+
+            Reset();
         }
+    }
+
+    private static void Reset()
+    {
+        Latency = 0;
+        Lobby = new ClientLobby();
+        Config = null;
+        ClientGuid = Guid.Empty;
+        tcpClient = null;
+        udpClient = null;
+        tcpStream = null;
+        tcpRecieveThread = null;
+        udpRecieveThread = null;
+        running = false;
+        latencyStopwatch = new Stopwatch();
+        latencyTimer = 0f;
     }
 }
