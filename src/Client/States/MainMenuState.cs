@@ -16,6 +16,8 @@ class MainMenuState : GameState
     string codeInp = "";
     int curMapInp = 0;
 
+    private Font miscFnt;
+
     Vector3 cameraBasePos = new Vector3(0.615f, 1.513f, 2.916f);
     Vector3 cameraBaseTarget = new Vector3(-1.22f, 1.483f, 2.185f);
     float elapsedSwayTime = 0.01f;
@@ -45,6 +47,7 @@ class MainMenuState : GameState
         Camera.Target = cameraBaseTarget;
 
         titleFnt = ResourcesManager.GetFont("resources/gfx/fonts/whacky_joe.ttf");
+        miscFnt = ResourcesManager.GetFont("resources/gfx/fonts/pixellari.ttf");
 
         //titleColors = [new Color(255, 201, 75), new Color(244, 156, 20), new Color(252, 176, 56)];
         titleColors = [Color.White, Color.White];
@@ -103,9 +106,10 @@ class MainMenuState : GameState
     {
         base.DrawUI();
 
-        string txt = $"billiards v{GameData.Version}";
-        int txtY = (int)(Program.Instance!.Config.RenderResolution[1] - Raylib.MeasureTextEx(Raylib.GetFontDefault(), txt, 24, 1).Y);
-        Raylib.DrawText(txt, 3, txtY, 24, Color.White);
+        string versionText = $"{TranslationManager.Get("mainmenu.title").Replace(';', ' ').ToLower()} v{GameData.Version}";
+        float versionFontSize = 24;
+        int versionTextY = (int)(Program.Instance!.Config.RenderHeight - Raylib.MeasureTextEx(miscFnt, versionText, versionFontSize, 1).Y);
+        Utils.DrawTextOutlined(miscFnt, versionText, new Vector2(0, versionTextY), versionFontSize, Color.White, Color.Black);
 
         string[] titleText = TranslationManager.Get("mainmenu.title").Split(';');
         float titleYOffset = titleY;
@@ -126,7 +130,7 @@ class MainMenuState : GameState
         Color connCol = connected ? Color.Green : Color.Red;
         Vector2 connSize = Raylib.MeasureTextEx(Raylib.GetFontDefault(), connectionText, 18, 1);
 
-        Raylib.DrawText(connectionText, (int)(Program.Instance!.Config.RenderWidth - connSize.X - 5), 5, 18, connCol);
+        Raylib.DrawText(connectionText, (int)(Program.Instance!.Config.RenderWidth - connSize.X), 0, 18, connCol);
     }
 
     public override void DrawImGui()

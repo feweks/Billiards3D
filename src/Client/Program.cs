@@ -16,7 +16,10 @@ class Program
     public GameConfigFileData Config { get; }
 
     private Shader postShader;
-    private RenderTexture2D renderTex;
+    private Shader uiShader;
+    private int uiShaderTimeLoc;
+    private RenderTexture2D gameRenderTex;
+    private RenderTexture2D uiRenderTex;
     private GameState? curState;
 
     public Program(string[] args)
@@ -42,11 +45,18 @@ class Program
 
         Raylib.SetTargetFPS(200);
 
-        renderTex = Raylib.LoadRenderTexture(Config.RenderResolution[0], Config.RenderResolution[1]);
+        gameRenderTex = Raylib.LoadRenderTexture(Config.RenderWidth, Config.RenderHeight);
+        uiRenderTex = Raylib.LoadRenderTexture(Config.RenderWidth, Config.RenderHeight);
 
         curState = !editor ? new MainMenuState() : new MapEditorState();
 
         postShader = ResourcesManager.GetShader(null, "resources/data/shaders/psx_post.fs");
+        uiShader = ResourcesManager.GetShader(null, "resources/data/shaders/vcr.fs");
+
+        Texture2D noiseTex = ResourcesManager.GetTexture("resources/gfx/noise.png");
+        int noiseTexLoc = Raylib.GetShaderLocation(uiShader, "noiseTex");
+        Raylib.SetShaderValueTexture(uiShader, noiseTexLoc, noiseTex);
+        uiShaderTimeLoc = Raylib.GetShaderLocation(uiShader, "iTime");
     }
 
     private void Update(float dt)
@@ -58,13 +68,15 @@ class Program
             dt = DT_TRESHOLD;
         }
 
+        Raylib.SetShaderValue(uiShader, uiShaderTimeLoc, (float)Raylib.GetTime(), ShaderUniformDataType.Float);
+
         curState?.Update(dt);
         GameClient.Update(dt);
     }
 
     private void Draw()
     {
-        Raylib.BeginTextureMode(renderTex);
+        Raylib.BeginTextureMode(gameRenderTex);
         Raylib.ClearBackground(Color.Black);
 
         if (curState != null)
@@ -72,21 +84,34 @@ class Program
             Raylib.BeginMode3D(curState.Camera);
             curState.Draw();
             Raylib.EndMode3D();
-
-            curState.DrawUI();
         }
+
+        Raylib.EndTextureMode();
+
+        Raylib.BeginTextureMode(uiRenderTex);
+        Raylib.ClearBackground(Color.Blank);
+
+        curState?.DrawUI();
 
         Raylib.EndTextureMode();
 
         Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.Black);
 
-        Texture2D rtt = renderTex.Texture;
-        var src = new Rectangle(0, 0, rtt.Width, -rtt.Height);
-        var dest = new Rectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+        Texture2D gameRtt = gameRenderTex.Texture;
+        var gameTexSrc = new Rectangle(0, 0, gameRtt.Width, -gameRtt.Height);
+        var gameTexDest = new Rectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
 
         Raylib.BeginShaderMode(postShader);
-        Raylib.DrawTexturePro(rtt, src, dest, Vector2.Zero, 0, Color.White);
+        Raylib.DrawTexturePro(gameRtt, gameTexSrc, gameTexDest, Vector2.Zero, 0, Color.White);
+        Raylib.EndShaderMode();
+
+        Texture2D uiRtt = uiRenderTex.Texture;
+        var uiTexSrc = new Rectangle(0, 0, uiRtt.Width, -uiRtt.Height);
+        var uiTexDest = new Rectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+
+        Raylib.BeginShaderMode(uiShader);
+        Raylib.DrawTexturePro(uiRtt, uiTexSrc, uiTexDest, Vector2.Zero, 0, Color.White);
         Raylib.EndShaderMode();
 
         rlImGui.Begin();
