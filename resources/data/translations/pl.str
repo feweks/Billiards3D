@@ -1,1 +1,4 @@
 mainmenu.title = "NOWOMIEJSKI;BILARD"
+mainmenu.play = "GRAJ"
+mainmenu.settings = "USTAWIENIA"
+mainmenu.quit = "WYJDŹ"

@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Client.Data.UI.Containers;
 using Game.Client.Data.UI.Widgets;
 using Game.Client.Managers;
 using Game.Client.Net;
@@ -39,17 +40,12 @@ class MainMenuState : GameState
 
     public MainMenuState() : base("main_menu_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
-        var testBttnSize = new Vector2(250, 75);
-        var testBttnPos = new Vector2(Program.Instance!.Config.RenderWidth / 2, Program.Instance!.Config.RenderHeight / 2) - testBttnSize / 2;
-        UI.Widgets.Add(new ButtonUIWidget("PLAY", testBttnPos, testBttnSize));
-
         Camera.Position = cameraBasePos;
         Camera.Target = cameraBaseTarget;
 
         titleFnt = ResourcesManager.GetFont("resources/gfx/fonts/whacky_joe.ttf");
         miscFnt = ResourcesManager.GetFont("resources/gfx/fonts/pixellari.ttf");
 
-        //titleColors = [new Color(255, 201, 75), new Color(244, 156, 20), new Color(252, 176, 56)];
         titleColors = [Color.White, Color.White];
 
         music = Raylib.LoadMusicStream("resources/music/main_menu.ogg");
@@ -232,5 +228,32 @@ class MainMenuState : GameState
         }
 
         ImGui.End();
+    }
+
+    public override void OnUIWidgetClicked(string name, UIWidget widget)
+    {
+        switch (name)
+        {
+            case "play":
+                {
+                    var startingContainer = UI.GetContainerByName("menu");
+                    if (startingContainer == null)
+                        break;
+
+                    startingContainer.Active = startingContainer.Visible = false;
+
+                    break;
+                }
+            case "settings":
+                {
+                    Raylib.TraceLog(TraceLogLevel.Info, $"Settings");
+                    break;
+                }
+            case "quit":
+                {
+                    Program.Instance!.Shutdown();
+                    break;
+                }
+        }
     }
 }

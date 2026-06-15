@@ -1,0 +1,7 @@
+<ui>
+    <container type="none" name="menu" x="center" y="290" width="500" height="500">
+        <input type="button" name="play" width="420" height="75" text="mainmenu.play" constraints="connected" />
+        <input type="button" name="settings" width="200" height="55" x="-110" y="75" text="mainmenu.settings" textscale="0.45" />
+        <input type="button" name="quit" width="200" height="55" x="110" y="75" text="mainmenu.quit" textscale="0.45" />
+    </container>
+</ui>

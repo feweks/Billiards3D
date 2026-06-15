@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using System.Xml;
 using Raylib_cs;
 
 namespace Game.Client.Managers;
@@ -35,7 +36,7 @@ static class ResourcesManager
         errorFragShader = GetFile("resources/data/shaders/default.fs");
         errorVertShader = GetFile("resources/data/shaders/default.vs");
 
-        errorShd = Raylib.LoadShader(errorVertShader, errorFragShader);
+        errorShd = Raylib.LoadShaderFromMemory(errorVertShader, errorFragShader);
     }
 
     public static Model GetErrorModel() => errorMdl;
@@ -202,6 +203,20 @@ static class ResourcesManager
     {
         string serializedData = JsonSerializer.Serialize(data, ctx);
         SaveFile(path, serializedData);
+    }
+
+    public static XmlDocument? GetXml(string path)
+    {
+        var doc = new XmlDocument();
+        string fData = GetFile(path);
+        if (fData == string.Empty)
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to load xml document {path}: invalid file data");
+            return null;
+        }
+
+        doc.LoadXml(fData);
+        return doc;
     }
 
     public static void Unload()

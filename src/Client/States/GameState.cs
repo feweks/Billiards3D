@@ -2,6 +2,7 @@ using System.Numerics;
 using Game.Client.Data;
 using Game.Client.Data.Files;
 using Game.Client.Data.UI;
+using Game.Client.Data.UI.Widgets;
 using Game.Client.Entities;
 using Game.Client.Managers;
 using Game.Client.Net;
@@ -23,7 +24,7 @@ abstract class GameState
     public string? CurLoadedMap { get; internal set; }
     public LightingShaderData LightingShader { get; }
     public List<GameEntity> Entities { get; }
-    public UserInterface UI { get; }
+    public UserInterface UI { get; set; }
 
     private ShadowData shadowData;
 
@@ -164,10 +165,26 @@ abstract class GameState
             Raylib.ToggleFullscreen();
         }
 
+        if (Raylib.IsKeyDown(KeyboardKey.LeftControl))
+        {
+            if (Raylib.IsKeyPressed(KeyboardKey.R))
+            {
+                UI = new UserInterface(this);
+                Raylib.TraceLog(TraceLogLevel.Info, $"Reloaded UI");
+            }
+        }
+
         UI.Update(dt);
+        if (UI.ClickedWidget != null)
+            OnUIWidgetClicked(UI.ClickedWidget.Name, UI.ClickedWidget);
 
         foreach (var ent in Entities)
             ent.Update(dt);
+    }
+
+    public virtual void OnUIWidgetClicked(string name, UIWidget widget)
+    {
+
     }
 
     public virtual void Draw()

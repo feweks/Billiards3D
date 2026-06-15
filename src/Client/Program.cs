@@ -140,5 +140,6 @@ class Program
         GameClient.Shutdown();
         ResourcesManager.Shutdown();
         Raylib.CloseWindow();
+        Environment.Exit(0);
     }
 }

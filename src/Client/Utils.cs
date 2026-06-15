@@ -3,7 +3,9 @@ using Game.Client.Managers;
 using Game.Client.States;
 using Raylib_cs;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Numerics;
+using System.Xml;
 
 namespace Game.Client;
 
@@ -184,6 +186,20 @@ static class Utils
         Raylib.TraceLog(TraceLogLevel.Info, $"Initialized playable maps [maps count: {maps.Count}]");
 
         return maps;
+    }
+
+    public static T TryParseXmlAttrib<T>(XmlAttribute? attrib, T defaultValue) where T : IParsable<T>
+    {
+        if (attrib == null)
+            return defaultValue;
+
+        if (!T.TryParse(attrib.Value, CultureInfo.InvariantCulture, out T? result))
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to parse xml attribute {attrib.Value} (using default value {defaultValue} instead)");
+            return defaultValue;
+        }
+
+        return result;
     }
 
     public static float EaseValue(EasingType type, float t)
