@@ -4,4 +4,8 @@
         <input type="button" name="settings" width="200" height="55" x="-110" y="75" text="mainmenu.settings" textscale="0.45" />
         <input type="button" name="quit" width="200" height="55" x="110" y="75" text="mainmenu.quit" textscale="0.45" />
     </container>
+
+    <container type="box" name="lobby-list" x="center" y="350" width="600" height="250" visible="false" active="false">
+        <input type="button" name="test" text="test" width="100" height="50" />
+    </container>
 </ui>

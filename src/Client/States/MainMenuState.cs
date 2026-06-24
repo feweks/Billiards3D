@@ -1,5 +1,4 @@
 using System.Numerics;
-using Game.Client.Data.UI.Containers;
 using Game.Client.Data.UI.Widgets;
 using Game.Client.Managers;
 using Game.Client.Net;
@@ -56,6 +55,15 @@ class MainMenuState : GameState
         LoadMap("mnu_jan");
         titleSwayTime = 60000f / bpm * 4f / 1000f;
         Raylib.TraceLog(TraceLogLevel.Info, $"Title sway time: {titleSwayTime}");
+
+        Vector2 screenCenter = new Vector2(Program.Instance!.Config.RenderWidth / 2, Program.Instance!.Config.RenderHeight / 2);
+
+        //UI.Widgets.Add(new DynamicBoxUIWidget(screenCenter, new Vector2(200, 75), true));
+        var cont = new ContainerUIWidget(screenCenter, new Vector2(400, 400), "box");
+        cont.AddChildWidget(new DynamicBoxUIWidget(cont.Size / 2, new Vector2(100, 50), true));
+        cont.AddChildWidget(new TextUIWidget(new Vector2(50, 50), "test", "resources/gfx/fonts/pixellari.ttf", 24, true, Color.White, Color.Black));
+        cont.AddChildWidget(new ButtonUIWidget(new Vector2(150, 150), new Vector2(300, 75), "TEST BTTN"));
+        UI.Widgets.Add(cont);
 
         Raylib.PlayMusicStream(music);
     }
@@ -230,17 +238,19 @@ class MainMenuState : GameState
         ImGui.End();
     }
 
-    public override void OnUIWidgetClicked(string name, UIWidget widget)
+    /*public override void OnUIWidgetClicked(string name, UIWidget widget)
     {
         switch (name)
         {
             case "play":
                 {
                     var startingContainer = UI.GetContainerByName("menu");
-                    if (startingContainer == null)
+                    var lobbiesContainer = UI.GetContainerByName("lobby-list");
+                    if (startingContainer == null || lobbiesContainer == null)
                         break;
 
                     startingContainer.Active = startingContainer.Visible = false;
+                    lobbiesContainer.Active = lobbiesContainer.Visible = true;
 
                     break;
                 }
@@ -255,5 +265,5 @@ class MainMenuState : GameState
                     break;
                 }
         }
-    }
+    }*/
 }
