@@ -19,14 +19,12 @@ class MainMenuState : GameState
     string codeInp = "";
     int curMapInp = 0;
 
-    private Font miscFnt;
-
-    Vector3 cameraBasePos = new Vector3(0.615f, 1.513f, 2.916f);
-    Vector3 cameraBaseTarget = new Vector3(-1.22f, 1.483f, 2.185f);
-    float elapsedSwayTime = 0.01f;
-    float swaySpeed = 0.5f;
-    float horizontalSwayAmount = 0.15f;
-    float verticalSwayAmount = 0.07f;
+    Vector3 camBasePos = new Vector3(0.615f, 1.513f, 2.916f);
+    Vector3 camBaseTarget = new Vector3(-1.22f, 1.483f, 2.185f);
+    float elapsedCamSwayTime = 0.01f;
+    float camSwaySpeed = 0.5f;
+    float horizontalCamSwayAmount = 0.15f;
+    float verticalCamSwayAmount = 0.07f;
 
     TextUIWidget? titleText1;
     TextUIWidget? titleText2;
@@ -39,10 +37,8 @@ class MainMenuState : GameState
 
     public MainMenuState() : base("main_menu_state", new Vector3(1, 1, 1), new Vector3(0, 0, 0), 75f)
     {
-        Camera.Position = cameraBasePos;
-        Camera.Target = cameraBaseTarget;
-
-        miscFnt = ResourcesManager.GetFont("resources/gfx/fonts/pixellari.ttf");
+        Camera.Position = camBasePos;
+        Camera.Target = camBaseTarget;
 
         music = Raylib.LoadMusicStream("resources/music/main_menu.ogg");
         music.Looping = true;
@@ -72,14 +68,14 @@ class MainMenuState : GameState
 
         Raylib.UpdateMusicStream(music);
 
-        elapsedSwayTime += dt * swaySpeed;
-        float camOffsetX = (MathF.Sin(elapsedSwayTime * 0.8f) * 0.7f + MathF.Sin(elapsedSwayTime * 1.5f) * 0.3f) * horizontalSwayAmount;
-        float camOffsetY = (MathF.Sin(elapsedSwayTime * 1.1f) * 0.6f + MathF.Sin(elapsedSwayTime * 2.3f) * 0.4f) * verticalSwayAmount;
+        elapsedCamSwayTime += dt * camSwaySpeed;
+        float camOffsetX = (MathF.Sin(elapsedCamSwayTime * 0.8f) * 0.7f + MathF.Sin(elapsedCamSwayTime * 1.5f) * 0.3f) * horizontalCamSwayAmount;
+        float camOffsetY = (MathF.Sin(elapsedCamSwayTime * 1.1f) * 0.6f + MathF.Sin(elapsedCamSwayTime * 2.3f) * 0.4f) * verticalCamSwayAmount;
 
         Camera.Target = new Vector3(
-            cameraBaseTarget.X + camOffsetX,
-            cameraBaseTarget.Y + camOffsetY,
-            cameraBaseTarget.Z
+            camBaseTarget.X + camOffsetX,
+            camBaseTarget.Y + camOffsetY,
+            camBaseTarget.Z
         );
 
         titleElapsedSwayTime += dt;
