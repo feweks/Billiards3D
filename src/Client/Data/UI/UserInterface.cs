@@ -1,5 +1,7 @@
+using System.Numerics;
 using System.Xml;
 using Game.Client.Data.UI.Widgets;
+using Game.Client.Data.UI.Widgets.Input;
 using Game.Client.Managers;
 using Game.Client.States;
 using Raylib_cs;
@@ -8,8 +10,10 @@ namespace Game.Client.Data.UI;
 
 class UserInterface
 {
-    public List<UIWidget> Widgets { get; }
-    public bool DrawDebug { get; set; } = false;
+    public const string UI_PATH = "resources/data/ui/{0}.xml";
+
+    public UIWidget Root { get; }
+    public string DescriptorPath { get; }
 
     public UIWidget? HoveredWidget { get; internal set; }
     public UIWidget? PressedWidget { get; internal set; }
@@ -17,12 +21,17 @@ class UserInterface
 
     public UserInterface(GameState state)
     {
-        Widgets = new List<UIWidget>();
+        Vector2 renderSize = new Vector2(Program.Instance!.Config.RenderWidth, Program.Instance!.Config.RenderHeight);
+        Root = new UIWidget(renderSize / 2, renderSize, false)
+        {
+            Name = "root"
+        };
 
-        var xmlDoc = ResourcesManager.GetXml($"resources/data/ui/{state.Name}.xml");
+        DescriptorPath = string.Format(UI_PATH, state.Name);
+        var xmlDoc = ResourcesManager.GetXml(DescriptorPath);
         if (xmlDoc == null)
         {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to load ui data for state {state.Name}");
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to load ui data for state {state.Name} from {DescriptorPath}");
             return;
         }
 
@@ -35,32 +44,23 @@ class UserInterface
         PressedWidget = null;
         ClickedWidget = null;
 
-        foreach (var widget in Widgets)
-        {
-            widget.Update(dt);
+        Root.Update(dt);
 
-            if (widget.Hovered)
-                HoveredWidget = widget.HoveredChild ?? widget;
+        if (Root.Hovered && Root.HoveredChild != null)
+            HoveredWidget = Root.HoveredChild;
 
-            if (widget.Pressed)
-                PressedWidget = widget.PressedChild ?? widget;
+        if (Root.Pressed && Root.PressedChild != null)
+            PressedWidget = Root.PressedChild;
 
-            if (widget.Clicked)
-                ClickedWidget = widget.ClickedChild ?? widget;
-        }
+        if (Root.Clicked && Root.ClickedChild != null)
+            ClickedWidget = Root.ClickedChild;
 
         Raylib.SetMouseCursor(HoveredWidget == null ? MouseCursor.Default : HoveredWidget.HoverCursor);
     }
 
     public void Draw()
     {
-        foreach (var widget in Widgets)
-        {
-            widget.Draw();
-
-            if (DrawDebug)
-                Raylib.DrawRectangleRec(widget.GetInteractableArea(), Raylib.ColorAlpha(Color.Blue, 0.7f));
-        }
+        Root.Draw();
     }
 
     private void ParseUIDocument(XmlDocument xmlDoc, string stateName)
@@ -72,6 +72,56 @@ class UserInterface
             return;
         }
 
-        var containerNodes = rootNode.SelectNodes("container");
+        ParseUINode(rootNode, Root, stateName);
+    }
+
+    private static void ParseUINode(XmlNode widgetNode, UIWidget parentWidget, string stateName)
+    {
+        var containerNodes = widgetNode.SelectNodes(ContainerUIWidget.NODE_NAME);
+        if (containerNodes != null)
+        {
+            foreach (XmlNode containerNode in containerNodes)
+            {
+                var containerWidget = new ContainerUIWidget(containerNode, parentWidget);
+                parentWidget.AddChildWidget(containerWidget);
+
+                ParseUINode(containerNode, containerWidget, stateName);
+            }
+        }
+
+        var textNodes = widgetNode.SelectNodes(TextUIWidget.NODE_NAME);
+        if (textNodes != null)
+        {
+            foreach (XmlNode textNode in textNodes)
+            {
+                var textWidget = new TextUIWidget(textNode, parentWidget);
+                parentWidget.AddChildWidget(textWidget);
+            }
+        }
+
+        var inputNodes = widgetNode.SelectNodes(InputUIWidget.NODE_NAME);
+        if (inputNodes != null)
+        {
+            foreach (XmlNode inputNode in inputNodes)
+            {
+                var inputWidget = ParseInputUINode(inputNode, parentWidget, stateName);
+                if (inputWidget != null)
+                    parentWidget.AddChildWidget(inputWidget);
+            }
+        }
+    }
+
+    private static InputUIWidget? ParseInputUINode(XmlNode inputNode, UIWidget parentWidget, string stateName)
+    {
+        string type = Utils.TryParseXmlAttrib(inputNode.Attributes?["type"], "none");
+
+        switch (type)
+        {
+            case ButtonInputUIWidget.INPUT_NODE_TYPE:
+                return new ButtonInputUIWidget(inputNode, parentWidget);
+            default:
+                Raylib.TraceLog(TraceLogLevel.Warning, $"{stateName} UI: Failed to parse input widget of type {type}");
+                return null;
+        }
     }
 }

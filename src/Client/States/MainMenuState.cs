@@ -1,5 +1,6 @@
 using System.Numerics;
 using Game.Client.Data.UI.Widgets;
+using Game.Client.Data.UI.Widgets.Input;
 using Game.Client.Managers;
 using Game.Client.Net;
 using Game.Common.Data;
@@ -12,6 +13,8 @@ namespace Game.Client.States;
 
 class MainMenuState : GameState
 {
+    private const float MENU_MUSIC_BPM = 168;
+
     string nickInp = "";
     string codeInp = "";
     int curMapInp = 0;
@@ -25,15 +28,12 @@ class MainMenuState : GameState
     float horizontalSwayAmount = 0.15f;
     float verticalSwayAmount = 0.07f;
 
-    Font titleFnt;
-    float titleY = 75;
-    int titleFntSize = 102;
-    Color[] titleColors;
-    float titleSwayTime = 2.88f;
+    TextUIWidget? titleText1;
+    TextUIWidget? titleText2;
+    float titleSwayTime = 0f;
     float titleElapsedSwayTime = 0f;
     float titleRotTarget = 5;
     float titleRot = -5;
-    float bpm = 168;
 
     private Music music;
 
@@ -42,10 +42,7 @@ class MainMenuState : GameState
         Camera.Position = cameraBasePos;
         Camera.Target = cameraBaseTarget;
 
-        titleFnt = ResourcesManager.GetFont("resources/gfx/fonts/whacky_joe.ttf");
         miscFnt = ResourcesManager.GetFont("resources/gfx/fonts/pixellari.ttf");
-
-        titleColors = [Color.White, Color.White];
 
         music = Raylib.LoadMusicStream("resources/music/main_menu.ogg");
         music.Looping = true;
@@ -53,17 +50,18 @@ class MainMenuState : GameState
         Raylib.SetMasterVolume(0.05f);
 
         LoadMap("mnu_jan");
-        titleSwayTime = 60000f / bpm * 4f / 1000f;
+        titleSwayTime = 60000f / MENU_MUSIC_BPM * 4f / 1000f;
         Raylib.TraceLog(TraceLogLevel.Info, $"Title sway time: {titleSwayTime}");
 
-        Vector2 screenCenter = new Vector2(Program.Instance!.Config.RenderWidth / 2, Program.Instance!.Config.RenderHeight / 2);
+        var menuContainerWidget = UI.Root.GetChildWidgetByName("menu");
+        if (menuContainerWidget != null)
+        {
+            titleText1 = menuContainerWidget.GetChildWidgetByName("title1") as TextUIWidget;
+            titleText2 = menuContainerWidget.GetChildWidgetByName("title2") as TextUIWidget;
 
-        //UI.Widgets.Add(new DynamicBoxUIWidget(screenCenter, new Vector2(200, 75), true));
-        var cont = new ContainerUIWidget(screenCenter, new Vector2(400, 400), "box");
-        cont.AddChildWidget(new DynamicBoxUIWidget(cont.Size / 2, new Vector2(100, 50), true));
-        cont.AddChildWidget(new TextUIWidget(new Vector2(50, 50), "test", "resources/gfx/fonts/pixellari.ttf", 24, true, Color.White, Color.Black));
-        cont.AddChildWidget(new ButtonUIWidget(new Vector2(150, 150), new Vector2(300, 75), "TEST BTTN"));
-        UI.Widgets.Add(cont);
+            if (menuContainerWidget.GetChildWidgetByName("version") is TextUIWidget versionText)
+                versionText.Text = TranslationManager.Get("mainmenu.version", GameData.Version.ToString());
+        }
 
         Raylib.PlayMusicStream(music);
     }
@@ -87,12 +85,18 @@ class MainMenuState : GameState
         titleElapsedSwayTime += dt;
         if (titleElapsedSwayTime >= titleSwayTime)
         {
-            titleElapsedSwayTime = 0.01f;
+            titleElapsedSwayTime = 0f;
             titleRotTarget *= -1f;
         }
 
         float t = titleElapsedSwayTime / titleSwayTime;
         titleRot = Raymath.LerpAngle(-titleRotTarget, titleRotTarget, Utils.EaseValue(EasingType.EaseInCirc, t));
+
+        if (titleText1 != null && titleText2 != null)
+        {
+            titleText1.Rotation = titleRot;
+            titleText2.Rotation = titleRot;
+        }
 
         if (GameClient.Lobby.Data != null && GameClient.Lobby.Data.Started)
         {
@@ -109,25 +113,6 @@ class MainMenuState : GameState
     public override void DrawUI()
     {
         base.DrawUI();
-
-        string versionText = $"{TranslationManager.Get("mainmenu.title").Replace(';', ' ').ToLower()} v{GameData.Version}";
-        float versionFontSize = 24;
-        int versionTextY = (int)(Program.Instance!.Config.RenderHeight - Raylib.MeasureTextEx(miscFnt, versionText, versionFontSize, 1).Y);
-        Utils.DrawTextOutlined(miscFnt, versionText, new Vector2(0, versionTextY), versionFontSize, Color.White, Color.Black);
-
-        string[] titleText = TranslationManager.Get("mainmenu.title").Split(';');
-        float titleYOffset = titleY;
-        for (int i = 0; i < titleText.Length; i++)
-        {
-            string titlePart = titleText[i];
-            Color titleCol = titleColors[i];
-
-            Vector2 titleTextSize = Raylib.MeasureTextEx(titleFnt, titlePart, titleFntSize, 1);
-
-            Utils.DrawTextOutlinedEx(titleFnt, titlePart, new Vector2(Program.Instance!.Config.RenderWidth / 2, titleYOffset), titleTextSize * 0.5f, titleFntSize, titleRot, titleCol, Color.Black);
-
-            titleYOffset += titleFntSize * 0.8f;
-        }
 
         bool connected = GameClient.ClientGuid != Guid.Empty && GameClient.CheckConnection();
         string connectionText = connected ? $"Connected to server (GUID: {GameClient.ClientGuid})" : "Not connected";
@@ -238,14 +223,14 @@ class MainMenuState : GameState
         ImGui.End();
     }
 
-    /*public override void OnUIWidgetClicked(string name, UIWidget widget)
+    public override void OnUIWidgetClicked(string name, UIWidget widget)
     {
         switch (name)
         {
             case "play":
                 {
-                    var startingContainer = UI.GetContainerByName("menu");
-                    var lobbiesContainer = UI.GetContainerByName("lobby-list");
+                    var startingContainer = UI.Root.GetChildWidgetByName("menu");
+                    var lobbiesContainer = UI.Root.GetChildWidgetByName("lobby-list");
                     if (startingContainer == null || lobbiesContainer == null)
                         break;
 
@@ -256,7 +241,7 @@ class MainMenuState : GameState
                 }
             case "settings":
                 {
-                    Raylib.TraceLog(TraceLogLevel.Info, $"Settings");
+                    Raylib.TraceLog(TraceLogLevel.Info, $"Clicked settings");
                     break;
                 }
             case "quit":
@@ -265,5 +250,5 @@ class MainMenuState : GameState
                     break;
                 }
         }
-    }*/
+    }
 }

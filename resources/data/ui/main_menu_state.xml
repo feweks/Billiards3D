@@ -1,11 +1,11 @@
 <ui>
-    <container type="none" name="menu" x="center" y="290" width="500" height="500">
-        <input type="button" name="play" width="420" height="75" text="mainmenu.play" constraints="connected" />
-        <input type="button" name="settings" width="200" height="55" x="-110" y="75" text="mainmenu.settings" textscale="0.45" />
-        <input type="button" name="quit" width="200" height="55" x="110" y="75" text="mainmenu.quit" textscale="0.45" />
-    </container>
+    <container type="none" name="menu" x="center" y="center" width="960" height="540">
+        <text name="title1" x="center" y="75" text="mainmenu.title1" size="102" font="whacky_joe" />
+        <text name="title2" x="center" y="150" text="mainmenu.title2" size="102" font="whacky_joe" />
+        <text name="version" x="145" y="530" text="mainmenu.version" size="24" />
 
-    <container type="box" name="lobby-list" x="center" y="350" width="600" height="250" visible="false" active="false">
-        <input type="button" name="test" text="test" width="100" height="50" />
+        <input type="button" name="play" x="center" y="300" width="420" height="75" text="mainmenu.play" constraints="connected" />
+        <input type="button" name="settings" x="370" y="375" width="200" height="60" text="mainmenu.settings" textscale="0.35" />
+        <input type="button" name="quit" x="590" y="375" width="200" height="60" text="mainmenu.quit" textscale="0.35" />
     </container>
 </ui>

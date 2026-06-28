@@ -1,4 +1,6 @@
-mainmenu.title = "NOWOMIEJSKI;BILARD"
+mainmenu.title1 = "NOWOMIEJSKI"
+mainmenu.title2 = "BILARD"
+mainmenu.version = "nowomiejski bilard v{0}"
 mainmenu.play = "GRAJ"
 mainmenu.settings = "USTAWIENIA"
 mainmenu.quit = "WYJDŹ"

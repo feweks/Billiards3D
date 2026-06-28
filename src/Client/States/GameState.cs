@@ -151,10 +151,10 @@ abstract class GameState
         }
 
         if (Raylib.IsKeyReleased(KeyboardKey.F3))
+        {
             DebugView = !DebugView;
-
-        if (Raylib.IsKeyReleased(KeyboardKey.F4))
-            UI.DrawDebug = !UI.DrawDebug;
+            UIWidget.DrawDebug = !UIWidget.DrawDebug;
+        }
 
         if (Raylib.IsKeyReleased(KeyboardKey.F11))
         {
@@ -173,13 +173,14 @@ abstract class GameState
             if (Raylib.IsKeyPressed(KeyboardKey.R))
             {
                 UI = new UserInterface(this);
-                Raylib.TraceLog(TraceLogLevel.Info, $"Reloaded UI");
+                Raylib.TraceLog(TraceLogLevel.Info, $"Reloaded UI for {Name} from {UI.DescriptorPath}");
             }
         }
 
         UI.Update(dt);
-        /*if (UI.ClickedWidget != null)
-            OnUIWidgetClicked(UI.ClickedWidget.Name, UI.ClickedWidget);*/
+
+        if (UI.ClickedWidget != null)
+            OnUIWidgetClicked(UI.ClickedWidget.Name, UI.ClickedWidget);
 
         foreach (var ent in Entities)
             ent.Update(dt);
@@ -187,7 +188,6 @@ abstract class GameState
 
     public virtual void OnUIWidgetClicked(string name, UIWidget widget)
     {
-
     }
 
     public virtual void Draw()

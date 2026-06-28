@@ -72,6 +72,42 @@ static class Utils
 
     public static Color ColorFromVec3(Vector3 vec) => new Color(vec.X, vec.Y, vec.Z, 1f);
 
+    public static Color ColorHexFromString(string colHex)
+    {
+        if (uint.TryParse(colHex, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint res))
+            return Raylib.GetColor(res);
+
+        return ColorFromName(colHex);
+    }
+
+    public static Color ColorFromName(string colName)
+    {
+        colName = colName.ToLower();
+
+        switch (colName)
+        {
+            case "blue":
+                return Color.Blue;
+            case "red":
+                return Color.Red;
+            case "green":
+                return Color.Green;
+            case "black":
+                return Color.Black;
+            case "orange":
+                return Color.Orange;
+            case "pink":
+                return Color.Pink;
+            case "purple":
+                return Color.Purple;
+            case "gray":
+            case "grey":
+                return Color.Gray;
+            default:
+                return Color.White;
+        }
+    }
+
     public static Matrix4x4 CalculateMatrix(Vector3 pos, Vector3 rot, Vector3 scale)
     {
         var matScale = Raymath.MatrixScale(scale.X, scale.Y, scale.Z);
