@@ -49,12 +49,12 @@ class MainMenuState : GameState
         titleSwayTime = 60000f / MENU_MUSIC_BPM * 4f / 1000f;
         Raylib.TraceLog(TraceLogLevel.Info, $"Title sway time: {titleSwayTime}");
 
+        titleText1 = UI.Root.GetChildWidgetByName("title1") as TextUIWidget;
+        titleText2 = UI.Root.GetChildWidgetByName("title2") as TextUIWidget;
+
         var menuContainerWidget = UI.Root.GetChildWidgetByName("menu");
         if (menuContainerWidget != null)
         {
-            titleText1 = menuContainerWidget.GetChildWidgetByName("title1") as TextUIWidget;
-            titleText2 = menuContainerWidget.GetChildWidgetByName("title2") as TextUIWidget;
-
             if (menuContainerWidget.GetChildWidgetByName("version") is TextUIWidget versionText)
                 versionText.Text = TranslationManager.Get("mainmenu.version", GameData.Version.ToString());
         }
@@ -225,13 +225,13 @@ class MainMenuState : GameState
         {
             case "play":
                 {
-                    var startingContainer = UI.Root.GetChildWidgetByName("menu");
-                    var lobbiesContainer = UI.Root.GetChildWidgetByName("lobby-list");
-                    if (startingContainer == null || lobbiesContainer == null)
+                    var menuCont = UI.Root.GetChildWidgetByName("menu");
+                    var lobbiesCont = UI.Root.GetChildWidgetByName("lobby-list");
+                    if (menuCont == null || lobbiesCont == null)
                         break;
 
-                    startingContainer.Active = startingContainer.Visible = false;
-                    lobbiesContainer.Active = lobbiesContainer.Visible = true;
+                    menuCont.Active = menuCont.Visible = false;
+                    lobbiesCont.Active = lobbiesCont.Visible = true;
 
                     break;
                 }

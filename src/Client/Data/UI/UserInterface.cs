@@ -109,6 +109,16 @@ class UserInterface
                     parentWidget.AddChildWidget(inputWidget);
             }
         }
+
+        var iconNodes = widgetNode.SelectNodes(IconBoxUIWidget.NODE_NAME);
+        if (iconNodes != null)
+        {
+            foreach (XmlNode iconNode in iconNodes)
+            {
+                var iconWidget = new IconBoxUIWidget(iconNode, parentWidget);
+                parentWidget.AddChildWidget(iconWidget);
+            }
+        }
     }
 
     private static InputUIWidget? ParseInputUINode(XmlNode inputNode, UIWidget parentWidget, string stateName)
