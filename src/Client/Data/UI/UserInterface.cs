@@ -31,11 +31,11 @@ class UserInterface
         var xmlDoc = ResourcesManager.GetXml(DescriptorPath);
         if (xmlDoc == null)
         {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to load ui data for state {state.Name} from {DescriptorPath}");
+            Raylib.TraceLog(TraceLogLevel.Warning, $"{state.Name} UI: Failed to load ui data from {DescriptorPath}, invalid file data");
             return;
         }
 
-        ParseUIDocument(xmlDoc, state.Name);
+        ParseUIDocument(xmlDoc, Root, state.Name);
     }
 
     public void Update(float dt)
@@ -63,7 +63,7 @@ class UserInterface
         Root.Draw();
     }
 
-    private void ParseUIDocument(XmlDocument xmlDoc, string stateName)
+    private void ParseUIDocument(XmlDocument xmlDoc, UIWidget rootWidget, string stateName)
     {
         var rootNode = xmlDoc.SelectSingleNode("ui");
         if (rootNode == null)
@@ -72,10 +72,10 @@ class UserInterface
             return;
         }
 
-        ParseUINode(rootNode, Root, stateName);
+        ParseUINode(rootNode, rootWidget, stateName);
     }
 
-    private static void ParseUINode(XmlNode widgetNode, UIWidget parentWidget, string stateName)
+    private void ParseUINode(XmlNode widgetNode, UIWidget parentWidget, string stateName)
     {
         var containerNodes = widgetNode.SelectNodes(ContainerUIWidget.NODE_NAME);
         if (containerNodes != null)
@@ -117,6 +117,32 @@ class UserInterface
             {
                 var iconWidget = new IconBoxUIWidget(iconNode, parentWidget);
                 parentWidget.AddChildWidget(iconWidget);
+            }
+        }
+
+        var uiNodes = widgetNode.SelectNodes("ui");
+        if (uiNodes != null)
+        {
+            foreach (XmlNode uiNode in uiNodes)
+            {
+                string uiSource = Utils.TryParseXmlAttrib(uiNode.Attributes?["src"], string.Empty);
+                string? descriptorPath = Path.GetDirectoryName(DescriptorPath);
+
+                if (descriptorPath == null)
+                {
+                    Raylib.TraceLog(TraceLogLevel.Warning, $"{stateName} UI: Failed to parse UI node: invalid descriptor filepath");
+                    continue;
+                }
+
+                string uiPath = Path.Combine(descriptorPath, uiSource);
+                var doc = ResourcesManager.GetXml(uiPath);
+                if (doc == null)
+                {
+                    Raylib.TraceLog(TraceLogLevel.Warning, $"{stateName} UI: Failed to parse UI node: invalid descriptor file");
+                    continue;
+                }
+
+                ParseUIDocument(doc, parentWidget, stateName);
             }
         }
     }

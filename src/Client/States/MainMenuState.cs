@@ -51,13 +51,8 @@ class MainMenuState : GameState
 
         titleText1 = UI.Root.GetChildWidgetByName("title1") as TextUIWidget;
         titleText2 = UI.Root.GetChildWidgetByName("title2") as TextUIWidget;
-
-        var menuContainerWidget = UI.Root.GetChildWidgetByName("menu");
-        if (menuContainerWidget != null)
-        {
-            if (menuContainerWidget.GetChildWidgetByName("version") is TextUIWidget versionText)
-                versionText.Text = TranslationManager.Get("mainmenu.version", GameData.Version.ToString());
-        }
+        if (UI.Root.GetChildWidgetByName("version") is TextUIWidget versionText)
+            versionText.Text = TranslationManager.Get("mainmenu.version", GameData.Version.ToString());
 
         Raylib.PlayMusicStream(music);
     }
@@ -243,6 +238,18 @@ class MainMenuState : GameState
             case "quit":
                 {
                     Program.Instance!.Shutdown();
+                    break;
+                }
+            case "lobbies-return":
+                {
+                    var menuCont = UI.Root.GetChildWidgetByName("menu");
+                    var lobbiesCont = UI.Root.GetChildWidgetByName("lobby-list");
+                    if (menuCont == null || lobbiesCont == null)
+                        break;
+
+                    menuCont.Active = menuCont.Visible = true;
+                    lobbiesCont.Active = lobbiesCont.Visible = false;
+
                     break;
                 }
         }

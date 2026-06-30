@@ -1,18 +1,17 @@
 <ui>
     <text name="title1" x="center" y="75" text="mainmenu.title1" size="102" font="whacky_joe" />
     <text name="title2" x="center" y="150" text="mainmenu.title2" size="102" font="whacky_joe" />
+    <text name="version" x="100" y="530" text="mainmenu.version" size="16" />
 
     <container type="none" name="menu" x="center" y="center" width="960" height="540">
-        <text name="version" x="145" y="530" text="mainmenu.version" size="24" />
-
         <input type="button" name="play" x="center" y="300" width="420" height="75" text="mainmenu.play"  />
         <input type="button" name="settings" x="370" y="375" width="200" height="60" text="mainmenu.settings" textscale="0.35" />
         <input type="button" name="quit" x="590" y="375" width="200" height="60" text="mainmenu.quit" textscale="0.35" />
     </container>
 
-    <container type="box" name="lobby-list" x="center" y="375" width="650" height="300" visible="false" active="false">
+    <container type="box" name="lobby-list" x="center" y="355" width="650" height="300" visible="false" active="false">
         <text x="160" y="50" text="mainmenu.lobbies.title" size="52" />
-        <icon type="0" name="return" x="605" y="45" size="60" iconscale="0.4" />
+        <icon type="0" name="lobbies-return" x="605" y="45" size="60" iconscale="0.4" />
         <icon type="1" name="reload" x="535" y="45" size="60" iconscale="0.4" />
         <icon type="2" name="dirconnect" x="465" y="45" size="60" iconscale="0.4" />
     </container>
