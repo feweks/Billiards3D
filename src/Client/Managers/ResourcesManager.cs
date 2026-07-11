@@ -219,6 +219,66 @@ static class ResourcesManager
         return doc;
     }
 
+    public static Dictionary<string, string> GetKvp(string path)
+    {
+        var result = new Dictionary<string, string>();
+        string document = GetFile(path);
+        if (document == string.Empty)
+        {
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to parse kvp document {path}: invalid file data");
+            return result;
+        }
+
+        foreach (string line in document.Split('\n'))
+        {
+            string key = string.Empty;
+            string value = string.Empty;
+
+            bool readingValue = false;
+            bool readingKey = true;
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i];
+
+                if (c == ' ' && !readingValue)
+                    continue;
+
+                if (c == '=' && readingKey)
+                {
+                    readingKey = false;
+                    continue;
+                }
+
+                if (c == '"')
+                {
+                    readingValue = !readingValue;
+                    continue;
+                }
+
+                if (readingKey)
+                    key += c;
+                else if (readingValue)
+                    value += c;
+            }
+
+            if (key == string.Empty)
+            {
+                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to parse kvp document line {line} for {path}: key expected");
+                continue;
+            }
+
+            if (value == string.Empty)
+            {
+                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to parse kvp document line {line} for {path}: value expected");
+                continue;
+            }
+
+            result.Add(key, value);
+        }
+
+        return result;
+    }
+
     public static void Unload()
     {
         foreach (var tex in textures.Values)

@@ -43,8 +43,6 @@ class MainMenuState : GameState
         music = Raylib.LoadMusicStream("resources/music/main_menu.ogg");
         music.Looping = true;
 
-        Raylib.SetMasterVolume(0.05f);
-
         LoadMap("mnu_jan");
         titleSwayTime = 60000f / MENU_MUSIC_BPM * 4f / 1000f;
         Raylib.TraceLog(TraceLogLevel.Info, $"Title sway time: {titleSwayTime}");

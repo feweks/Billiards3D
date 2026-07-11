@@ -43,7 +43,8 @@ class Program
         if (!editor)
             GameClient.Init();
 
-        Raylib.SetTargetFPS(200);
+        Raylib.SetTargetFPS(200); // TODO: Set FPS based on settings/vsync?
+        Raylib.SetMasterVolume(0f); // TODO: Set volume based on settings
 
         gameRenderTex = Raylib.LoadRenderTexture(Config.RenderWidth, Config.RenderHeight);
         uiRenderTex = Raylib.LoadRenderTexture(Config.RenderWidth, Config.RenderHeight);

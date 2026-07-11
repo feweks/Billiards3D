@@ -3,12 +3,10 @@ using Raylib_cs;
 
 namespace Game.Client.Managers;
 
-using TranslationData = Dictionary<string, string>;
-
 static class TranslationManager
 {
     private static List<string> availableLanguages = null!;
-    private static TranslationData? translationData;
+    private static Dictionary<string, string>? translationData;
 
     public static void Init()
     {
@@ -26,55 +24,7 @@ static class TranslationManager
             return;
         }
 
-        string fileData = ResourcesManager.GetFile($"resources/data/translations/{language}.str");
-        translationData = new TranslationData();
-
-        foreach (string line in fileData.Split('\n'))
-        {
-            string key = string.Empty;
-            string value = string.Empty;
-
-            bool readingValue = false;
-            bool readingKey = true;
-            for (int i = 0; i < line.Length; i++)
-            {
-                char c = line[i];
-
-                if (c == ' ' && !readingValue)
-                    continue;
-
-                if (c == '=' && readingKey)
-                {
-                    readingKey = false;
-                    continue;
-                }
-
-                if (c == '"')
-                {
-                    readingValue = !readingValue;
-                    continue;
-                }
-
-                if (readingKey)
-                    key += c;
-                else if (readingValue)
-                    value += c;
-            }
-
-            if (key == string.Empty)
-            {
-                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to parse translation line {line}: key expected");
-                continue;
-            }
-
-            if (value == string.Empty)
-            {
-                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to parse translation line {line}: value expected");
-                continue;
-            }
-
-            translationData.Add(key, value);
-        }
+        translationData = ResourcesManager.GetKvp($"resources/data/translations/{language}.kvp");
     }
 
     public static string Get(string key) => Get(key, null);
