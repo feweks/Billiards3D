@@ -2,10 +2,11 @@
 using System.Numerics;
 using Game.Common.Enums;
 using Game.Server.Data.Files;
+using LiteNetLib.Utils;
 
 namespace Game.Common.Data;
 
-class LobbySettingsData : ISerializableData
+class LobbySettingsData : INetSerializable
 {
     public float PoolTableWidth { get; set; }
     public float PoolTableLength { get; set; }
@@ -34,46 +35,46 @@ class LobbySettingsData : ISerializableData
         PoolBallMass = gamemodeCfg.PoolBallMass;
     }
 
-    public LobbySettingsData(BinaryReader reader) => Deserialize(reader);
+    public LobbySettingsData(NetDataReader reader) => Deserialize(reader);
 
-    public void Serialize(BinaryWriter writer)
+    public void Serialize(NetDataWriter writer)
     {
-        writer.Write(PoolTableWidth);
-        writer.Write(PoolTableLength);
-        writer.Write(MapIndex);
-        writer.Write(EnableHelperLines);
-        writer.Write((byte)Gamemode);
-        writer.Write(Tickrate);
-        writer.Write((ushort)PoolPockets.Count);
+        writer.Put(PoolTableWidth);
+        writer.Put(PoolTableLength);
+        writer.Put(MapIndex);
+        writer.Put(EnableHelperLines);
+        writer.Put((byte)Gamemode);
+        writer.Put(Tickrate);
+        writer.Put((ushort)PoolPockets.Count);
         for (int i = 0; i < PoolPockets.Count; i++)
         {
-            writer.Write(PoolPockets[i].X);
-            writer.Write(PoolPockets[i].Y);
-            writer.Write(PoolPockets[i].Z);
+            writer.Put(PoolPockets[i].X);
+            writer.Put(PoolPockets[i].Y);
+            writer.Put(PoolPockets[i].Z);
         }
-        writer.Write(PoolPocketRadius);
-        writer.Write(PoolBallFriction);
-        writer.Write(PoolBallRadius);
-        writer.Write(PoolBallMass);
+        writer.Put(PoolPocketRadius);
+        writer.Put(PoolBallFriction);
+        writer.Put(PoolBallRadius);
+        writer.Put(PoolBallMass);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(NetDataReader reader)
     {
-        PoolTableWidth = reader.ReadSingle();
-        PoolTableLength = reader.ReadSingle();
-        MapIndex = reader.ReadUInt16();
-        EnableHelperLines = reader.ReadBoolean();
-        Gamemode = (PoolGamemodeType)reader.ReadByte();
-        Tickrate = reader.ReadSingle();
-        ushort pocketsCount = reader.ReadUInt16();
+        PoolTableWidth = reader.GetFloat();
+        PoolTableLength = reader.GetFloat();
+        MapIndex = reader.GetUShort();
+        EnableHelperLines = reader.GetBool();
+        Gamemode = (PoolGamemodeType)reader.GetByte();
+        Tickrate = reader.GetFloat();
+        ushort pocketsCount = reader.GetUShort();
         PoolPockets = new List<Vector3>();
         for (int i = 0; i < pocketsCount; i++)
         {
-            PoolPockets.Add(new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
+            PoolPockets.Add(new Vector3(reader.GetFloat(), reader.GetFloat(), reader.GetFloat()));
         }
-        PoolPocketRadius = reader.ReadSingle();
-        PoolBallFriction = reader.ReadSingle();
-        PoolBallRadius = reader.ReadSingle();
-        PoolBallMass = reader.ReadSingle();
+        PoolPocketRadius = reader.GetFloat();
+        PoolBallFriction = reader.GetFloat();
+        PoolBallRadius = reader.GetFloat();
+        PoolBallMass = reader.GetFloat();
     }
 }

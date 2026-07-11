@@ -6,28 +6,21 @@ using Game.Common.Enums;
 using Game.Common.Data;
 using Game.Common.Packets;
 using Raylib_cs;
-using System.Text;
 using Game.Client.Managers;
+using LiteNetLib;
+using LiteNetLib.Utils;
 
 namespace Game.Client.Net;
 
 static class GameClient
 {
-    private const float MAX_LATENCY_TIMER = 1f;
-
     public static double Latency { get; internal set; } = 0;
     public static ClientLobby Lobby { get; internal set; } = new ClientLobby();
     public static NetServerFileData? Config { get; internal set; }
-    public static Guid ClientGuid { get; internal set; } = Guid.Empty;
 
-    private static TcpClient? tcpClient;
-    private static UdpClient? udpClient;
-    private static NetworkStream? tcpStream;
-    private static Thread? tcpRecieveThread;
-    private static Thread? udpRecieveThread;
-    private static bool running = false;
-    private static Stopwatch latencyStopwatch = new Stopwatch();
-    private static float latencyTimer = 0f;
+    private static LiteNetManager? client;
+    private static EventBasedLiteNetListener? listener;
+    private static LiteNetPeer? serverPeer;
 
     public static void Init()
     {
@@ -35,41 +28,26 @@ static class GameClient
 
         IPAddress ip = IPAddress.Parse("127.0.0.1");
         if (IPAddress.TryParse(Config.Ip, out IPAddress? parsedAddr))
-        {
             ip = parsedAddr;
-        }
 
         try
         {
-            tcpClient = new TcpClient();
-            tcpClient.Connect(new IPEndPoint(ip, Config.TcpPort));
-            tcpStream = tcpClient.GetStream();
-
-            udpClient = new UdpClient();
-            udpClient.Connect(new IPEndPoint(ip, Config.UdpPort));
+            listener = new EventBasedLiteNetListener();
+            client = new LiteNetManager(listener);
+            client.Start();
+            serverPeer = client.Connect(new IPEndPoint(ip, Config.Port), GameData.NetConnectionKey);
+            listener.NetworkReceiveEvent += ProcessEvent;
+            listener.PeerConnectedEvent += (peer) =>
+            {
+                Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Succesfully connected to server]");
+            };
         }
-        catch (SocketException error)
+        catch (Exception error)
         {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT]: Failed to connect to server [error code {error.ErrorCode} ({error.Message})]");
+            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT]: Failed to connect to server [error: {error.Message})");
             Reset();
             return;
         }
-
-        running = true;
-
-        tcpRecieveThread = new Thread(new ThreadStart(UpdateReliableConnection))
-        {
-            IsBackground = false,
-        };
-        tcpRecieveThread.Start();
-
-        udpRecieveThread = new Thread(new ThreadStart(UpdateUnreliableConnection))
-        {
-            IsBackground = false,
-        };
-        udpRecieveThread.Start();
-
-        Raylib.TraceLog(TraceLogLevel.Info, "[NET CLIENT] Connected to server");
     }
 
     public static void HostLobby(string nick)
@@ -119,23 +97,9 @@ static class GameClient
             return;
         }
 
-        if (ClientGuid == Guid.Empty)
-        {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send packet {packet.Type}: client is not registered on the server");
-            return;
-        }
-
-        packet.SenderGuid = ClientGuid;
-
-        var packetStream = new MemoryStream();
-        var packetWriter = new BinaryWriter(packetStream);
+        var packetWriter = new NetDataWriter();
         packet.Serialize(packetWriter);
-        byte[] buf = packetStream.ToArray();
-
-        if (packet.SendMode == PacketSendMode.Reliable)
-            tcpStream!.Write(buf);
-        else if (packet.SendMode == PacketSendMode.Unreliable)
-            udpClient!.Send(buf);
+        serverPeer!.Send(packetWriter, packet.SendMode == PacketSendMode.Reliable ? DeliveryMethod.ReliableOrdered : DeliveryMethod.Unreliable);
     }
 
     public static void SendLobbyPacket(LobbyPacket packet)
@@ -158,6 +122,15 @@ static class GameClient
         SendPacket(packet);
     }
 
+    private static void ProcessEvent(LiteNetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
+    {
+        var packetType = (PacketType)reader.GetByte();
+        var packet = Packet.Create(packetType);
+        packet.Deserialize(reader);
+        ProcessPacket(packet);
+        reader.Recycle();
+    }
+
     private static void ProcessPacket(Packet packet)
     {
         if (!CheckConnection())
@@ -168,14 +141,6 @@ static class GameClient
 
         switch (packet.Type)
         {
-            case PacketType.Ping:
-                {
-                    latencyStopwatch.Stop();
-                    Latency = latencyStopwatch.Elapsed.TotalMilliseconds;
-                    latencyStopwatch.Reset();
-
-                    break;
-                }
             case PacketType.HostLobby:
                 {
                     var hostPacket = (HostLobbyPacket)packet;
@@ -280,119 +245,32 @@ static class GameClient
         }
     }
 
-    private static void ProcessData(byte[] buf, int bytesCount)
-    {
-        if (bytesCount == 0)
-        {
-            Raylib.TraceLog(TraceLogLevel.Info, "[NET CLIENT] Disconnected from the server");
-            running = false;
-            return;
-        }
-
-        var memStream = new MemoryStream(buf, 0, bytesCount);
-        var binReader = new BinaryReader(memStream);
-        binReader.ReadBytes(16); // skip first guid
-        var packetType = (PacketType)binReader.ReadByte();
-        var packet = Packet.Create(packetType);
-        packet.Deserialize(binReader);
-        ProcessPacket(packet);
-    }
-
-    private static void UpdateReliableConnection()
-    {
-        while (running)
-        {
-            try
-            {
-                byte[] buf = new byte[GameData.MaxPacketSize];
-                int bytesRecv = tcpStream!.Read(buf, 0, buf.Length);
-                if (bytesRecv == 16 && ClientGuid == Guid.Empty)
-                {
-                    ClientGuid = new Guid(buf.AsSpan(0, bytesRecv));
-                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Client guid is {ClientGuid}");
-                    SendPacket(new InitializeUnreliableConnectionPacket());
-                    continue;
-                }
-
-                if (bytesRecv < 16)
-                {
-                    Raylib.TraceLog(TraceLogLevel.Warning, $"Recieved data from reliable connection is not in correct format");
-                    Shutdown();
-                }
-
-                ProcessData(buf, bytesRecv);
-            }
-            catch (Exception error)
-            {
-                Shutdown();
-                Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Error recv from server: {error.Message}");
-            }
-        }
-    }
-
-    private static void UpdateUnreliableConnection()
-    {
-        IPEndPoint serverEP = new IPEndPoint(IPAddress.Any, 0);
-
-        while (running)
-        {
-            try
-            {
-                byte[] buf = udpClient!.Receive(ref serverEP);
-                int bytesRecv = buf.Length;
-
-                if (bytesRecv <= 0)
-                    continue;
-
-                if (bytesRecv < 16)
-                {
-                    Raylib.TraceLog(TraceLogLevel.Warning, $"Recieved data from unreliable connection is not in correct format");
-                    Shutdown();
-                }
-
-                ProcessData(buf, bytesRecv);
-            }
-            catch (Exception error)
-            {
-                Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT] Error recv from unreliable server: {error.Message}");
-                return;
-            }
-        }
-    }
-
     public static void Update(float dt)
     {
         if (!CheckConnection())
             return;
 
-        latencyTimer += dt;
-        if (latencyTimer > MAX_LATENCY_TIMER && !latencyStopwatch.IsRunning)
-        {
-            latencyTimer = 0;
-            SendPacket(new PingPacket());
-            latencyStopwatch.Start();
-        }
+        Latency = serverPeer!.Ping;
+        client!.PollEvents();
     }
 
     public static PlayerLobbyData GetSelfPlayer() => Lobby.Data!.Host.Nickname == Lobby.PlayerNick ? Lobby.Data.Host : Lobby.Data.Guest;
 
     public static bool IsHost() => Lobby.Data != null && Lobby.Data.Host.Nickname == Lobby.PlayerNick;
 
-    public static bool CheckConnection() => tcpClient != null && tcpClient.Connected;
+    public static bool CheckConnection() => client != null && client.IsRunning && serverPeer != null && serverPeer.ConnectionState == ConnectionState.Connected;
 
     public static void Shutdown()
     {
-        running = false;
         if (CheckConnection())
         {
             if (Lobby.Data != null && Lobby.PlayerNick != null)
             {
                 LeaveLobby();
-                Raylib.TraceLog(TraceLogLevel.Info, $"leave lobby on shutdown");
+                Raylib.TraceLog(TraceLogLevel.Info, $"Left lobby on shutdown");
             }
 
-            tcpClient?.Close();
-            udpClient?.Close();
+            client!.Stop();
 
             Reset();
         }
@@ -403,14 +281,5 @@ static class GameClient
         Latency = 0;
         Lobby = new ClientLobby();
         Config = null;
-        ClientGuid = Guid.Empty;
-        tcpClient = null;
-        udpClient = null;
-        tcpStream = null;
-        tcpRecieveThread = null;
-        udpRecieveThread = null;
-        running = false;
-        latencyStopwatch = new Stopwatch();
-        latencyTimer = 0f;
     }
 }

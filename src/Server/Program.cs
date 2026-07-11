@@ -27,7 +27,7 @@ class Program
         LoadGamemodeConfig(PoolGamemodeType.Classic);
 
         server = new GameServer(serverConfig, gamemodeConfigs);
-        Raylib.TraceLog(TraceLogLevel.Info, $"Server started [TCP: {serverConfig.TcpPort}, UDP: {serverConfig.UdpPort}]");
+        Raylib.TraceLog(TraceLogLevel.Info, $"Server started on port {serverConfig.Port}");
 
         var elapsedTime = DateTime.Now.Millisecond - startTime.Millisecond;
         Raylib.TraceLog(TraceLogLevel.Info, $"Server loaded in {Math.Abs(Math.Round(elapsedTime * 0.001, 4))}s");
@@ -164,16 +164,17 @@ class Program
                 }
                 else if (mode == "cl")
                 {
-                    if (server.Clients.IsEmpty)
+                    var clients = server.GetClients();
+                    if (clients.Count == 0)
                         return new Tuple<string, TraceLogLevel>("No clients are currently connected", TraceLogLevel.Warning);
 
                     var lsTxt = new StringBuilder();
-                    var lastClient = server.Clients.Last();
-                    foreach (var client in server.Clients)
+                    var lastClient = clients.Last();
+                    foreach (var client in clients)
                     {
-                        string clTxt = $"{client.Key}: {client.Value.UdpEndPoint}";
+                        string clTxt = $"{client.RemoteId}: {client.Address}:{client.Port}";
 
-                        if (client.Key == lastClient.Key)
+                        if (client.Id == lastClient.Id)
                             lsTxt.Append(clTxt);
                         else
                             lsTxt.AppendLine(clTxt);

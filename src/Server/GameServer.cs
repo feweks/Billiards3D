@@ -1,6 +1,4 @@
 using System.Collections.Concurrent;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using Game.Common.Data;
 using Game.Common.Packets;
@@ -8,64 +6,49 @@ using Game.Common.Enums;
 using Game.Server.Data;
 using Game.Server.Data.Files;
 using Raylib_cs;
+using LiteNetLib;
+using LiteNetLib.Utils;
 
 namespace Game.Server;
 
 class GameServer
 {
     public ConcurrentDictionary<string, ServerLobbyData> Lobbies { get; }
-    public ConcurrentDictionary<Guid, ServerClientData> Clients { get; }
 
     private GameServerConfigFileData config;
     private Dictionary<PoolGamemodeType, PoolGamemodeConfigFileData> gamemodeConfigs;
-    private Socket tcpListener;
-    private Socket udpListener;
-    private Thread? reliableConnectionsThread;
-    private Thread? unreliableConnectionsThread;
-    private Thread? lobbiesThread;
-    private bool running = false;
+
+    private EventBasedLiteNetListener listener;
+    private LiteNetManager server;
+
+    private Thread? updateLobbiesThread;
 
     public GameServer(GameServerConfigFileData config, Dictionary<PoolGamemodeType, PoolGamemodeConfigFileData> gamemodeConfigs)
     {
         this.config = config;
         this.gamemodeConfigs = gamemodeConfigs;
 
-        tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        tcpListener.Bind(new IPEndPoint(IPAddress.Any, config.TcpPort));
+        listener = new EventBasedLiteNetListener();
+        server = new LiteNetManager(listener);
+        listener.ConnectionRequestEvent += ProcessPeerRequest;
+        listener.PeerConnectedEvent += ProcessPeerConnection;
+        listener.NetworkReceiveEvent += ProcessEvent;
 
-        udpListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        udpListener.Bind(new IPEndPoint(IPAddress.Any, config.UdpPort));
-
-        running = true;
-
-        Clients = new ConcurrentDictionary<Guid, ServerClientData>();
         Lobbies = new ConcurrentDictionary<string, ServerLobbyData>();
     }
 
     public void Start()
     {
-        tcpListener.Listen();
+        server.Start(config.Port);
 
-        reliableConnectionsThread = new Thread(new ThreadStart(UpdateReliableConnections))
-        {
-            IsBackground = false
-        };
-        reliableConnectionsThread.Start();
-
-        unreliableConnectionsThread = new Thread(new ThreadStart(UpdateUnreliableConnections))
-        {
-            IsBackground = false
-        };
-        unreliableConnectionsThread.Start();
-
-        lobbiesThread = new Thread(new ThreadStart(UpdateLobbies))
+        updateLobbiesThread = new Thread(new ThreadStart(UpdateLobbies))
         {
             IsBackground = true,
         };
-        lobbiesThread.Start();
+        updateLobbiesThread.Start();
     }
 
-    private string CreateLobby(ServerClientData host)
+    private string CreateLobby(LiteNetPeer hostPeer)
     {
         var builder = new StringBuilder();
 
@@ -92,62 +75,27 @@ class GameServer
         if (Lobbies.ContainsKey(code))
         {
             Raylib.TraceLog(TraceLogLevel.Warning, $"Generated already existing lobby code!");
-            return CreateLobby(host);
+            return CreateLobby(hostPeer);
         }
 
-        var svLobby = new ServerLobbyData(code, host, gamemodeConfigs[PoolGamemodeType.Classic], config);
+        var svLobby = new ServerLobbyData(code, hostPeer, gamemodeConfigs[PoolGamemodeType.Classic], config);
         Lobbies.TryAdd(code, svLobby);
 
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new lobby [code {code}]");
         return code;
     }
 
-    private void AcceptClient(Socket client)
-    {
-        client.Blocking = false;
-        Guid clientGuid = Guid.NewGuid();
-        var clientData = new ServerClientData(client, clientGuid);
-
-        if (!Clients.TryAdd(clientGuid, clientData))
-        {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to add client {client.RemoteEndPoint} to clients list");
-            return;
-        }
-
-        client.Send(clientGuid.ToByteArray());
-
-        Raylib.TraceLog(TraceLogLevel.Info, $"Client connected to server from {client.RemoteEndPoint} [User GUID: {clientGuid}]");
-    }
-
-    private void DisconnectClient(ServerClientData clientData)
-    {
-        if (!Clients.TryRemove(clientData.Guid, out var _))
-        {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to remove client {clientData.Guid} from client pool");
-            return;
-        }
-
-        clientData.TcpConnection.Close();
-    }
-
-    private void ProcessPacket(ServerClientData client, Packet packet)
+    private void ProcessPacket(LiteNetPeer clientPeer, Packet packet)
     {
         if (packet is LobbyPacket lobbyPacket)
         {
             Lobbies.TryGetValue(lobbyPacket.LobbyCode, out ServerLobbyData? lobbyData);
-            ProcessLobbyPacket(client, lobbyPacket, lobbyData);
+            ProcessLobbyPacket(clientPeer, lobbyPacket, lobbyData);
             return;
         }
 
         switch (packet.Type)
         {
-            case PacketType.Ping:
-                {
-                    Send(client, packet);
-                    break;
-                }
-            case PacketType.InitializeUnreliableConnection:
-                break;
             default:
                 {
                     Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to process packet {packet}: no packet logic of that type");
@@ -156,7 +104,7 @@ class GameServer
         }
     }
 
-    private void ProcessLobbyPacket(ServerClientData client, LobbyPacket packet, ServerLobbyData? lobby)
+    private void ProcessLobbyPacket(LiteNetPeer clientPeer, LobbyPacket packet, ServerLobbyData? lobby)
     {
         switch (packet.Type)
         {
@@ -164,9 +112,9 @@ class GameServer
                 {
                     var hostPacket = (HostLobbyPacket)packet;
                     string hostName = hostPacket.Sender;
-                    Send(client, new HostLobbyPacket()
+                    Send(clientPeer, new HostLobbyPacket()
                     {
-                        LobbyCode = CreateLobby(client),
+                        LobbyCode = CreateLobby(clientPeer),
                         Sender = hostName
                     });
 
@@ -201,14 +149,14 @@ class GameServer
 
                             if (lobby.Data.Host.Nickname == null)
                             {
-                                lobby.HostClient = client;
+                                lobby.HostPeer = clientPeer;
                                 lobby.Data.Host.Nickname = joinPacket.Sender;
                             }
                             else if (lobby.Data.Guest.Nickname == null)
                             {
-                                lobby.GuestClient = client;
+                                lobby.GuestPeer = clientPeer;
                                 lobby.Data.Guest.Nickname = joinPacket.Sender;
-                                Send(lobby.HostClient!, joinPacket);
+                                Send(lobby.HostPeer!, joinPacket);
                             }
                             else
                             {
@@ -217,7 +165,7 @@ class GameServer
                         }
                     }
 
-                    Send(client, response);
+                    Send(clientPeer, response);
                     break;
                 }
             case PacketType.StartLobby:
@@ -248,12 +196,12 @@ class GameServer
                     if (packet.Sender == lobby.Data.Host.Nickname)
                     {
                         winningPlayer = lobby.Data.Guest.Nickname!;
-                        lobby.HostClient = null;
+                        lobby.HostPeer = null;
                     }
                     else if (packet.Sender == lobby.Data.Guest.Nickname)
                     {
                         winningPlayer = lobby.Data.Host.Nickname!;
-                        lobby.GuestClient = null;
+                        lobby.GuestPeer = null;
 
                         if (!lobby.Data.Started)
                         {
@@ -339,8 +287,8 @@ class GameServer
                     {
                         lobby.Settings = settingsPacket.Settings;
 
-                        if (lobby.GuestClient != null)
-                            Send(lobby.GuestClient, settingsPacket);
+                        if (lobby.GuestPeer != null)
+                            Send(lobby.GuestPeer, settingsPacket);
                     }
 
                     break;
@@ -355,11 +303,11 @@ class GameServer
                         break;
                     }
 
-                    if (lobby.HostClient != null)
-                        Send(lobby.HostClient, chatPacket);
+                    if (lobby.HostPeer != null)
+                        Send(lobby.HostPeer, chatPacket);
 
-                    if (lobby.GuestClient != null)
-                        Send(lobby.GuestClient, chatPacket);
+                    if (lobby.GuestPeer != null)
+                        Send(lobby.GuestPeer, chatPacket);
 
                     break;
                 }
@@ -369,149 +317,34 @@ class GameServer
         }
     }
 
-    private void ProcessClient(ServerClientData client, int bytesCount, byte[] buf)
+    private void ProcessPeerRequest(LiteConnectionRequest request) => request.AcceptIfKey(GameData.NetConnectionKey);
+
+    private void ProcessPeerConnection(LiteNetPeer peer)
     {
-        var stream = new MemoryStream(buf, 0, bytesCount);
-        var reader = new BinaryReader(stream);
-        reader.ReadBytes(16); // skip user guid;
-        var packetType = (PacketType)reader.ReadByte();
-        var packet = Packet.Create(packetType);
-        packet.Deserialize(reader);
-        ProcessPacket(client, packet);
+        Raylib.TraceLog(TraceLogLevel.Info, $"New peer connected to server [{peer.Address}:{peer.Port}, {peer.Id}]");
     }
 
-    public void Send(ServerClientData client, Packet packet)
+    private void ProcessEvent(LiteNetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
     {
-        if (packet.SendMode == PacketSendMode.Reliable)
-        {
-            if (!client.TcpConnection.Connected)
-            {
-                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send reliable packet of type {packet.Type}: client is not connected");
-                return;
-            }
-        }
-        else if (packet.SendMode == PacketSendMode.Unreliable)
-        {
-            if (client.UdpEndPoint == null)
-            {
-                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send unreliable packet of type {packet.Type}: client is not connected");
-                return;
-            }
-        }
+        var packetType = (PacketType)reader.GetByte();
+        var packet = Packet.Create(packetType);
+        packet.Deserialize(reader);
+        ProcessPacket(peer, packet);
+        reader.Recycle();
+    }
 
-        if (!Clients.ContainsKey(client.Guid))
+    public void Send(LiteNetPeer clientPeer, Packet packet)
+    {
+        if (clientPeer.ConnectionState != ConnectionState.Connected)
         {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send packet of type {packet.Type}: client is not initialized");
+            Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to send packet of type {packet} to network peer {clientPeer.Address}: peer is not connected");
             return;
         }
 
-        var memStream = new MemoryStream();
-        var binStream = new BinaryWriter(memStream);
-        packet.Serialize(binStream);
-        byte[] buf = memStream.ToArray();
+        var packetWriter = new NetDataWriter();
+        packet.Serialize(packetWriter);
 
-        if (packet.SendMode == PacketSendMode.Reliable)
-            client.TcpConnection.Send(buf);
-        else if (packet.SendMode == PacketSendMode.Unreliable)
-            udpListener.SendTo(buf, client.UdpEndPoint!);
-    }
-
-    private void UpdateReliableConnections()
-    {
-        while (running)
-        {
-            var readList = new List<Socket>() { tcpListener };
-            readList.AddRange(Clients.Values.Select(c => c.TcpConnection));
-
-            Socket.Select(readList, null, null, 100);
-
-            foreach (var socket in readList)
-            {
-                if (socket == tcpListener)
-                {
-                    try
-                    {
-                        AcceptClient(tcpListener.Accept());
-                    }
-                    catch (Exception error)
-                    {
-                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to accept connection: {error.Message}");
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        byte[] buf = new byte[GameData.MaxPacketSize];
-                        int recvBytes = socket.Receive(buf);
-
-                        if (recvBytes == 0)
-                        {
-                            var errClientData = Clients.Values.First(c => c.TcpConnection == socket);
-                            Raylib.TraceLog(TraceLogLevel.Info, $"Client {errClientData.Guid} disconnected from server");
-                            DisconnectClient(errClientData);
-                            continue;
-                        }
-
-                        var clientGuid = new Guid(buf.AsSpan(0, 16));
-                        if (!Clients.TryGetValue(clientGuid, out ServerClientData? clientData))
-                        {
-                            Raylib.TraceLog(TraceLogLevel.Warning, $"Incoming data from not connected client [guid: {clientGuid}]");
-                            continue;
-                        }
-
-                        ProcessClient(clientData, recvBytes, buf);
-                    }
-                    catch (SocketException error)
-                    {
-                        Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to receive msg from client: {error.Message} [ERROR CODE {error.SocketErrorCode}]");
-
-                        var clientData = Clients.Values.First(c => c.TcpConnection == socket);
-                        if (error.SocketErrorCode == SocketError.ConnectionReset)
-                        {
-                            DisconnectClient(clientData);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void UpdateUnreliableConnections()
-    {
-        EndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
-        while (running)
-        {
-            try
-            {
-                byte[] buf = new byte[GameData.MaxPacketSize];
-                int bytesRecv = udpListener.ReceiveFrom(buf, ref remoteEP);
-                if (bytesRecv == 0)
-                {
-                    Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to update unreliable connection {remoteEP}: received 0 bytes");
-                    continue;
-                }
-
-                var clientGuid = new Guid(buf.AsSpan(0, 16));
-                if (!Clients.TryGetValue(clientGuid, out ServerClientData? clientData))
-                {
-                    Raylib.TraceLog(TraceLogLevel.Info, $"Failed to receive from client {clientGuid}: client is not initialized");
-                    continue;
-                }
-
-                if (clientData.UdpEndPoint == null)
-                {
-                    clientData.UdpEndPoint = (IPEndPoint)remoteEP;
-                    Raylib.TraceLog(TraceLogLevel.Info, $"Initialized unreliable client {clientGuid} with endpoint {remoteEP}");
-                }
-
-                ProcessClient(clientData, bytesRecv, buf);
-            }
-            catch (Exception error)
-            {
-                Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to update unreliable connections: {error.Message}");
-            }
-        }
+        clientPeer.Send(packetWriter, packet.SendMode == PacketSendMode.Reliable ? DeliveryMethod.ReliableOrdered : DeliveryMethod.ReliableUnordered);
     }
 
     private void UpdateLobbies()
@@ -519,13 +352,15 @@ class GameServer
         float delta = 1f / config.Tickrate;
         int sleepAmount = (int)(delta * 1000);
 
-        while (running)
+        while (IsRunning())
         {
+            server.PollEvents();
+
             foreach (var lobby in Lobbies.Values)
             {
                 lobby.Update(delta, this);
 
-                if (lobby.HostClient == null && lobby.GuestClient == null)
+                if (lobby.HostPeer == null && lobby.GuestPeer == null)
                 {
                     if (!Lobbies.Remove(lobby.Data.Code, out ServerLobbyData? _))
                         Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to remove lobby {lobby.Data.Code}");
@@ -538,11 +373,18 @@ class GameServer
         }
     }
 
-    public bool IsRunning() => running;
+    public List<LiteNetPeer> GetClients()
+    {
+        var clients = new List<LiteNetPeer>();
+        server.GetConnectedPeers(clients);
+
+        return clients;
+    }
+
+    public bool IsRunning() => server.IsRunning;
 
     public void Shutdown()
     {
-        running = false;
-        udpListener.Close();
+        server.Stop();
     }
 }

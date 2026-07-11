@@ -2,7 +2,7 @@ namespace Game.Common.Enums;
 
 enum PacketType : byte
 {
-    Ping = 0,
+    None = 0,
     HostLobby,
     JoinLobby,
     JoinedLobby,
@@ -14,5 +14,4 @@ enum PacketType : byte
     LeaveLobby,
     ChangeLobbySettings,
     ChatMessageLobby,
-    InitializeUnreliableConnection
 }

@@ -4,6 +4,7 @@ using Game.Common.Data;
 using Game.Common.Enums;
 using Game.Common.Packets;
 using Game.Server.Data.Files;
+using LiteNetLib;
 using Raylib_cs;
 
 namespace Game.Server.Data;
@@ -13,8 +14,8 @@ class ServerLobbyData
     public GameLobbyData Data { get; }
     public LobbySettingsData Settings { get; set; }
     public PoolGamemodeConfigFileData GamemodeConfig { get; }
-    public ServerClientData? HostClient { get; set; }
-    public ServerClientData? GuestClient { get; set; }
+    public LiteNetPeer? HostPeer { get; set; }
+    public LiteNetPeer? GuestPeer { get; set; }
 
     private List<PoolBallData> cueHitBallsTurn;
     private List<PoolBallData> pocketedBallsTurn;
@@ -24,11 +25,11 @@ class ServerLobbyData
 
     private float elapsedTime = 0f;
 
-    public ServerLobbyData(string code, ServerClientData host, PoolGamemodeConfigFileData gamemodeCfg, GameServerConfigFileData serverCfg)
+    public ServerLobbyData(string code, LiteNetPeer hostPeer, PoolGamemodeConfigFileData gamemodeCfg, GameServerConfigFileData serverCfg)
     {
         Data = new GameLobbyData(code, gamemodeCfg);
         GamemodeConfig = gamemodeCfg;
-        HostClient = host;
+        HostPeer = hostPeer;
 
         Settings = new LobbySettingsData(gamemodeCfg, 1f / serverCfg.Tickrate);
 
@@ -253,10 +254,10 @@ class ServerLobbyData
 
     public void Broadcast(GameServer server, Packet packet)
     {
-        if (HostClient != null && HostClient.TcpConnection.Connected)
-            server.Send(HostClient, packet);
+        if (HostPeer != null && HostPeer.ConnectionState == ConnectionState.Connected)
+            server.Send(HostPeer, packet);
 
-        if (GuestClient != null && GuestClient.TcpConnection.Connected)
-            server.Send(GuestClient, packet);
+        if (GuestPeer != null && GuestPeer.ConnectionState == ConnectionState.Connected)
+            server.Send(GuestPeer, packet);
     }
 }

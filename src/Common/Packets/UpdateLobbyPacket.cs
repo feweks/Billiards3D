@@ -1,5 +1,6 @@
 using Game.Common.Data;
 using Game.Common.Enums;
+using LiteNetLib.Utils;
 
 namespace Game.Common.Packets;
 
@@ -9,14 +10,14 @@ class UpdateLobbyPacket : LobbyPacket
 
     public UpdateLobbyPacket() : base(PacketType.UpdateLobby, PacketSendMode.Unreliable) { }
 
-    public override void Serialize(BinaryWriter writer)
+    public override void Serialize(NetDataWriter writer)
     {
         base.Serialize(writer);
 
         LobbyData!.Serialize(writer);
     }
 
-    public override void Deserialize(BinaryReader reader)
+    public override void Deserialize(NetDataReader reader)
     {
         base.Deserialize(reader);
 

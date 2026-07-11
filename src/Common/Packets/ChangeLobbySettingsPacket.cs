@@ -1,5 +1,6 @@
 using Game.Common.Data;
 using Game.Common.Enums;
+using LiteNetLib.Utils;
 
 namespace Game.Common.Packets;
 
@@ -9,19 +10,19 @@ class ChangeLobbySettingsPacket : LobbyPacket
 
     public ChangeLobbySettingsPacket() : base(PacketType.ChangeLobbySettings) { }
 
-    public override void Serialize(BinaryWriter writer)
+    public override void Serialize(NetDataWriter writer)
     {
         base.Serialize(writer);
 
-        writer.Write(Settings != null);
+        writer.Put(Settings != null);
         Settings?.Serialize(writer);
     }
 
-    public override void Deserialize(BinaryReader reader)
+    public override void Deserialize(NetDataReader reader)
     {
         base.Deserialize(reader);
 
-        bool valid = reader.ReadBoolean();
+        bool valid = reader.GetBool();
         if (valid)
         {
             Settings = new LobbySettingsData(reader);

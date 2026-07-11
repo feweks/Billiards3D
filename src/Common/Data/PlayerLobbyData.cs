@@ -1,9 +1,10 @@
 using System.Numerics;
 using Game.Common.Enums;
+using LiteNetLib.Utils;
 
 namespace Game.Common.Data;
 
-class PlayerLobbyData : ISerializableData
+class PlayerLobbyData : INetSerializable
 {
     public string? Nickname { get; set; }
     public PoolBallType BallType { get; set; } = PoolBallType.None;
@@ -17,44 +18,44 @@ class PlayerLobbyData : ISerializableData
         Nickname = nick;
     }
 
-    public void Serialize(BinaryWriter writer)
+    public void Serialize(NetDataWriter writer)
     {
-        writer.Write(Nickname ?? string.Empty);
-        writer.Write((byte)BallType);
+        writer.Put(Nickname ?? string.Empty);
+        writer.Put((byte)BallType);
 
-        writer.Write(CamPos.X);
-        writer.Write(CamPos.Y);
-        writer.Write(CamPos.Z);
+        writer.Put(CamPos.X);
+        writer.Put(CamPos.Y);
+        writer.Put(CamPos.Z);
 
-        writer.Write(AimDir.X);
-        writer.Write(AimDir.Y);
-        writer.Write(AimDir.Z);
+        writer.Put(AimDir.X);
+        writer.Put(AimDir.Y);
+        writer.Put(AimDir.Z);
 
-        writer.Write(PlacePos.X);
-        writer.Write(PlacePos.Y);
-        writer.Write(PlacePos.Z);
+        writer.Put(PlacePos.X);
+        writer.Put(PlacePos.Y);
+        writer.Put(PlacePos.Z);
 
-        writer.Write(CueForce);
+        writer.Put(CueForce);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(NetDataReader reader)
     {
-        string nick = reader.ReadString();
+        string nick = reader.GetString();
         Nickname = nick != string.Empty ? nick : null;
-        BallType = (PoolBallType)reader.ReadByte();
+        BallType = (PoolBallType)reader.GetByte();
 
-        CamPos.X = reader.ReadSingle();
-        CamPos.Y = reader.ReadSingle();
-        CamPos.Z = reader.ReadSingle();
+        CamPos.X = reader.GetFloat();
+        CamPos.Y = reader.GetFloat();
+        CamPos.Z = reader.GetFloat();
 
-        AimDir.X = reader.ReadSingle();
-        AimDir.Y = reader.ReadSingle();
-        AimDir.Z = reader.ReadSingle();
+        AimDir.X = reader.GetFloat();
+        AimDir.Y = reader.GetFloat();
+        AimDir.Z = reader.GetFloat();
 
-        PlacePos.X = reader.ReadSingle();
-        PlacePos.Y = reader.ReadSingle();
-        PlacePos.Z = reader.ReadSingle();
+        PlacePos.X = reader.GetFloat();
+        PlacePos.Y = reader.GetFloat();
+        PlacePos.Z = reader.GetFloat();
 
-        CueForce = reader.ReadSingle();
+        CueForce = reader.GetFloat();
     }
 }

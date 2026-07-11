@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text;
 using Game.Client.Data;
 using Game.Client.Data.Files;
 using Game.Client.Data.UI;
@@ -230,16 +231,16 @@ abstract class GameState
         {
             ImGui.Begin("DebugView");
 
+            var infoBuilder = new StringBuilder();
             var cfg = Program.Instance!.Config;
-            string info = $"FPS: {Raylib.GetFPS()}\n";
-            info += $"Render Res: {cfg.RenderResolution[0]}x{cfg.RenderResolution[1]}\n";
-            info += $"Window Res: {Raylib.GetScreenWidth()}x{Raylib.GetScreenHeight()}\n";
-            info += $"Fullscreen: {Raylib.IsWindowFullscreen()}\n";
-            info += $"TcpServer: {GameClient.Config?.Ip}:{GameClient.Config?.TcpPort}\n";
-            info += $"UdpServer: {GameClient.Config?.Ip}:{GameClient.Config?.UdpPort}\n";
-            info += $"Connected: {GameClient.CheckConnection()}\n";
-            info += $"Ping: {GameClient.Latency}ms";
-            ImGui.Text(info);
+            infoBuilder.AppendLine($"FPS: {Raylib.GetFPS()}");
+            infoBuilder.AppendLine($"Render Res: {cfg.RenderResolution[0]}x{cfg.RenderResolution[1]}");
+            infoBuilder.AppendLine($"Window Res: {Raylib.GetScreenWidth()}x{Raylib.GetScreenHeight()}");
+            infoBuilder.AppendLine($"Fullscreen: {Raylib.IsWindowFullscreen()}");
+            infoBuilder.AppendLine($"Server: {GameClient.Config?.Ip}:{GameClient.Config?.Port}");
+            infoBuilder.AppendLine($"Connected: {GameClient.CheckConnection()}");
+            infoBuilder.AppendLine($"Ping: {GameClient.Latency})");
+            ImGui.Text(infoBuilder.ToString());
 
             ImGui.End();
         }

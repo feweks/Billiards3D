@@ -1,12 +1,13 @@
 using System.Numerics;
 using Game.Common.Enums;
 using Game.Server.Data.Files;
+using LiteNetLib.Utils;
 using Raylib_cs;
 
 namespace Game.Common.Data;
 
 
-class GameLobbyData : ISerializableData
+class GameLobbyData : INetSerializable
 {
     public string Code { get; internal set; } = string.Empty;
     public PlayerLobbyData Host { get; set; } = null!;
@@ -54,19 +55,16 @@ class GameLobbyData : ISerializableData
         }
     }
 
-    public GameLobbyData(BinaryReader reader)
+    public GameLobbyData(NetDataReader reader)
     {
         Deserialize(reader);
     }
 
     public GameLobbyData Copy()
     {
-        var stream = new MemoryStream();
-        var writer = new BinaryWriter(stream);
+        var writer = new NetDataWriter();
         Serialize(writer);
-
-        var readStream = new MemoryStream(stream.ToArray());
-        var reader = new BinaryReader(readStream);
+        var reader = new NetDataReader(writer);
         var lobby = new GameLobbyData(reader);
         return lobby;
     }
@@ -252,41 +250,41 @@ class GameLobbyData : ISerializableData
         OnBallsCollision?.Invoke(ballA, ballB);
     }
 
-    public void Serialize(BinaryWriter writer)
+    public void Serialize(NetDataWriter writer)
     {
-        writer.Write(Code);
+        writer.Put(Code);
         Host.Serialize(writer);
         Guest.Serialize(writer);
-        writer.Write(Started);
-        writer.Write((byte)State);
-        writer.Write(CurPlayer);
-        writer.Write(CanPlaceCueBall);
+        writer.Put(Started);
+        writer.Put((byte)State);
+        writer.Put(CurPlayer);
+        writer.Put(CanPlaceCueBall);
 
         PoolCueBall.Serialize(writer);
 
-        writer.Write((ushort)PoolBalls.Count);
+        writer.Put((ushort)PoolBalls.Count);
         for (int i = 0; i < PoolBalls.Count; i++)
         {
             PoolBalls[i].Serialize(writer);
         }
     }
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(NetDataReader reader)
     {
-        Code = reader.ReadString();
+        Code = reader.GetString();
         Host ??= new PlayerLobbyData(null);
         Host.Deserialize(reader);
         Guest ??= new PlayerLobbyData(null);
         Guest.Deserialize(reader);
-        Started = reader.ReadBoolean();
-        State = (PoolGameState)reader.ReadByte();
-        CurPlayer = reader.ReadString();
-        CanPlaceCueBall = reader.ReadBoolean();
+        Started = reader.GetBool();
+        State = (PoolGameState)reader.GetByte();
+        CurPlayer = reader.GetString();
+        CanPlaceCueBall = reader.GetBool();
 
         PoolCueBall ??= new PoolBallData();
         PoolCueBall.Deserialize(reader);
 
-        ushort ballsCount = reader.ReadUInt16();
+        ushort ballsCount = reader.GetUShort();
         PoolBalls ??= new List<PoolBallData>();
         if (PoolBalls.Count == 0)
         {

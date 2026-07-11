@@ -1,5 +1,6 @@
 using Game.Common.Enums;
 using Game.Common.Data;
+using LiteNetLib.Utils;
 
 namespace Game.Common.Packets;
 
@@ -11,11 +12,11 @@ class JoinedLobbyPacket : LobbyPacket
 
     public JoinedLobbyPacket() : base(PacketType.JoinedLobby) { }
 
-    public override void Serialize(BinaryWriter writer)
+    public override void Serialize(NetDataWriter writer)
     {
         base.Serialize(writer);
 
-        writer.Write((byte)Status);
+        writer.Put((byte)Status);
         if (Status == JoinedLobbyStatus.Success && LobbyData != null && LobbySettings != null)
         {
             LobbyData.Serialize(writer);
@@ -23,11 +24,11 @@ class JoinedLobbyPacket : LobbyPacket
         }
     }
 
-    public override void Deserialize(BinaryReader reader)
+    public override void Deserialize(NetDataReader reader)
     {
         base.Deserialize(reader);
 
-        Status = (JoinedLobbyStatus)reader.ReadByte();
+        Status = (JoinedLobbyStatus)reader.GetByte();
         if (Status == JoinedLobbyStatus.Success)
         {
             LobbyData = new GameLobbyData(reader);

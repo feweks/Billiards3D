@@ -1,4 +1,5 @@
 using Game.Common.Enums;
+using LiteNetLib.Utils;
 
 namespace Game.Common.Packets;
 
@@ -8,21 +9,21 @@ class ChatMessageLobbyPacket : LobbyPacket
 
     public ChatMessageLobbyPacket() : base(PacketType.ChatMessageLobby) { }
 
-    public override void Serialize(BinaryWriter writer)
+    public override void Serialize(NetDataWriter writer)
     {
         base.Serialize(writer);
 
-        writer.Write(Content != null);
+        writer.Put(Content != null);
         if (Content != null)
-            writer.Write(Content);
+            writer.Put(Content);
     }
 
-    public override void Deserialize(BinaryReader reader)
+    public override void Deserialize(NetDataReader reader)
     {
         base.Deserialize(reader);
 
-        bool valid = reader.ReadBoolean();
+        bool valid = reader.GetBool();
         if (valid)
-            Content = reader.ReadString();
+            Content = reader.GetString();
     }
 }

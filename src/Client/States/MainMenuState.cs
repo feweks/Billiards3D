@@ -103,8 +103,8 @@ class MainMenuState : GameState
     {
         base.DrawUI();
 
-        bool connected = GameClient.ClientGuid != Guid.Empty && GameClient.CheckConnection();
-        string connectionText = connected ? $"Connected to server (GUID: {GameClient.ClientGuid})" : "Not connected";
+        bool connected = GameClient.CheckConnection();
+        string connectionText = connected ? $"Connected to server" : "Not connected";
         Color connCol = connected ? Color.Green : Color.Red;
         Vector2 connSize = Raylib.MeasureTextEx(Raylib.GetFontDefault(), connectionText, 18, 1);
 

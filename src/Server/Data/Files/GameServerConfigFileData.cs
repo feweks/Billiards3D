@@ -4,8 +4,7 @@ namespace Game.Server.Data.Files;
 
 class GameServerConfigFileData
 {
-    public int TcpPort { get; set; } = 2606;
-    public int UdpPort { get; set; } = 2607;
+    public int Port { get; set; } = 2606;
     public int Tickrate { get; set; } = 128;
 }
 

@@ -1,16 +1,15 @@
 using Raylib_cs;
 using Game.Common.Enums;
+using LiteNetLib.Utils;
 
 namespace Game.Common.Packets;
 
-class Packet
+class Packet : INetSerializable
 {
     public static Packet Create(PacketType type)
     {
         switch (type)
         {
-            case PacketType.Ping:
-                return new PingPacket();
             case PacketType.HostLobby:
                 return new HostLobbyPacket();
             case PacketType.JoinLobby:
@@ -33,15 +32,12 @@ class Packet
                 return new ChangeLobbySettingsPacket();
             case PacketType.ChatMessageLobby:
                 return new ChatMessageLobbyPacket();
-            case PacketType.InitializeUnreliableConnection:
-                return new InitializeUnreliableConnectionPacket();
             default:
                 Raylib.TraceLog(TraceLogLevel.Warning, $"Failed to create packet of type {type}");
-                return new Packet(PacketType.Ping);
+                return new Packet(PacketType.None);
         }
     }
 
-    public Guid SenderGuid { get; set; }
     public PacketType Type { get; }
     public PacketSendMode SendMode { get; }
 
@@ -51,14 +47,10 @@ class Packet
         SendMode = sendMode;
     }
 
-    public virtual void Serialize(BinaryWriter writer)
+    public virtual void Serialize(NetDataWriter writer)
     {
-        writer.Write(SenderGuid.ToByteArray());
-        writer.Write((byte)Type);
+        writer.Put((byte)Type);
     }
 
-    public virtual void Deserialize(BinaryReader reader)
-    {
-
-    }
+    public virtual void Deserialize(NetDataReader reader) { }
 }

@@ -1,4 +1,5 @@
 using Game.Common.Enums;
+using LiteNetLib.Utils;
 
 namespace Game.Common.Packets;
 
@@ -9,19 +10,19 @@ class LobbyPacket : Packet
 
     public LobbyPacket(PacketType type, PacketSendMode sendMode = PacketSendMode.Reliable) : base(type, sendMode) { }
 
-    public override void Serialize(BinaryWriter writer)
+    public override void Serialize(NetDataWriter writer)
     {
         base.Serialize(writer);
 
-        writer.Write(LobbyCode);
-        writer.Write(Sender);
+        writer.Put(LobbyCode);
+        writer.Put(Sender);
     }
 
-    public override void Deserialize(BinaryReader reader)
+    public override void Deserialize(NetDataReader reader)
     {
         base.Deserialize(reader);
 
-        LobbyCode = reader.ReadString();
-        Sender = reader.ReadString();
+        LobbyCode = reader.GetString();
+        Sender = reader.GetString();
     }
 }

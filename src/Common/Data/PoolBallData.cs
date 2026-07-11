@@ -1,9 +1,10 @@
 using System.Numerics;
 using Game.Common.Enums;
+using LiteNetLib.Utils;
 
 namespace Game.Common.Data;
 
-class PoolBallData : ISerializableData
+class PoolBallData : INetSerializable
 {
     public string Identifier { get; set; } = "";
     public ushort Index { get; set; }
@@ -14,51 +15,51 @@ class PoolBallData : ISerializableData
     public bool Pocketed { get; set; } = false;
     public Vector3 PocketPos;
 
-    public void Serialize(BinaryWriter writer)
+    public void Serialize(NetDataWriter writer)
     {
-        writer.Write(Identifier);
-        writer.Write(Index);
-        writer.Write((byte)Type);
-        writer.Write(Pocketed);
+        writer.Put(Identifier);
+        writer.Put(Index);
+        writer.Put((byte)Type);
+        writer.Put(Pocketed);
 
-        writer.Write(Position.X);
-        writer.Write(Position.Y);
-        writer.Write(Position.Z);
+        writer.Put(Position.X);
+        writer.Put(Position.Y);
+        writer.Put(Position.Z);
 
-        writer.Write(Velocity.X);
-        writer.Write(Velocity.Y);
-        writer.Write(Velocity.Z);
+        writer.Put(Velocity.X);
+        writer.Put(Velocity.Y);
+        writer.Put(Velocity.Z);
 
-        writer.Write(Rotation.X);
-        writer.Write(Rotation.Y);
-        writer.Write(Rotation.Z);
+        writer.Put(Rotation.X);
+        writer.Put(Rotation.Y);
+        writer.Put(Rotation.Z);
 
-        writer.Write(PocketPos.X);
-        writer.Write(PocketPos.Y);
-        writer.Write(PocketPos.Z);
+        writer.Put(PocketPos.X);
+        writer.Put(PocketPos.Y);
+        writer.Put(PocketPos.Z);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(NetDataReader reader)
     {
-        Identifier = reader.ReadString();
-        Index = reader.ReadUInt16();
-        Type = (PoolBallType)reader.ReadByte();
-        Pocketed = reader.ReadBoolean();
+        Identifier = reader.GetString();
+        Index = reader.GetUShort();
+        Type = (PoolBallType)reader.GetByte();
+        Pocketed = reader.GetBool();
 
-        Position.X = reader.ReadSingle();
-        Position.Y = reader.ReadSingle();
-        Position.Z = reader.ReadSingle();
+        Position.X = reader.GetFloat();
+        Position.Y = reader.GetFloat();
+        Position.Z = reader.GetFloat();
 
-        Velocity.X = reader.ReadSingle();
-        Velocity.Y = reader.ReadSingle();
-        Velocity.Z = reader.ReadSingle();
+        Velocity.X = reader.GetFloat();
+        Velocity.Y = reader.GetFloat();
+        Velocity.Z = reader.GetFloat();
 
-        Rotation.X = reader.ReadSingle();
-        Rotation.Y = reader.ReadSingle();
-        Rotation.Z = reader.ReadSingle();
+        Rotation.X = reader.GetFloat();
+        Rotation.Y = reader.GetFloat();
+        Rotation.Z = reader.GetFloat();
 
-        PocketPos.X = reader.ReadSingle();
-        PocketPos.Y = reader.ReadSingle();
-        PocketPos.Z = reader.ReadSingle();
+        PocketPos.X = reader.GetFloat();
+        PocketPos.Y = reader.GetFloat();
+        PocketPos.Z = reader.GetFloat();
     }
 }
