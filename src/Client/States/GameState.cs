@@ -239,7 +239,7 @@ abstract class GameState
             infoBuilder.AppendLine($"Fullscreen: {Raylib.IsWindowFullscreen()}");
             infoBuilder.AppendLine($"Server: {GameClient.Config?.Ip}:{GameClient.Config?.Port}");
             infoBuilder.AppendLine($"Connected: {GameClient.CheckConnection()}");
-            infoBuilder.AppendLine($"Ping: {GameClient.Latency})");
+            infoBuilder.AppendLine($"Ping: {GameClient.Latency}");
             ImGui.Text(infoBuilder.ToString());
 
             ImGui.End();

@@ -32,6 +32,7 @@ class GameServer
         server = new LiteNetManager(listener);
         listener.ConnectionRequestEvent += ProcessPeerRequest;
         listener.PeerConnectedEvent += ProcessPeerConnection;
+        listener.PeerDisconnectedEvent += ProcessPeerDisconnection;
         listener.NetworkReceiveEvent += ProcessEvent;
 
         Lobbies = new ConcurrentDictionary<string, ServerLobbyData>();
@@ -78,7 +79,7 @@ class GameServer
             return CreateLobby(hostPeer);
         }
 
-        var svLobby = new ServerLobbyData(code, hostPeer, gamemodeConfigs[PoolGamemodeType.Classic], config);
+        var svLobby = new ServerLobbyData(this, code, hostPeer, gamemodeConfigs[PoolGamemodeType.Classic], config);
         Lobbies.TryAdd(code, svLobby);
 
         Raylib.TraceLog(TraceLogLevel.Info, $"Created new lobby [code {code}]");
@@ -190,30 +191,9 @@ class GameServer
                         break;
                     }
 
-                    lobby.Broadcast(this, (LeaveLobbyPacket)packet);
+                    var leavePacket = (LeaveLobbyPacket)packet;
 
-                    string winningPlayer = "";
-                    if (packet.Sender == lobby.Data.Host.Nickname)
-                    {
-                        winningPlayer = lobby.Data.Guest.Nickname!;
-                        lobby.HostPeer = null;
-                    }
-                    else if (packet.Sender == lobby.Data.Guest.Nickname)
-                    {
-                        winningPlayer = lobby.Data.Host.Nickname!;
-                        lobby.GuestPeer = null;
-
-                        if (!lobby.Data.Started)
-                        {
-                            lobby.Data.Guest = new PlayerLobbyData(null);
-                        }
-                    }
-
-                    if (lobby.Data.Started)
-                    {
-                        lobby.EndTurn(PoolGameState.Finished, false);
-                        lobby.Data.CurPlayer = winningPlayer;
-                    }
+                    lobby.LeavePlayer(leavePacket.Sender, leavePacket.Reason);
 
                     break;
                 }
@@ -324,6 +304,19 @@ class GameServer
         Raylib.TraceLog(TraceLogLevel.Info, $"New peer connected to server [{peer.Address}:{peer.Port}, {peer.Id}]");
     }
 
+    private void ProcessPeerDisconnection(LiteNetPeer peer, DisconnectInfo info)
+    {
+        ServerLobbyData? peerLobby = Lobbies.Values.FirstOrDefault(l => l.HostPeer?.Id == peer.Id || l.GuestPeer?.Id == peer.Id);
+        PlayerLobbyData? peerPlayer = peerLobby?.GetPlayerByPeer(peer);
+
+        if (peerLobby != null && peerPlayer != null && peerPlayer.Nickname != null)
+        {
+            peerLobby.LeavePlayer(peerPlayer.Nickname, info.Reason);
+        }
+
+        Raylib.TraceLog(TraceLogLevel.Info, $"Peer disconnected from server [{peer.Address}:{peer.Port}, {peer.Id}], reason: {info.Reason}, peer lobby: {peerLobby?.Data.Code}");
+    }
+
     private void ProcessEvent(LiteNetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
     {
         var packetType = (PacketType)reader.GetByte();
@@ -358,7 +351,7 @@ class GameServer
 
             foreach (var lobby in Lobbies.Values)
             {
-                lobby.Update(delta, this);
+                lobby.Update(delta);
 
                 if (lobby.HostPeer == null && lobby.GuestPeer == null)
                 {

@@ -39,14 +39,13 @@ static class GameClient
             listener.NetworkReceiveEvent += ProcessEvent;
             listener.PeerConnectedEvent += (peer) =>
             {
-                Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Succesfully connected to server]");
+                Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Succesfully connected to server");
             };
         }
         catch (Exception error)
         {
-            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT]: Failed to connect to server [error: {error.Message})");
+            Raylib.TraceLog(TraceLogLevel.Warning, $"[NET CLIENT]: Failed to connect to server [error: {error.Message}]");
             Reset();
-            return;
         }
     }
 
@@ -87,7 +86,7 @@ static class GameClient
         SendLobbyPacket(new StartLobbyPacket());
     }
 
-    public static void LeaveLobby() => SendLobbyPacket(new LeaveLobbyPacket());
+    public static void LeaveLobby() => SendLobbyPacket(new LeaveLobbyPacket() { Reason = DisconnectReason.DisconnectPeerCalled });
 
     public static void SendPacket(Packet packet)
     {
@@ -193,7 +192,7 @@ static class GameClient
                     if (!Lobby.IsConnected())
                         break;
 
-                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Player {leavePacket.Sender} left the lobby");
+                    Raylib.TraceLog(TraceLogLevel.Info, $"[NET CLIENT] Player {leavePacket.Sender} left the lobby [reason: {leavePacket.Reason}]");
 
                     if (leavePacket.Sender == Lobby.PlayerNick)
                     {
@@ -267,6 +266,7 @@ static class GameClient
             if (Lobby.Data != null && Lobby.PlayerNick != null)
             {
                 LeaveLobby();
+                Thread.Sleep(500);
                 Raylib.TraceLog(TraceLogLevel.Info, $"Left lobby on shutdown");
             }
 

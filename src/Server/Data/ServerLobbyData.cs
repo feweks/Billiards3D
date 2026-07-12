@@ -17,6 +17,8 @@ class ServerLobbyData
     public LiteNetPeer? HostPeer { get; set; }
     public LiteNetPeer? GuestPeer { get; set; }
 
+    private GameServer server;
+
     private List<PoolBallData> cueHitBallsTurn;
     private List<PoolBallData> pocketedBallsTurn;
     private bool cueBallPocketedTurn = false;
@@ -25,8 +27,10 @@ class ServerLobbyData
 
     private float elapsedTime = 0f;
 
-    public ServerLobbyData(string code, LiteNetPeer hostPeer, PoolGamemodeConfigFileData gamemodeCfg, GameServerConfigFileData serverCfg)
+    public ServerLobbyData(GameServer server, string code, LiteNetPeer hostPeer, PoolGamemodeConfigFileData gamemodeCfg, GameServerConfigFileData serverCfg)
     {
+        this.server = server;
+
         Data = new GameLobbyData(code, gamemodeCfg);
         GamemodeConfig = gamemodeCfg;
         HostPeer = hostPeer;
@@ -77,10 +81,10 @@ class ServerLobbyData
             Data.CurPlayer = Data.Guest.Nickname!;
         }
 
-        Data.State = PoolGameState.Breaking;
+        Data.State = PoolGameState.Aiming;
     }
 
-    public void Update(float dt, GameServer server)
+    public void Update(float dt)
     {
         if (!Data.Started)
             return;
@@ -109,10 +113,7 @@ class ServerLobbyData
                 break;
         }
 
-        Broadcast(server, new UpdateLobbyPacket()
-        {
-            LobbyData = Data
-        });
+        Broadcast(new UpdateLobbyPacket() { LobbyData = Data });
     }
 
     private void ResolveTurn()
@@ -252,7 +253,50 @@ class ServerLobbyData
             ChangePlayer();
     }
 
-    public void Broadcast(GameServer server, Packet packet)
+    public void LeavePlayer(string player, DisconnectReason reason)
+    {
+        Broadcast(new LeaveLobbyPacket()
+        {
+            Sender = player,
+            Reason = reason
+        });
+
+        string winningPlayer = "";
+        if (player == Data.Host.Nickname && Data.Guest.Nickname != null)
+        {
+            winningPlayer = Data.Guest.Nickname;
+            HostPeer = null;
+        }
+        else if (player == Data.Guest.Nickname && Data.Host.Nickname != null)
+        {
+            winningPlayer = Data.Host.Nickname;
+            GuestPeer = null;
+
+            if (!Data.Started)
+            {
+                Data.Guest = new PlayerLobbyData(null);
+            }
+        }
+
+        if (Data.Started)
+        {
+            EndTurn(PoolGameState.Finished, false);
+            Data.CurPlayer = winningPlayer;
+        }
+    }
+
+    public PlayerLobbyData? GetPlayerByPeer(LiteNetPeer peer)
+    {
+        if (HostPeer?.Id == peer.Id)
+            return Data.Host;
+
+        if (GuestPeer?.Id == peer.Id)
+            return Data.Guest;
+
+        return null;
+    }
+
+    public void Broadcast(Packet packet)
     {
         if (HostPeer != null && HostPeer.ConnectionState == ConnectionState.Connected)
             server.Send(HostPeer, packet);

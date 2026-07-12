@@ -105,7 +105,7 @@ class PlayState : GameState
         var netPlayer = GameClient.GetSelfPlayer();
         var curPlayer = GameClient.Lobby.Data.GetCurrentPlayer();
 
-        poolCue.Visible = GameClient.Lobby.Data.State == PoolGameState.Breaking || GameClient.Lobby.Data.State == PoolGameState.Aiming;
+        poolCue.Visible = GameClient.Lobby.Data.State == PoolGameState.Aiming;
 
         bool isServerTableCalm = GameClient.Lobby.Data.PoolCueBall.Velocity.Length() == 0 && GameClient.Lobby.Data.PoolBalls.All(b => b.Velocity.Length() == 0);
         if (isServerTableCalm)
@@ -289,7 +289,7 @@ class PlayState : GameState
 
         var curPlayer = GameClient.Lobby.Data.GetCurrentPlayer();
 
-        bool canShowLines = GameClient.Lobby.Data.State == PoolGameState.Breaking || GameClient.Lobby.Data.State == PoolGameState.Aiming;
+        bool canShowLines = GameClient.Lobby.Data.State == PoolGameState.Aiming;
         if (GameClient.Lobby.Settings.EnableHelperLines && canShowLines)
         {
             float ballRadius = GameClient.Lobby.Settings.PoolBallRadius;
@@ -392,11 +392,6 @@ class PlayState : GameState
 
         if (GameClient.Lobby.Data == null)
             return;
-
-        if (GameClient.Lobby.Data.State == PoolGameState.Breaking)
-        {
-            Raylib.DrawText($"{GameClient.Lobby.Data.CurPlayer} is breaking", 5, 3, 24, Color.White);
-        }
 
         if (GameClient.Lobby.Data.State == PoolGameState.Aiming)
         {
